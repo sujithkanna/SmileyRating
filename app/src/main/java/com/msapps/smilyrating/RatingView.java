@@ -16,7 +16,8 @@ public class RatingView extends View {
     private static final String TAG = "RatingView";
 
     private Paint mPathPaint = new Paint();
-    private Paint mPointPaint = new Paint();
+    private Paint mPointPaint1 = new Paint();
+    private Paint mPointPaint2 = new Paint();
     private Path mDrawingPath = new Path();
 
     public RatingView(Context context) {
@@ -35,36 +36,47 @@ public class RatingView extends View {
     }
 
     private void init() {
-//        mPathPaint.setStrokeWidth(3);
+        mPathPaint.setStrokeWidth(3);
         mPathPaint.setColor(Color.RED);
         mPathPaint.setStyle(Paint.Style.FILL);
 
-        mPointPaint.setColor(Color.BLACK);
-        mPointPaint.setStyle(Paint.Style.FILL);
+        mPointPaint1.setColor(Color.BLACK);
+        mPointPaint1.setStyle(Paint.Style.FILL);
 
+        mPointPaint2.setColor(Color.GREEN);
+        mPointPaint2.setStyle(Paint.Style.FILL);
         refreshPath();
     }
 
     private void refreshPath() {
         mDrawingPath.reset();
-        mDrawingPath.moveTo(50, 50);
-        mDrawingPath.cubicTo(100, 100, 150, 100, 200, 50);
+
+        mDrawingPath.moveTo(100, 500);
+        // top curve
+        mDrawingPath.cubicTo(150, 500, 350, 500, 400, 500);
+        //Right curve
+        mDrawingPath.cubicTo(450, 500, 450, 550, 400, 550);
+
+        // bottom curve
+        mDrawingPath.cubicTo(350, 550, 150, 550, 100, 550);
+
+        // Left curve
+        mDrawingPath.cubicTo(50, 550, 50, 500, 100, 500);
+
         mDrawingPath.close();
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        setMeasuredDimension(400, 400);
+
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        canvas.clipPath(mDrawingPath);
         canvas.drawPath(mDrawingPath, mPathPaint);
-        canvas.drawCircle(50, 50, 5, mPointPaint);
-        canvas.drawCircle(100, 100, 5, mPointPaint);
-        canvas.drawCircle(150, 100, 5, mPointPaint);
-        canvas.drawCircle(200, 50, 5, mPointPaint);
     }
+
 }
