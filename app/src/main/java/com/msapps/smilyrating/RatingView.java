@@ -58,7 +58,7 @@ public class RatingView extends View {
         mDrawingPath.cubicTo(450, 500, 450, 550, 400, 600);
 
         // bottom curve
-        mDrawingPath.cubicTo(300, 675, 200, 675, 100, 600);
+        mDrawingPath.cubicTo(325, 675, 175, 675, 100, 600);
 
         // Left curve
         mDrawingPath.cubicTo(50, 550, 50, 500, 100, 500);
