@@ -2,12 +2,15 @@ package com.msapps.smilyrating;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.SeekBar;
 
 public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
 
-    private RatingView mRatingView;
+    private static final String TAG ="MainActivity";
+
     private SeekBar mProgressBar;
+    private RatingView mRatingView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-        mRatingView.setFraction(i / 100f);
+
     }
 
     @Override
