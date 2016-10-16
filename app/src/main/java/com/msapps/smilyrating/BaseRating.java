@@ -2,6 +2,7 @@ package com.msapps.smilyrating;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.support.annotation.IntDef;
@@ -29,10 +30,21 @@ public abstract class BaseRating extends View {
     public static final int GOOD = 3;
     public static final int GREAT = 4;
 
+    public static final int POINT_1 = 0;
+    public static final int POINT_2 = 1;
+    public static final int COTROL_POINT_1 = 2;
+    public static final int COTROL_POINT_2 = 3;
+
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({TERRIBLE, BAD, OKAY, GOOD, GREAT})
     public @interface Smiley {
+
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({POINT_1, POINT_2, COTROL_POINT_1, COTROL_POINT_2})
+    public @interface Coordinate {
 
     }
 
@@ -56,8 +68,12 @@ public abstract class BaseRating extends View {
         private Map<Integer, Smile> mSmileys = new HashMap<>();
 
         private Smileys() {
-            createGoodSmile();
-            createGreatSmile();
+            createSmile(175,
+                    new Point(50, 500),
+                    new Point(50, 525),
+                    new Point(100, 500),
+                    new Point(100, 560),
+                    Smile.MIRROR, GREAT);
         }
 
         public static Smileys newInstance() {
@@ -66,6 +82,50 @@ public abstract class BaseRating extends View {
 
         public Smile getSmile(@Smiley int smiley) {
             return mSmileys.get(smiley);
+        }
+
+        public void createSmile(float centerX, Point curveControl1, Point curveControl2,
+                                Point point1, Point point2, @Smile.Mode int fillMode, @Smiley int smile) {
+            if (Smile.MIRROR == fillMode) {
+                createSmile(centerX, curveControl1, curveControl2, point1, point2, smile);
+            }
+        }
+
+        private void createSmile(float centerX, Point curveControl1, Point curveControl2,
+                                 Point point1, Point point2, @Smiley int smileType) {
+
+            Smile smile = new Smile();
+            smile.START_POINT = point1;
+            smile.BOTTOM_CURVE[2] = point2;
+            smile.LEFT_CURVE[0] = curveControl2;
+            smile.LEFT_CURVE[1] = curveControl1;
+            smile.LEFT_CURVE[2] = point1;
+
+            Log.i(TAG, "Top curve 0");
+            smile.TOP_CURVE[0] = BaseRating.getOppositePoint(smile.LEFT_CURVE[1], smile.START_POINT, new Point());
+            Log.i(TAG, "Top curve 1");
+            smile.TOP_CURVE[1] = getReflectionPoint(centerX, smile.TOP_CURVE[0]);
+            Log.i(TAG, "Top curve 2");
+            smile.TOP_CURVE[2] = getReflectionPoint(centerX, smile.START_POINT);
+            Log.i(TAG, "Right curve 0");
+            smile.RIGHT_CURVE[0] = getReflectionPoint(centerX, smile.LEFT_CURVE[1]);
+            Log.i(TAG, "Right curve 1");
+            smile.RIGHT_CURVE[1] = getReflectionPoint(centerX, smile.LEFT_CURVE[0]);
+            Log.i(TAG, "Right curve 2");
+            smile.RIGHT_CURVE[2] = getReflectionPoint(centerX, smile.BOTTOM_CURVE[2]);
+            Log.i(TAG, "Bottom curve 1");
+            smile.BOTTOM_CURVE[1] = BaseRating.getOppositePoint(smile.LEFT_CURVE[0], smile.BOTTOM_CURVE[2], new Point());
+            Log.i(TAG, "Bottom curve 0");
+            smile.BOTTOM_CURVE[0] = getReflectionPoint(centerX, smile.BOTTOM_CURVE[1]);
+
+            mSmileys.put(smileType, smile);
+        }
+
+        private Point getReflectionPoint(float centerX, Point source) {
+            Point point = new Point();
+            BaseRating.getOppositePoint(source, new Point(centerX, source.y), point);
+            Log.i(TAG, "Reflection: " + source.x + " " + point.x);
+            return point;
         }
 
         private void createGreatSmile() {
@@ -142,6 +202,8 @@ public abstract class BaseRating extends View {
     }
 
     protected static class Smile {
+
+        private Point mCommonPoint = new Point();
 
         public static final int LEFT = 0;
         public static final int RIGHT = 1;
@@ -229,6 +291,7 @@ public abstract class BaseRating extends View {
         }
 
         private void drawPoint(Point point, Canvas canvas, Paint paint) {
+            if (point == null) return;
             Log.i(TAG, point.toString());
             canvas.drawCircle(point.x, point.y, 6, paint);
         }
@@ -301,5 +364,22 @@ public abstract class BaseRating extends View {
     protected void translatePoint(Point point, float x, float y) {
         point.x += x;
         point.y += y;
+    }
+
+    protected static Point getOppositePoint(Point start, Point end, Point point) {
+        float len = getDistance(start, end);
+        float ratio = len < 0 ? -1f : 1f;
+        Log.i(TAG, "Ratio: " + ratio + " " + start + " " + end + " Len: " + len);
+        point.x = end.x + ratio * (end.x - start.x);
+        point.y = end.y + ratio * (end.y - start.y);
+        Log.i(TAG, "Opp: " + point);
+        return point;
+    }
+
+    protected static float getDistance(Point p1, Point p2) {
+        return (float) Math.sqrt(
+                (p1.x - p2.x) * (p1.x - p2.x) +
+                        (p1.y - p2.y) * (p1.y - p2.y)
+        );
     }
 }

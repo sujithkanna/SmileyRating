@@ -51,10 +51,10 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         mPathPaint.setColor(Color.parseColor("#232323"));
         mPathPaint.setStyle(Paint.Style.FILL);
 
-        mPointPaint1.setColor(Color.BLACK);
+        mPointPaint1.setColor(Color.RED);
         mPointPaint1.setStyle(Paint.Style.FILL);
 
-        mPointPaint2.setColor(Color.RED);
+        mPointPaint2.setColor(Color.BLUE);
         mPointPaint2.setStyle(Paint.Style.STROKE);
 
         mValueAnimator.setDuration(500);
@@ -89,7 +89,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         if (mShowLines) {
             mSmileys.drawLines(canvas, mPointPaint2);
         }
-        Smile smile = mSmileys.getSmile(GOOD);
+        Smile smile = mSmileys.getSmile(GREAT);
         canvas.drawPath(smile.fillPath(mDrawingPath), mPathPaint);
         if (mShowPoints) {
             smile.drawPoints(canvas, mPointPaint1);
