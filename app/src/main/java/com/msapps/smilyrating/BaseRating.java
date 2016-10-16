@@ -120,9 +120,9 @@ public abstract class BaseRating extends View {
 
         private void createGoodSmile() {
             createSmile(175,
-                    new Point(65, 490),  // Top control
-                    new Point(50, 535),  // Bottom control
-                    new Point(110, 510), // Top Point
+                    new Point(70, 500),  // Top control
+                    new Point(60, 535),  // Bottom control
+                    new Point(110, 520), // Top Point
                     new Point(100, 560), // Bottom point
                     Smile.MIRROR, GOOD);
         }
@@ -325,41 +325,42 @@ public abstract class BaseRating extends View {
     }
 
     protected Path transformSmile(float fraction, Path path, Smile s1, Smile s2, FloatEvaluator evaluator) {
+        float trans = evaluator.evaluate(fraction, 0, 350);
         path.reset();
         path.moveTo(
-                evaluator.evaluate(fraction, s1.START_POINT.x, s2.START_POINT.x),
+                evaluator.evaluate(fraction, s1.START_POINT.x, s2.START_POINT.x) + trans,
                 evaluator.evaluate(fraction, s1.START_POINT.y, s2.START_POINT.y)
         );
         path.cubicTo(
-                evaluator.evaluate(fraction, s1.TOP_CURVE[0].x, s2.TOP_CURVE[0].x),
+                evaluator.evaluate(fraction, s1.TOP_CURVE[0].x, s2.TOP_CURVE[0].x) + trans,
                 evaluator.evaluate(fraction, s1.TOP_CURVE[0].y, s2.TOP_CURVE[0].y),
-                evaluator.evaluate(fraction, s1.TOP_CURVE[1].x, s2.TOP_CURVE[1].x),
+                evaluator.evaluate(fraction, s1.TOP_CURVE[1].x, s2.TOP_CURVE[1].x) + trans,
                 evaluator.evaluate(fraction, s1.TOP_CURVE[1].y, s2.TOP_CURVE[1].y),
-                evaluator.evaluate(fraction, s1.TOP_CURVE[2].x, s2.TOP_CURVE[2].x),
+                evaluator.evaluate(fraction, s1.TOP_CURVE[2].x, s2.TOP_CURVE[2].x) + trans,
                 evaluator.evaluate(fraction, s1.TOP_CURVE[2].y, s2.TOP_CURVE[2].y)
         );
         path.cubicTo(
-                evaluator.evaluate(fraction, s1.RIGHT_CURVE[0].x, s2.RIGHT_CURVE[0].x),
+                evaluator.evaluate(fraction, s1.RIGHT_CURVE[0].x, s2.RIGHT_CURVE[0].x) + trans,
                 evaluator.evaluate(fraction, s1.RIGHT_CURVE[0].y, s2.RIGHT_CURVE[0].y),
-                evaluator.evaluate(fraction, s1.RIGHT_CURVE[1].x, s2.RIGHT_CURVE[1].x),
+                evaluator.evaluate(fraction, s1.RIGHT_CURVE[1].x, s2.RIGHT_CURVE[1].x) + trans,
                 evaluator.evaluate(fraction, s1.RIGHT_CURVE[1].y, s2.RIGHT_CURVE[1].y),
-                evaluator.evaluate(fraction, s1.RIGHT_CURVE[2].x, s2.RIGHT_CURVE[2].x),
+                evaluator.evaluate(fraction, s1.RIGHT_CURVE[2].x, s2.RIGHT_CURVE[2].x) + trans,
                 evaluator.evaluate(fraction, s1.RIGHT_CURVE[2].y, s2.RIGHT_CURVE[2].y)
         );
         path.cubicTo(
-                evaluator.evaluate(fraction, s1.BOTTOM_CURVE[0].x, s2.BOTTOM_CURVE[0].x),
+                evaluator.evaluate(fraction, s1.BOTTOM_CURVE[0].x, s2.BOTTOM_CURVE[0].x) + trans,
                 evaluator.evaluate(fraction, s1.BOTTOM_CURVE[0].y, s2.BOTTOM_CURVE[0].y),
-                evaluator.evaluate(fraction, s1.BOTTOM_CURVE[1].x, s2.BOTTOM_CURVE[1].x),
+                evaluator.evaluate(fraction, s1.BOTTOM_CURVE[1].x, s2.BOTTOM_CURVE[1].x) + trans,
                 evaluator.evaluate(fraction, s1.BOTTOM_CURVE[1].y, s2.BOTTOM_CURVE[1].y),
-                evaluator.evaluate(fraction, s1.BOTTOM_CURVE[2].x, s2.BOTTOM_CURVE[2].x),
+                evaluator.evaluate(fraction, s1.BOTTOM_CURVE[2].x, s2.BOTTOM_CURVE[2].x) + trans,
                 evaluator.evaluate(fraction, s1.BOTTOM_CURVE[2].y, s2.BOTTOM_CURVE[2].y)
         );
         path.cubicTo(
-                evaluator.evaluate(fraction, s1.LEFT_CURVE[0].x, s2.LEFT_CURVE[0].x),
+                evaluator.evaluate(fraction, s1.LEFT_CURVE[0].x, s2.LEFT_CURVE[0].x) + trans,
                 evaluator.evaluate(fraction, s1.LEFT_CURVE[0].y, s2.LEFT_CURVE[0].y),
-                evaluator.evaluate(fraction, s1.LEFT_CURVE[1].x, s2.LEFT_CURVE[1].x),
+                evaluator.evaluate(fraction, s1.LEFT_CURVE[1].x, s2.LEFT_CURVE[1].x) + trans,
                 evaluator.evaluate(fraction, s1.LEFT_CURVE[1].y, s2.LEFT_CURVE[1].y),
-                evaluator.evaluate(fraction, s1.LEFT_CURVE[2].x, s2.LEFT_CURVE[2].x),
+                evaluator.evaluate(fraction, s1.LEFT_CURVE[2].x, s2.LEFT_CURVE[2].x) + trans,
                 evaluator.evaluate(fraction, s1.LEFT_CURVE[2].y, s2.LEFT_CURVE[2].y)
         );
         path.close();

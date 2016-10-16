@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
-import android.view.animation.DecelerateInterpolator;
 
 /**
  * Created by sujith on 11/10/16.
@@ -21,6 +20,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     private boolean mShowPoints = false;
 
     private Paint mPathPaint = new Paint();
+    private Paint mBackgroundPaint = new Paint();
 
     private Paint mPointPaint1 = new Paint();
 
@@ -33,6 +33,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     private int mode = RatingView.GREAT;
 
     private Smileys mSmileys;
+    private float mTranslation = 0;
 
     public RatingView(Context context) {
         super(context);
@@ -59,6 +60,12 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
 
         mPointPaint2.setColor(Color.BLUE);
         mPointPaint2.setStyle(Paint.Style.STROKE);
+
+
+        int color = Color.BLACK;
+        mBackgroundPaint.setColor(Color.argb(50, Color.red(color),
+                Color.green(color), Color.blue(color)));
+        mBackgroundPaint.setStyle(Paint.Style.FILL);
 
         mValueAnimator.setDuration(700);
         mValueAnimator.setIntValues(0, 100);
@@ -88,38 +95,43 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawCircle(110, 425, 26, mPointPaint1);
-        canvas.drawCircle(240, 425, 26, mPointPaint1);
-        /*if (!mDrawingPath.isEmpty()) {
+        canvas.drawCircle(110 + mTranslation, 425, 30, mPathPaint);
+        canvas.drawCircle(240 + mTranslation, 425, 30, mPathPaint);
+        canvas.drawCircle(175 + mTranslation, 475, 175, mBackgroundPaint);
+        if (!mDrawingPath.isEmpty()) {
             canvas.drawPath(mDrawingPath, mPathPaint);
-        }*/
-        Smile smile = mSmileys.getSmile(mode);
+        }
+        /*Smile smile = mSmileys.getSmile(mode);
         canvas.drawPath(smile.fillPath(mDrawingPath), mPathPaint);
+        if (mShowPoints) {
+            smile.drawPoints(canvas, mPointPaint1);
+        }*/
     }
 
     @Override
     public void onAnimationUpdate(ValueAnimator valueAnimator) {
         float fraction = valueAnimator.getAnimatedFraction();
+        mTranslation = mFloatEvaluator.evaluate(fraction, 0, 350);
         transformSmile(fraction, mDrawingPath,
                 mSmileys.getSmile(GREAT), mSmileys.getSmile(GOOD), mFloatEvaluator);
         invalidate();
     }
 
     public void start() {
-//        mValueAnimator.start();
+        mValueAnimator.start();
     }
 
     public void stop() {
-//        mValueAnimator.end();
+        mValueAnimator.end();
     }
 
 
     public void switchMode() {
-        if (GREAT == mode) {
+        /*if (GREAT == mode) {
             mode = GOOD;
         } else if (mode == GOOD) {
             mode = GREAT;
         }
-        invalidate();
+        invalidate();*/
     }
 }
