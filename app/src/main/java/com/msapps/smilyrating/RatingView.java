@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 
 /**
  * Created by sujith on 11/10/16.
@@ -67,13 +68,14 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
                 Color.green(color), Color.blue(color)));
         mBackgroundPaint.setStyle(Paint.Style.FILL);
 
-        mValueAnimator.setDuration(700);
+        mValueAnimator.setDuration(1000);
         mValueAnimator.setIntValues(0, 100);
         mValueAnimator.addUpdateListener(this);
         mValueAnimator.setRepeatMode(ValueAnimator.REVERSE);
         mValueAnimator.setRepeatCount(ValueAnimator.INFINITE);
 
         mSmileys = Smileys.newInstance();
+        setFraction(0);
     }
 
     public void showPoints(boolean b) {
@@ -111,20 +113,22 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     @Override
     public void onAnimationUpdate(ValueAnimator valueAnimator) {
         float fraction = valueAnimator.getAnimatedFraction();
-        mTranslation = mFloatEvaluator.evaluate(fraction, 0, 350);
-        transformSmile(fraction, mDrawingPath,
-                mSmileys.getSmile(GREAT), mSmileys.getSmile(GOOD), mFloatEvaluator);
-        invalidate();
+        setFraction(fraction);
     }
 
     public void start() {
-        mValueAnimator.start();
+//        mValueAnimator.start();
     }
 
     public void stop() {
-        mValueAnimator.end();
+//        mValueAnimator.end();
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return super.onTouchEvent(event);
+
+    }
 
     public void switchMode() {
         /*if (GREAT == mode) {
@@ -133,5 +137,12 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
             mode = GREAT;
         }
         invalidate();*/
+    }
+
+    public void setFraction(float fraction) {
+        mTranslation = mFloatEvaluator.evaluate(fraction, 0, 350);
+        transformSmile(fraction, mDrawingPath,
+                mSmileys.getSmile(GOOD), mSmileys.getSmile(GREAT), mFloatEvaluator);
+        invalidate();
     }
 }
