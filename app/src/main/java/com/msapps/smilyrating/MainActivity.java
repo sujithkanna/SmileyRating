@@ -2,6 +2,7 @@ package com.msapps.smilyrating;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
@@ -22,6 +23,12 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         mRatingView = (RatingView) findViewById(R.id.ratingView);
         mShowLines.setOnCheckedChangeListener(this);
         mShowPoints.setOnCheckedChangeListener(this);
+        findViewById(R.id.change).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mRatingView.switchMode();
+            }
+        });
     }
 
     @Override

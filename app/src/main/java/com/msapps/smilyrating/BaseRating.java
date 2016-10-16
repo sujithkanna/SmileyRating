@@ -1,8 +1,8 @@
 package com.msapps.smilyrating;
 
+import android.animation.FloatEvaluator;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.support.annotation.IntDef;
@@ -68,12 +68,8 @@ public abstract class BaseRating extends View {
         private Map<Integer, Smile> mSmileys = new HashMap<>();
 
         private Smileys() {
-            createSmile(175,
-                    new Point(50, 500),
-                    new Point(50, 525),
-                    new Point(100, 500),
-                    new Point(100, 560),
-                    Smile.MIRROR, GREAT);
+            createGreatSmile();
+            createGoodSmile();
         }
 
         public static Smileys newInstance() {
@@ -101,75 +97,40 @@ public abstract class BaseRating extends View {
             smile.LEFT_CURVE[1] = curveControl1;
             smile.LEFT_CURVE[2] = point1;
 
-            Log.i(TAG, "Top curve 0");
             smile.TOP_CURVE[0] = BaseRating.getOppositePoint(smile.LEFT_CURVE[1], smile.START_POINT, new Point());
-            Log.i(TAG, "Top curve 1");
             smile.TOP_CURVE[1] = getReflectionPoint(centerX, smile.TOP_CURVE[0]);
-            Log.i(TAG, "Top curve 2");
             smile.TOP_CURVE[2] = getReflectionPoint(centerX, smile.START_POINT);
-            Log.i(TAG, "Right curve 0");
             smile.RIGHT_CURVE[0] = getReflectionPoint(centerX, smile.LEFT_CURVE[1]);
-            Log.i(TAG, "Right curve 1");
             smile.RIGHT_CURVE[1] = getReflectionPoint(centerX, smile.LEFT_CURVE[0]);
-            Log.i(TAG, "Right curve 2");
             smile.RIGHT_CURVE[2] = getReflectionPoint(centerX, smile.BOTTOM_CURVE[2]);
-            Log.i(TAG, "Bottom curve 1");
             smile.BOTTOM_CURVE[1] = BaseRating.getOppositePoint(smile.LEFT_CURVE[0], smile.BOTTOM_CURVE[2], new Point());
-            Log.i(TAG, "Bottom curve 0");
             smile.BOTTOM_CURVE[0] = getReflectionPoint(centerX, smile.BOTTOM_CURVE[1]);
 
             mSmileys.put(smileType, smile);
         }
 
-        private Point getReflectionPoint(float centerX, Point source) {
-            Point point = new Point();
-            BaseRating.getOppositePoint(source, new Point(centerX, source.y), point);
-            Log.i(TAG, "Reflection: " + source.x + " " + point.x);
-            return point;
-        }
-
         private void createGreatSmile() {
-            Smile smile = new Smile();
-            smile.START_POINT = new Point(100, 500);
-
-            smile.TOP_CURVE[0] = new Point(150, 500);
-            smile.TOP_CURVE[1] = new Point(350, 500);
-            smile.TOP_CURVE[2] = new Point(400, 500);
-
-            smile.RIGHT_CURVE[0] = new Point(450, 500);
-            smile.RIGHT_CURVE[1] = new Point(450, 550);
-            smile.RIGHT_CURVE[2] = new Point(400, 600);
-
-            smile.BOTTOM_CURVE[0] = new Point(325, 675);
-            smile.BOTTOM_CURVE[1] = new Point(175, 675);
-            smile.BOTTOM_CURVE[2] = new Point(100, 600);
-
-            smile.LEFT_CURVE[0] = new Point(50, 550);
-            smile.LEFT_CURVE[1] = new Point(50, 500);
-            smile.LEFT_CURVE[2] = smile.START_POINT;
-            mSmileys.put(GREAT, smile);
+            createSmile(175,
+                    new Point(50, 500),
+                    new Point(50, 525),
+                    new Point(100, 500),
+                    new Point(100, 560),
+                    Smile.MIRROR, GREAT);
         }
 
         private void createGoodSmile() {
-            Smile smile = new Smile();
-            smile.START_POINT = new Point(125, 525);
+            createSmile(175,
+                    new Point(65, 490),  // Top control
+                    new Point(50, 535),  // Bottom control
+                    new Point(110, 510), // Top Point
+                    new Point(100, 560), // Bottom point
+                    Smile.MIRROR, GOOD);
+        }
 
-            smile.TOP_CURVE[0] = new Point(150, 550);
-            smile.TOP_CURVE[1] = new Point(350, 550);
-            smile.TOP_CURVE[2] = new Point(375, 525);
-
-            smile.RIGHT_CURVE[0] = new Point(425, 500);
-            smile.RIGHT_CURVE[1] = new Point(450, 550);
-            smile.RIGHT_CURVE[2] = new Point(400, 600);
-
-            smile.BOTTOM_CURVE[0] = new Point(325, 650);
-            smile.BOTTOM_CURVE[1] = new Point(175, 650);
-            smile.BOTTOM_CURVE[2] = new Point(100, 600);
-
-            smile.LEFT_CURVE[0] = new Point(50, 550);
-            smile.LEFT_CURVE[1] = new Point(75, 500);
-            smile.LEFT_CURVE[2] = smile.START_POINT;
-            mSmileys.put(GOOD, smile);
+        private Point getReflectionPoint(float centerX, Point source) {
+            Point point = new Point();
+            BaseRating.getOppositePoint(source, new Point(centerX, source.y), point);
+            return point;
         }
 
         public void onChangeLayout(int width, int height) {
@@ -202,8 +163,6 @@ public abstract class BaseRating extends View {
     }
 
     protected static class Smile {
-
-        private Point mCommonPoint = new Point();
 
         public static final int LEFT = 0;
         public static final int RIGHT = 1;
@@ -238,22 +197,6 @@ public abstract class BaseRating extends View {
 
         public Smile(@Mode int mode) {
             this.mode = mode;
-        }
-
-        public void complete(@Source int mirrorSource) {
-            if (LEFT == mirrorSource) {
-                mirrorRight();
-            } else {
-                mirrorLeft();
-            }
-        }
-
-        private void mirrorRight() {
-
-        }
-
-        private void mirrorLeft() {
-
         }
 
         public Path fillPath(Path path) {
@@ -369,10 +312,8 @@ public abstract class BaseRating extends View {
     protected static Point getOppositePoint(Point start, Point end, Point point) {
         float len = getDistance(start, end);
         float ratio = len < 0 ? -1f : 1f;
-        Log.i(TAG, "Ratio: " + ratio + " " + start + " " + end + " Len: " + len);
         point.x = end.x + ratio * (end.x - start.x);
         point.y = end.y + ratio * (end.y - start.y);
-        Log.i(TAG, "Opp: " + point);
         return point;
     }
 
@@ -382,4 +323,47 @@ public abstract class BaseRating extends View {
                         (p1.y - p2.y) * (p1.y - p2.y)
         );
     }
+
+    protected Path transformSmile(float fraction, Path path, Smile s1, Smile s2, FloatEvaluator evaluator) {
+        path.reset();
+        path.moveTo(
+                evaluator.evaluate(fraction, s1.START_POINT.x, s2.START_POINT.x),
+                evaluator.evaluate(fraction, s1.START_POINT.y, s2.START_POINT.y)
+        );
+        path.cubicTo(
+                evaluator.evaluate(fraction, s1.TOP_CURVE[0].x, s2.TOP_CURVE[0].x),
+                evaluator.evaluate(fraction, s1.TOP_CURVE[0].y, s2.TOP_CURVE[0].y),
+                evaluator.evaluate(fraction, s1.TOP_CURVE[1].x, s2.TOP_CURVE[1].x),
+                evaluator.evaluate(fraction, s1.TOP_CURVE[1].y, s2.TOP_CURVE[1].y),
+                evaluator.evaluate(fraction, s1.TOP_CURVE[2].x, s2.TOP_CURVE[2].x),
+                evaluator.evaluate(fraction, s1.TOP_CURVE[2].y, s2.TOP_CURVE[2].y)
+        );
+        path.cubicTo(
+                evaluator.evaluate(fraction, s1.RIGHT_CURVE[0].x, s2.RIGHT_CURVE[0].x),
+                evaluator.evaluate(fraction, s1.RIGHT_CURVE[0].y, s2.RIGHT_CURVE[0].y),
+                evaluator.evaluate(fraction, s1.RIGHT_CURVE[1].x, s2.RIGHT_CURVE[1].x),
+                evaluator.evaluate(fraction, s1.RIGHT_CURVE[1].y, s2.RIGHT_CURVE[1].y),
+                evaluator.evaluate(fraction, s1.RIGHT_CURVE[2].x, s2.RIGHT_CURVE[2].x),
+                evaluator.evaluate(fraction, s1.RIGHT_CURVE[2].y, s2.RIGHT_CURVE[2].y)
+        );
+        path.cubicTo(
+                evaluator.evaluate(fraction, s1.BOTTOM_CURVE[0].x, s2.BOTTOM_CURVE[0].x),
+                evaluator.evaluate(fraction, s1.BOTTOM_CURVE[0].y, s2.BOTTOM_CURVE[0].y),
+                evaluator.evaluate(fraction, s1.BOTTOM_CURVE[1].x, s2.BOTTOM_CURVE[1].x),
+                evaluator.evaluate(fraction, s1.BOTTOM_CURVE[1].y, s2.BOTTOM_CURVE[1].y),
+                evaluator.evaluate(fraction, s1.BOTTOM_CURVE[2].x, s2.BOTTOM_CURVE[2].x),
+                evaluator.evaluate(fraction, s1.BOTTOM_CURVE[2].y, s2.BOTTOM_CURVE[2].y)
+        );
+        path.cubicTo(
+                evaluator.evaluate(fraction, s1.LEFT_CURVE[0].x, s2.LEFT_CURVE[0].x),
+                evaluator.evaluate(fraction, s1.LEFT_CURVE[0].y, s2.LEFT_CURVE[0].y),
+                evaluator.evaluate(fraction, s1.LEFT_CURVE[1].x, s2.LEFT_CURVE[1].x),
+                evaluator.evaluate(fraction, s1.LEFT_CURVE[1].y, s2.LEFT_CURVE[1].y),
+                evaluator.evaluate(fraction, s1.LEFT_CURVE[2].x, s2.LEFT_CURVE[2].x),
+                evaluator.evaluate(fraction, s1.LEFT_CURVE[2].y, s2.LEFT_CURVE[2].y)
+        );
+        path.close();
+        return path;
+    }
+
 }

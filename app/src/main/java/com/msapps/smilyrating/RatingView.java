@@ -29,6 +29,9 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     private ValueAnimator mValueAnimator = new ValueAnimator();
     private FloatEvaluator mFloatEvaluator = new FloatEvaluator();
 
+    @BaseRating.Smiley
+    private int mode = RatingView.GREAT;
+
     private Smileys mSmileys;
 
     public RatingView(Context context) {
@@ -57,12 +60,11 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         mPointPaint2.setColor(Color.BLUE);
         mPointPaint2.setStyle(Paint.Style.STROKE);
 
-        mValueAnimator.setDuration(500);
+        mValueAnimator.setDuration(700);
         mValueAnimator.setIntValues(0, 100);
         mValueAnimator.addUpdateListener(this);
-        mValueAnimator.setRepeatMode(ValueAnimator.INFINITE);
+        mValueAnimator.setRepeatMode(ValueAnimator.REVERSE);
         mValueAnimator.setRepeatCount(ValueAnimator.INFINITE);
-        mValueAnimator.setInterpolator(new DecelerateInterpolator());
 
         mSmileys = Smileys.newInstance();
     }
@@ -86,29 +88,38 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (mShowLines) {
-            mSmileys.drawLines(canvas, mPointPaint2);
-        }
-        Smile smile = mSmileys.getSmile(GREAT);
+        canvas.drawCircle(110, 425, 26, mPointPaint1);
+        canvas.drawCircle(240, 425, 26, mPointPaint1);
+        /*if (!mDrawingPath.isEmpty()) {
+            canvas.drawPath(mDrawingPath, mPathPaint);
+        }*/
+        Smile smile = mSmileys.getSmile(mode);
         canvas.drawPath(smile.fillPath(mDrawingPath), mPathPaint);
-        if (mShowPoints) {
-            smile.drawPoints(canvas, mPointPaint1);
-        }
     }
 
     @Override
     public void onAnimationUpdate(ValueAnimator valueAnimator) {
         float fraction = valueAnimator.getAnimatedFraction();
+        transformSmile(fraction, mDrawingPath,
+                mSmileys.getSmile(GREAT), mSmileys.getSmile(GOOD), mFloatEvaluator);
         invalidate();
     }
 
     public void start() {
-
+//        mValueAnimator.start();
     }
 
     public void stop() {
-
+//        mValueAnimator.end();
     }
 
 
+    public void switchMode() {
+        if (GREAT == mode) {
+            mode = GOOD;
+        } else if (mode == GOOD) {
+            mode = GREAT;
+        }
+        invalidate();
+    }
 }
