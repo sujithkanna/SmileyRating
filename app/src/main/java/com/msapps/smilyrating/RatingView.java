@@ -31,7 +31,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     private FloatEvaluator mFloatEvaluator = new FloatEvaluator();
 
     @BaseRating.Smiley
-    private int mode = RatingView.GREAT;
+    private int mode = RatingView.GOOD;
 
     private Smileys mSmileys;
     private float mTranslation = 0;
@@ -52,6 +52,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     }
 
     private void init() {
+        mPathPaint.setAntiAlias(true);
         mPathPaint.setStrokeWidth(3);
         mPathPaint.setColor(Color.parseColor("#232323"));
         mPathPaint.setStyle(Paint.Style.FILL);
@@ -91,7 +92,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        mSmileys.onChangeLayout(getMeasuredWidth(), getMeasuredHeight());
+
     }
 
     @Override
@@ -100,14 +101,15 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         canvas.drawCircle(110 + mTranslation, 425, 30, mPathPaint);
         canvas.drawCircle(240 + mTranslation, 425, 30, mPathPaint);
         canvas.drawCircle(175 + mTranslation, 475, 175, mBackgroundPaint);
-        if (!mDrawingPath.isEmpty()) {
+        /*if (!mDrawingPath.isEmpty()) {
             canvas.drawPath(mDrawingPath, mPathPaint);
-        }
-        /*Smile smile = mSmileys.getSmile(mode);
+        }*/
+        Smile smile = mSmileys.getSmile(mode);
         canvas.drawPath(smile.fillPath(mDrawingPath), mPathPaint);
         if (mShowPoints) {
             smile.drawPoints(canvas, mPointPaint1);
-        }*/
+            canvas.drawCircle(175, 540, 10, mPointPaint2);
+        }
     }
 
     @Override
@@ -131,18 +133,18 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     }
 
     public void switchMode() {
-        /*if (GREAT == mode) {
+        if (BAD == mode) {
             mode = GOOD;
         } else if (mode == GOOD) {
-            mode = GREAT;
+            mode = BAD;
         }
-        invalidate();*/
+        invalidate();
     }
 
     public void setFraction(float fraction) {
         mTranslation = mFloatEvaluator.evaluate(fraction, 0, 350);
         transformSmile(fraction, mDrawingPath,
-                mSmileys.getSmile(GOOD), mSmileys.getSmile(GREAT), mFloatEvaluator);
+                mSmileys.getSmile(GOOD), mSmileys.getSmile(BAD), mFloatEvaluator);
         invalidate();
     }
 }
