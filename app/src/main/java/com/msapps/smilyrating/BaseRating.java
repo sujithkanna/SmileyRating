@@ -96,14 +96,13 @@ public abstract class BaseRating extends View {
                                               Point point2, int smileType) {
             float centerX = smileCenter.x;
             float centerY = smileCenter.y;
+            // Inverse the y axis of input
             curveControl1 = getReflectionPointY(centerY, curveControl1);
             curveControl2 = getReflectionPointY(centerY, curveControl2);
-
             point1 = getReflectionPointY(centerY, point1);
             point2 = getReflectionPointY(centerY, point2);
 
-            Log.i(TAG, "Points: " + curveControl1.x + " " + curveControl2.x + " " + point1.x + " " + point2.x);
-
+            // Generate all points by reflecting given inputs
             Smile smile = new Smile();
             smile.START_POINT = point1;
             smile.BOTTOM_CURVE[2] = point2;
@@ -135,14 +134,15 @@ public abstract class BaseRating extends View {
             smile.LEFT_CURVE[1] = curveControl1;
             smile.LEFT_CURVE[2] = point1;
 
+            // Generate all points by reflecting given inputs
             smile.TOP_CURVE[0] = BaseRating.getNextPoint(smile.LEFT_CURVE[1], smile.START_POINT, new Point());
-            smile.TOP_CURVE[1] = getReflectionPointX(centerX, smile.TOP_CURVE[0]);
-            smile.TOP_CURVE[2] = getReflectionPointX(centerX, smile.START_POINT);
-            smile.RIGHT_CURVE[0] = getReflectionPointX(centerX, smile.LEFT_CURVE[1]);
-            smile.RIGHT_CURVE[1] = getReflectionPointX(centerX, smile.LEFT_CURVE[0]);
-            smile.RIGHT_CURVE[2] = getReflectionPointX(centerX, smile.BOTTOM_CURVE[2]);
+            smile.TOP_CURVE[1] = getReflectionPointY(centerY, getReflectionPointX(centerX, smile.TOP_CURVE[0]));
+            smile.TOP_CURVE[2] = getReflectionPointY(centerY, getReflectionPointX(centerX, smile.START_POINT));
+            smile.RIGHT_CURVE[0] = getReflectionPointY(centerY, getReflectionPointX(centerX, smile.LEFT_CURVE[1]));
+            smile.RIGHT_CURVE[1] = getReflectionPointY(centerY, getReflectionPointX(centerX, smile.LEFT_CURVE[0]));
+            smile.RIGHT_CURVE[2] = getReflectionPointY(centerY, getReflectionPointX(centerX, smile.BOTTOM_CURVE[2]));
             smile.BOTTOM_CURVE[1] = BaseRating.getNextPoint(smile.LEFT_CURVE[0], smile.BOTTOM_CURVE[2], new Point());
-            smile.BOTTOM_CURVE[0] = getReflectionPointX(centerX, smile.BOTTOM_CURVE[1]);
+            smile.BOTTOM_CURVE[0] = getReflectionPointY(centerY, getReflectionPointX(centerX, smile.BOTTOM_CURVE[1]));
 
             mSmileys.put(smileType, smile);
         }
@@ -158,6 +158,7 @@ public abstract class BaseRating extends View {
             smile.LEFT_CURVE[1] = curveControl1;
             smile.LEFT_CURVE[2] = point1;
 
+            // Generate all points by reflecting given inputs
             smile.TOP_CURVE[0] = BaseRating.getNextPoint(smile.LEFT_CURVE[1], smile.START_POINT, new Point());
             smile.TOP_CURVE[1] = getReflectionPointX(centerX, smile.TOP_CURVE[0]);
             smile.TOP_CURVE[2] = getReflectionPointX(centerX, smile.START_POINT);
@@ -171,38 +172,50 @@ public abstract class BaseRating extends View {
         }
 
         private void createGreatSmile() {
-            createSmile(new Point(175, 200),
-                    new Point(50, 500),
+            float div = 0.10f;
+            FloatEvaluator f = new FloatEvaluator();
+            createSmile(new Point(175, 540),
+                    /*new Point(50, 500),
                     new Point(50, 525),
                     new Point(100, 500),
-                    new Point(100, 560),
+                    new Point(100, 560),*/
+                    new Point(f.evaluate(div, 50, 175), f.evaluate(div, 500, 540)),  // Top control
+                    new Point(f.evaluate(div, 50, 175), f.evaluate(div, 525, 540)),  // Bottom control
+                    new Point(f.evaluate(div, 100, 175), f.evaluate(div, 500, 540)), // Top Point
+                    new Point(f.evaluate(div, 100, 175), f.evaluate(div, 560, 540)), // Bottom point
                     Smile.MIRROR, GREAT);
         }
 
         private void createGoodSmile() {
-            createSmile(new Point(175, 200),
-                    new Point(70, 500),  // Top control
-                    new Point(60, 535),  // Bottom control
-                    new Point(110, 520), // Top Point
-                    new Point(100, 560), // Bottom point
+            float div = 0.20f;
+            FloatEvaluator f = new FloatEvaluator();
+            createSmile(new Point(175, 540),
+                    new Point(f.evaluate(div, 70, 175), f.evaluate(div, 500, 540)),  // Top control
+                    new Point(f.evaluate(div, 60, 175), f.evaluate(div, 535, 540)),  // Bottom control
+                    new Point(f.evaluate(div, 110, 175), f.evaluate(div, 520, 540)), // Top Point
+                    new Point(f.evaluate(div, 100, 175), f.evaluate(div, 560, 540)), // Bottom point
                     Smile.MIRROR, GOOD);
         }
 
         private void createOkaySmile() {
-            createSmile(new Point(175, 200),
-                    new Point(70, 500),  // Top control
-                    new Point(60, 535),  // Bottom control
-                    new Point(110, 520), // Top Point
-                    new Point(100, 560), // Bottom point
+            float div = 0.20f;
+            FloatEvaluator f = new FloatEvaluator();
+            createSmile(new Point(175, 540),
+                    new Point(f.evaluate(div, 70, 175), f.evaluate(div, 500, 540)),  // Top control
+                    new Point(f.evaluate(div, 60, 175), f.evaluate(div, 535, 540)),  // Bottom control
+                    new Point(f.evaluate(div, 110, 175), f.evaluate(div, 520, 540)), // Top Point
+                    new Point(f.evaluate(div, 100, 175), f.evaluate(div, 560, 540)), // Bottom point
                     Smile.MIRROR_PARTIAL_INVERSE, OKAY);
         }
 
         private void createBadSmile() {
+            float div = 0.20f;
+            FloatEvaluator f = new FloatEvaluator();
             createSmile(new Point(175, 540),
-                    new Point(70, 500),  // Top control
-                    new Point(60, 535),  // Bottom control
-                    new Point(110, 520), // Top Point
-                    new Point(100, 560), // Bottom point
+                    new Point(f.evaluate(div, 70, 175), f.evaluate(div, 500, 540)),  // Top control
+                    new Point(f.evaluate(div, 60, 175), f.evaluate(div, 535, 540)),  // Bottom control
+                    new Point(f.evaluate(div, 110, 175), f.evaluate(div, 520, 540)), // Top Point
+                    new Point(f.evaluate(div, 100, 175), f.evaluate(div, 560, 540)), // Bottom point
                     Smile.MIRROR_INVERSE, BAD);
         }
 

@@ -98,18 +98,18 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawCircle(110 + mTranslation, 425, 30, mPathPaint);
-        canvas.drawCircle(240 + mTranslation, 425, 30, mPathPaint);
-        canvas.drawCircle(175 + mTranslation, 475, 175, mBackgroundPaint);
-        /*if (!mDrawingPath.isEmpty()) {
+        canvas.drawCircle(120 + mTranslation, 435, 20, mPathPaint);
+        canvas.drawCircle(220 + mTranslation, 435, 20, mPathPaint);
+        canvas.drawCircle(175 + mTranslation, 475, 160, mBackgroundPaint);
+        if (!mDrawingPath.isEmpty()) {
             canvas.drawPath(mDrawingPath, mPathPaint);
-        }*/
-        Smile smile = mSmileys.getSmile(mode);
+        }
+        /*Smile smile = mSmileys.getSmile(mode);
         canvas.drawPath(smile.fillPath(mDrawingPath), mPathPaint);
         if (mShowPoints) {
             smile.drawPoints(canvas, mPointPaint1);
             canvas.drawCircle(175, 540, 10, mPointPaint2);
-        }
+        }*/
     }
 
     @Override
@@ -133,10 +133,10 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     }
 
     public void switchMode() {
-        if (BAD == mode) {
+        if (GREAT == mode) {
             mode = GOOD;
         } else if (mode == GOOD) {
-            mode = BAD;
+            mode = GREAT;
         }
         invalidate();
     }
