@@ -67,6 +67,7 @@ public abstract class BaseRating extends View {
             createGoodSmile();
             createOkaySmile();
             createBadSmile();
+            createTerribleSmile();
         }
 
         public static Smileys newInstance() {
@@ -227,7 +228,7 @@ public abstract class BaseRating extends View {
 
         private void createOkaySmile() {
             createSmile(new Point(175, 540), null, null, null, null,
-                    Smile.STRAIGHT, OKAY, 14f, 350f, 130f /*75 + 75*/);
+                    Smile.STRAIGHT, OKAY, 16f, 350f, 135f /*75 + 75*/);
         }
 
         private void createBadSmile() {
@@ -239,6 +240,17 @@ public abstract class BaseRating extends View {
                     new Point(f.evaluate(div, 110, 175), f.evaluate(div, 520, 540)), // Top Point
                     new Point(f.evaluate(div, 100, 175), f.evaluate(div, 560, 540)), // Bottom point
                     Smile.MIRROR_INVERSE, BAD, -1f, -1f, -1f);
+        }
+
+        private void createTerribleSmile() {
+            float div = 0.20f;
+            FloatEvaluator f = new FloatEvaluator();
+            createSmile(new Point(175, 540),
+                    new Point(f.evaluate(div, 70, 175), f.evaluate(div, 500, 540)),  // Top control
+                    new Point(f.evaluate(div, 60, 175), f.evaluate(div, 535, 540)),  // Bottom control
+                    new Point(f.evaluate(div, 110, 175), f.evaluate(div, 520, 540)), // Top Point
+                    new Point(f.evaluate(div, 100, 175), f.evaluate(div, 560, 540)), // Bottom point
+                    Smile.MIRROR_INVERSE, TERRIBLE, -1f, -1f, -1f);
         }
 
         private Point getReflectionPointX(float centerX, Point source) {
@@ -463,8 +475,7 @@ public abstract class BaseRating extends View {
 
     }
 
-    protected Path transformSmile(float fraction, Path path, Smile s1, Smile s2, FloatEvaluator evaluator) {
-        float trans = evaluator.evaluate(fraction, 0, 350);
+    protected Path transformSmile(float trans, float fraction, Path path, Smile s1, Smile s2, FloatEvaluator evaluator) {
         path.reset();
         path.moveTo(
                 evaluator.evaluate(fraction, s1.START_POINT.x, s2.START_POINT.x) + trans,
