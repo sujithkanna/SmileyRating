@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 
 /**
@@ -101,15 +102,26 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         canvas.drawCircle(120 + mTranslation, 435, 20, mPathPaint);
         canvas.drawCircle(220 + mTranslation, 435, 20, mPathPaint);
         canvas.drawCircle(175 + mTranslation, 475, 160, mBackgroundPaint);
-        if (!mDrawingPath.isEmpty()) {
+        /*if (!mDrawingPath.isEmpty()) {
             canvas.drawPath(mDrawingPath, mPathPaint);
-        }
-        /*Smile smile = mSmileys.getSmile(mode);
+        }*/
+        Smile smile = mSmileys.getSmile(mode);
         canvas.drawPath(smile.fillPath(mDrawingPath), mPathPaint);
         if (mShowPoints) {
             smile.drawPoints(canvas, mPointPaint1);
             canvas.drawCircle(175, 540, 10, mPointPaint2);
-        }*/
+        }
+
+        /*float x = 175;
+        float y = 540;
+        Point p = new Point(x, y);
+        Point line = getPointByAngle(p, BaseRating.roundDegreeOfAngle(330 - 180), 110/2f);
+        canvas.drawLine(line.x, line.y, p.x, p.y, mPointPaint1);
+        Log.i(TAG, "LP: " + line);
+        Point p1 = BaseRating.getPointByAngle(line, roundDegreeOfAngle(330 - 90), 20);
+        canvas.drawLine(line.x, line.y, p1.x, p1.y, mPointPaint1);
+        Point p2 = BaseRating.getPointByAngle(line, roundDegreeOfAngle(330 - 270), 20);
+        canvas.drawLine(line.x, line.y, p2.x, p2.y, mPointPaint1);*/
     }
 
     @Override
@@ -133,18 +145,18 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     }
 
     public void switchMode() {
-        if (GREAT == mode) {
+        if (OKAY == mode) {
             mode = GOOD;
         } else if (mode == GOOD) {
-            mode = GREAT;
+            mode = OKAY;
         }
         invalidate();
     }
 
     public void setFraction(float fraction) {
-        mTranslation = mFloatEvaluator.evaluate(fraction, 0, 350);
+        /*mTranslation = mFloatEvaluator.evaluate(fraction, 0, 350);
         transformSmile(fraction, mDrawingPath,
-                mSmileys.getSmile(GOOD), mSmileys.getSmile(BAD), mFloatEvaluator);
-        invalidate();
+                mSmileys.getSmile(GOOD), mSmileys.getSmile(OKAY), mFloatEvaluator);
+        invalidate();*/
     }
 }

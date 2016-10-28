@@ -78,16 +78,16 @@ public abstract class BaseRating extends View {
         }
 
         public void createSmile(Point smileCenter, Point curveControl1, Point curveControl2,
-                                Point point1, Point point2, @Smile.Mode int fillMode, @Smiley int smile) {
+                                Point point1, Point point2, @Smile.Mode int fillMode,
+                                @Smiley int smile, float width, float angle, float length) {
             if (Smile.MIRROR == fillMode) {
                 createMirrorSmile(smileCenter,
                         curveControl1, curveControl2, point1, point2, smile);
             } else if (Smile.MIRROR_INVERSE == fillMode) {
                 createMirrorInverseSmile(smileCenter,
                         curveControl1, curveControl2, point1, point2, smile);
-            } else if (Smile.MIRROR_PARTIAL_INVERSE == fillMode) {
-                createMirrorPartialInverseSmile(smileCenter,
-                        curveControl1, curveControl2, point1, point2, smile);
+            } else if (Smile.STRAIGHT == fillMode) {
+                createStraightSmile(smileCenter, width, angle, length, smile);
             }
         }
 
@@ -96,11 +96,18 @@ public abstract class BaseRating extends View {
                                               Point point2, int smileType) {
             float centerX = smileCenter.x;
             float centerY = smileCenter.y;
+            // Switching x
+            float temp = curveControl1.x;
+            curveControl1.x = curveControl2.x;
+            curveControl2.x = temp;
+
+            temp = point1.x;
+            point1.x = point2.x;
+            point2.x = temp;
+
             // Inverse the y axis of input
-            curveControl1 = getReflectionPointY(centerY, curveControl1);
-            curveControl2 = getReflectionPointY(centerY, curveControl2);
-            point1 = getReflectionPointY(centerY, point1);
-            point2 = getReflectionPointY(centerY, point2);
+            inversePointY(centerY, point1, point2);
+            inversePointY(centerY, curveControl1, curveControl2);
 
             // Generate all points by reflecting given inputs
             Smile smile = new Smile();
@@ -110,40 +117,7 @@ public abstract class BaseRating extends View {
             smile.LEFT_CURVE[1] = curveControl1;
             smile.LEFT_CURVE[2] = point1;
 
-            smile.TOP_CURVE[0] = BaseRating.getNextPoint(smile.LEFT_CURVE[1], smile.START_POINT, new Point());
-            smile.TOP_CURVE[1] = getReflectionPointX(centerX, smile.TOP_CURVE[0]);
-            smile.TOP_CURVE[2] = getReflectionPointX(centerX, smile.START_POINT);
-            smile.RIGHT_CURVE[0] = getReflectionPointX(centerX, smile.LEFT_CURVE[1]);
-            smile.RIGHT_CURVE[1] = getReflectionPointX(centerX, smile.LEFT_CURVE[0]);
-            smile.RIGHT_CURVE[2] = getReflectionPointX(centerX, smile.BOTTOM_CURVE[2]);
-            smile.BOTTOM_CURVE[1] = BaseRating.getNextPoint(smile.LEFT_CURVE[0], smile.BOTTOM_CURVE[2], new Point());
-            smile.BOTTOM_CURVE[0] = getReflectionPointX(centerX, smile.BOTTOM_CURVE[1]);
-
-            mSmileys.put(smileType, smile);
-        }
-
-        private void createMirrorPartialInverseSmile(Point smileCenter,
-                                                     Point curveControl1, Point curveControl2,
-                                                     Point point1, Point point2, int smileType) {
-            float centerX = smileCenter.x;
-            float centerY = smileCenter.y;
-            Smile smile = new Smile();
-            smile.START_POINT = point1;
-            smile.BOTTOM_CURVE[2] = point2;
-            smile.LEFT_CURVE[0] = curveControl2;
-            smile.LEFT_CURVE[1] = curveControl1;
-            smile.LEFT_CURVE[2] = point1;
-
-            // Generate all points by reflecting given inputs
-            smile.TOP_CURVE[0] = BaseRating.getNextPoint(smile.LEFT_CURVE[1], smile.START_POINT, new Point());
-            smile.TOP_CURVE[1] = getReflectionPointY(centerY, getReflectionPointX(centerX, smile.TOP_CURVE[0]));
-            smile.TOP_CURVE[2] = getReflectionPointY(centerY, getReflectionPointX(centerX, smile.START_POINT));
-            smile.RIGHT_CURVE[0] = getReflectionPointY(centerY, getReflectionPointX(centerX, smile.LEFT_CURVE[1]));
-            smile.RIGHT_CURVE[1] = getReflectionPointY(centerY, getReflectionPointX(centerX, smile.LEFT_CURVE[0]));
-            smile.RIGHT_CURVE[2] = getReflectionPointY(centerY, getReflectionPointX(centerX, smile.BOTTOM_CURVE[2]));
-            smile.BOTTOM_CURVE[1] = BaseRating.getNextPoint(smile.LEFT_CURVE[0], smile.BOTTOM_CURVE[2], new Point());
-            smile.BOTTOM_CURVE[0] = getReflectionPointY(centerY, getReflectionPointX(centerX, smile.BOTTOM_CURVE[1]));
-
+            fillReflectionPoints(centerX, smile);
             mSmileys.put(smileType, smile);
         }
 
@@ -158,6 +132,49 @@ public abstract class BaseRating extends View {
             smile.LEFT_CURVE[1] = curveControl1;
             smile.LEFT_CURVE[2] = point1;
 
+            fillReflectionPoints(centerX, smile);
+            mSmileys.put(smileType, smile);
+        }
+
+        private void createStraightSmile(Point smileCenter, float width,
+                                         float angle, float length, int smileType) {
+            float centerX = smileCenter.x;
+            float centerY = smileCenter.y;
+            Point start = BaseRating.getPointByAngle(smileCenter, roundDegreeOfAngle(angle - 180), length / 2);
+            Smile smile = new Smile();
+
+            smile.LEFT_CURVE[0] = BaseRating.getPointByAngle(start, roundDegreeOfAngle(angle - 270), width);
+            smile.LEFT_CURVE[1] = BaseRating.getPointByAngle(start, roundDegreeOfAngle(angle - 90), width);
+            start = BaseRating.getPointByAngle(start, angle, length / 6f);
+            smile.START_POINT = BaseRating.getPointByAngle(start, roundDegreeOfAngle(angle - 90), width);
+            smile.BOTTOM_CURVE[2] = BaseRating.getPointByAngle(start, roundDegreeOfAngle(angle - 270), width);
+            smile.LEFT_CURVE[2] = smile.START_POINT;
+
+            fillInverseReflectionPoints(centerX, centerY, smile);
+//            smile.START_POINT = BaseRating.getPointByAngle(smileCenter, roundDegreeOfAngle(angle - 180), length / 2);
+
+            mSmileys.put(smileType, smile);
+        }
+
+        private void fillInverseReflectionPoints(float centerX, float centerY, Smile smile) {
+            // Generate all points by reflecting given inputs
+            smile.TOP_CURVE[0] = BaseRating.getNextPoint(smile.LEFT_CURVE[1], smile.START_POINT, new Point());
+            smile.TOP_CURVE[1] = getReflectionPointX(centerX, smile.TOP_CURVE[0]);
+            smile.TOP_CURVE[2] = getReflectionPointX(centerX, smile.START_POINT);
+            smile.RIGHT_CURVE[0] = getReflectionPointX(centerX, smile.LEFT_CURVE[1]);
+            smile.RIGHT_CURVE[1] = getReflectionPointX(centerX, smile.LEFT_CURVE[0]);
+            smile.RIGHT_CURVE[2] = getReflectionPointX(centerX, smile.BOTTOM_CURVE[2]);
+            smile.BOTTOM_CURVE[1] = BaseRating.getNextPoint(smile.LEFT_CURVE[0], smile.BOTTOM_CURVE[2], new Point());
+            smile.BOTTOM_CURVE[0] = getReflectionPointX(centerX, smile.BOTTOM_CURVE[1]);
+            switchX(smile.TOP_CURVE[1], smile.BOTTOM_CURVE[0]);
+            inversePointY(centerY, smile.TOP_CURVE[1], smile.BOTTOM_CURVE[0]);
+            switchX(smile.TOP_CURVE[2], smile.RIGHT_CURVE[2]);
+            inversePointY(centerY, smile.TOP_CURVE[2], smile.RIGHT_CURVE[2]);
+            switchX(smile.RIGHT_CURVE[0], smile.RIGHT_CURVE[1]);
+            inversePointY(centerY, smile.RIGHT_CURVE[0], smile.RIGHT_CURVE[1]);
+        }
+
+        private void fillReflectionPoints(float centerX, Smile smile) {
             // Generate all points by reflecting given inputs
             smile.TOP_CURVE[0] = BaseRating.getNextPoint(smile.LEFT_CURVE[1], smile.START_POINT, new Point());
             smile.TOP_CURVE[1] = getReflectionPointX(centerX, smile.TOP_CURVE[0]);
@@ -168,7 +185,18 @@ public abstract class BaseRating extends View {
             smile.BOTTOM_CURVE[1] = BaseRating.getNextPoint(smile.LEFT_CURVE[0], smile.BOTTOM_CURVE[2], new Point());
             smile.BOTTOM_CURVE[0] = getReflectionPointX(centerX, smile.BOTTOM_CURVE[1]);
 
-            mSmileys.put(smileType, smile);
+        }
+
+        private void switchX(Point p1, Point p2) {
+            float temp = p1.x;
+            p1.x = p2.x;
+            p2.x = temp;
+        }
+
+        private void inversePointY(float centerY, Point p1, Point p2) {
+            float temp = centerY - p1.y;
+            p1.y = centerY - (p2.y - centerY);
+            p2.y = centerY + temp;
         }
 
         private void createGreatSmile() {
@@ -183,7 +211,7 @@ public abstract class BaseRating extends View {
                     new Point(f.evaluate(div, 50, 175), f.evaluate(div, 525, 540)),  // Bottom control
                     new Point(f.evaluate(div, 100, 175), f.evaluate(div, 500, 540)), // Top Point
                     new Point(f.evaluate(div, 100, 175), f.evaluate(div, 560, 540)), // Bottom point
-                    Smile.MIRROR, GREAT);
+                    Smile.MIRROR, GREAT, -1f, -1f, -1f);
         }
 
         private void createGoodSmile() {
@@ -194,18 +222,12 @@ public abstract class BaseRating extends View {
                     new Point(f.evaluate(div, 60, 175), f.evaluate(div, 535, 540)),  // Bottom control
                     new Point(f.evaluate(div, 110, 175), f.evaluate(div, 520, 540)), // Top Point
                     new Point(f.evaluate(div, 100, 175), f.evaluate(div, 560, 540)), // Bottom point
-                    Smile.MIRROR, GOOD);
+                    Smile.MIRROR, GOOD, -1f, -1f, -1f);
         }
 
         private void createOkaySmile() {
-            float div = 0.20f;
-            FloatEvaluator f = new FloatEvaluator();
-            createSmile(new Point(175, 540),
-                    new Point(f.evaluate(div, 70, 175), f.evaluate(div, 500, 540)),  // Top control
-                    new Point(f.evaluate(div, 60, 175), f.evaluate(div, 535, 540)),  // Bottom control
-                    new Point(f.evaluate(div, 110, 175), f.evaluate(div, 520, 540)), // Top Point
-                    new Point(f.evaluate(div, 100, 175), f.evaluate(div, 560, 540)), // Bottom point
-                    Smile.MIRROR_PARTIAL_INVERSE, OKAY);
+            createSmile(new Point(175, 540), null, null, null, null,
+                    Smile.STRAIGHT, OKAY, 14f, 350f, 130f /*75 + 75*/);
         }
 
         private void createBadSmile() {
@@ -216,7 +238,7 @@ public abstract class BaseRating extends View {
                     new Point(f.evaluate(div, 60, 175), f.evaluate(div, 535, 540)),  // Bottom control
                     new Point(f.evaluate(div, 110, 175), f.evaluate(div, 520, 540)), // Top Point
                     new Point(f.evaluate(div, 100, 175), f.evaluate(div, 560, 540)), // Bottom point
-                    Smile.MIRROR_INVERSE, BAD);
+                    Smile.MIRROR_INVERSE, BAD, -1f, -1f, -1f);
         }
 
         private Point getReflectionPointX(float centerX, Point source) {
@@ -236,20 +258,21 @@ public abstract class BaseRating extends View {
 
         public static final int LEFT = 0;
         public static final int RIGHT = 1;
+        public static final int ALL = 2;
 
         @Retention(RetentionPolicy.SOURCE)
-        @IntDef({LEFT, RIGHT})
-        public @interface Source {
+        @IntDef({LEFT, RIGHT, ALL})
+        public @interface Side {
 
         }
 
         public static final int MIRROR = 0;
         public static final int INDEPENDENT = 1;
         public static final int MIRROR_INVERSE = 2;
-        public static final int MIRROR_PARTIAL_INVERSE = 3;
+        public static final int STRAIGHT = 3;
 
         @Retention(RetentionPolicy.SOURCE)
-        @IntDef({MIRROR, INDEPENDENT, MIRROR_INVERSE, MIRROR_PARTIAL_INVERSE})
+        @IntDef({MIRROR, INDEPENDENT, MIRROR_INVERSE, STRAIGHT})
         public @interface Mode {
 
         }
@@ -268,6 +291,35 @@ public abstract class BaseRating extends View {
 
         public Smile(@Mode int mode) {
             this.mode = mode;
+        }
+
+        public void transform(@Side int side, float x, float y) {
+            if (ALL == side) {
+                transformLeft(x, y);
+                transformRight(x, y);
+            } else if (RIGHT == side) {
+                transformRight(x, y);
+            } else if (LEFT == side) {
+                transformLeft(x, y);
+            }
+        }
+
+        private void transformLeft(float x, float y) {
+            START_POINT.trans(x, y);
+            LEFT_CURVE[0].trans(x, y);
+            LEFT_CURVE[1].trans(x, y);
+            BOTTOM_CURVE[2].trans(x, y);
+            BOTTOM_CURVE[1].trans(x, y);
+            TOP_CURVE[0].trans(x, y);
+        }
+
+        private void transformRight(float x, float y) {
+            TOP_CURVE[1].trans(x, y);
+            TOP_CURVE[2].trans(x, y);
+            RIGHT_CURVE[0].trans(x, y);
+            RIGHT_CURVE[1].trans(x, y);
+            RIGHT_CURVE[2].trans(x, y);
+            BOTTOM_CURVE[0].trans(x, y);
         }
 
         public Path fillPath(Path path) {
@@ -296,6 +348,8 @@ public abstract class BaseRating extends View {
             drawPointArray(RIGHT_CURVE, canvas, paint);
             drawPointArray(BOTTOM_CURVE, canvas, paint);
             drawPointArray(LEFT_CURVE, canvas, paint);
+            /*drawPoint(LEFT_CURVE[1], canvas, paint);
+            drawPoint(START_POINT, canvas, paint);*/
         }
 
         private void drawPointArray(Point[] points, Canvas canvas, Paint paint) {
@@ -325,7 +379,13 @@ public abstract class BaseRating extends View {
             this.y = y;
         }
 
+        public void trans(float x, float y) {
+            this.x += x;
+            this.y += y;
+        }
+
         @Override
+
         public String toString() {
             return "Point{" +
                     "x=" + x +
@@ -334,7 +394,7 @@ public abstract class BaseRating extends View {
         }
     }
 
-    private static class Line {
+    protected static class Line {
 
         public Point start;
         public Point end;
@@ -395,6 +455,14 @@ public abstract class BaseRating extends View {
         );
     }
 
+    protected static Point getPointByAngle(Point source, float angle, float width) {
+        float endX = (float) (source.x + Math.cos(Math.toRadians(angle)) * width);
+        float endY = (float) (source.y + Math.sin(Math.toRadians(angle)) * width);
+        Log.i(TAG, "Gen: " + endX + " " + endY);
+        return new Point(endX, endY);
+
+    }
+
     protected Path transformSmile(float fraction, Path path, Smile s1, Smile s2, FloatEvaluator evaluator) {
         float trans = evaluator.evaluate(fraction, 0, 350);
         path.reset();
@@ -436,6 +504,15 @@ public abstract class BaseRating extends View {
         );
         path.close();
         return path;
+    }
+
+    public static float roundDegreeOfAngle(float angle) {
+        if (angle < 0) {
+            return roundDegreeOfAngle(angle + 360);
+        } else if (angle >= 360) {
+            return angle % 360;
+        }
+        return angle + 0.0f;
     }
 
 }
