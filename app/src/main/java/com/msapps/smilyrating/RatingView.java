@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
@@ -20,13 +21,17 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     private boolean mShowLines = false;
     private boolean mShowPoints = false;
 
+    private float mEyeRadius = 22f;
+    private RectF mEyeRect1 = new RectF();
+    private RectF mEyeRect2 = new RectF();
     private Paint mPathPaint = new Paint();
     private Paint mBackgroundPaint = new Paint();
 
     private Paint mPointPaint1 = new Paint();
-
     private Paint mPointPaint2 = new Paint();
-    private Path mDrawingPath = new Path();
+    private Path mEyePath1 = new Path();
+    private Path mEyePath2 = new Path();
+    private Path mSmilePath = new Path();
     private ValueAnimator mValueAnimator = new ValueAnimator();
     private FloatEvaluator mFloatEvaluator = new FloatEvaluator();
 
@@ -101,11 +106,11 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         canvas.drawCircle(120 + mTranslation, 435, 22, mPathPaint);
         canvas.drawCircle(220 + mTranslation, 435, 22, mPathPaint);
         canvas.drawCircle(175 + mTranslation, 475, 160, mBackgroundPaint);
-        if (!mDrawingPath.isEmpty()) {
-            canvas.drawPath(mDrawingPath, mPathPaint);
+        if (!mSmilePath.isEmpty()) {
+            canvas.drawPath(mSmilePath, mPathPaint);
         }
         /*Smile smile = mSmileys.getSmile(mode);
-        canvas.drawPath(smile.fillPath(mDrawingPath), mPathPaint);
+        canvas.drawPath(smile.fillPath(mSmilePath), mPathPaint);
         if (mShowPoints) {
             smile.drawPoints(canvas, mPointPaint1);
             canvas.drawCircle(175, 540, 10, mPointPaint2);
@@ -142,28 +147,33 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     }
 
     public void setFraction(float fraction) {
+        createEyeLocation(fraction);
         mTranslation = mFloatEvaluator.evaluate(fraction, 0, 370);
         if (fraction > 0.75f) {
             fraction -= 0.75f;
             fraction *= 4;
-            transformSmile(mTranslation, fraction, mDrawingPath,
+            transformSmile(mTranslation, fraction, mSmilePath,
                     mSmileys.getSmile(GOOD), mSmileys.getSmile(GREAT), mFloatEvaluator);
         } else if (fraction > 0.50f) {
             fraction -= 0.50f;
             fraction *= 4;
-            transformSmile(mTranslation, fraction, mDrawingPath,
+            transformSmile(mTranslation, fraction, mSmilePath,
                     mSmileys.getSmile(OKAY), mSmileys.getSmile(GOOD), mFloatEvaluator);
         } else if (fraction > 0.25f) {
             fraction -= 0.25f;
             fraction *= 4;
-            transformSmile(mTranslation, fraction, mDrawingPath,
+            transformSmile(mTranslation, fraction, mSmilePath,
                     mSmileys.getSmile(BAD), mSmileys.getSmile(OKAY), mFloatEvaluator);
         } else {
             fraction *= 4;
-            transformSmile(mTranslation, fraction, mDrawingPath,
+            transformSmile(mTranslation, fraction, mSmilePath,
                     mSmileys.getSmile(TERRIBLE), mSmileys.getSmile(BAD), mFloatEvaluator);
         }
 
         invalidate();
+    }
+
+    private void createEyeLocation(float fraction) {
+        
     }
 }
