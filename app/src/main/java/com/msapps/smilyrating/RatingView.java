@@ -58,6 +58,9 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     private float mFromRange;
     private float mToRange;
 
+    private float mPrevX;
+    private boolean mFaceClickEngaged = false;
+
     public RatingView(Context context) {
         super(context);
         init();
@@ -89,7 +92,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
 
         mBackgroundPaint.setStyle(Paint.Style.FILL);
 
-        mPlaceHolderPaint.setColor(PAINT_COLOR);
+        mPlaceHolderPaint.setColor(Color.parseColor("#ced5e0"));
         mPlaceHolderPaint.setStyle(Paint.Style.FILL);
 
         mValueAnimator.setDuration(250);
@@ -151,8 +154,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     @Override
     public void onAnimationUpdate(ValueAnimator valueAnimator) {
         float anim = (float) valueAnimator.getAnimatedValue();
-        float fraction = (anim - mFromRange) / (mToRange - mFromRange);
-        setFraction(fraction);
+        moveSmile(anim);
     }
 
     public void start() {
@@ -171,18 +173,53 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 mClickAnalyser.start(x, y);
+                mFaceClickEngaged = isPointInCircle(mFaceCenter.x, mFaceCenter.y,
+                        x, y, mCenterY);
+                mPrevX = x;
                 break;
             case MotionEvent.ACTION_MOVE:
                 mClickAnalyser.move(x, y);
+                if (mClickAnalyser.isMoved() && mFaceClickEngaged) {
+                    moveSmile(mFaceCenter.x - (mPrevX - x));
+                }
+                mPrevX = x;
                 break;
             case MotionEvent.ACTION_UP:
+                mFaceClickEngaged = false;
                 mClickAnalyser.stop(x, y);
                 if (!mClickAnalyser.isMoved()) {
                     onClickView(x, y);
+                } else {
+                    positionSmile();
                 }
                 break;
         }
         return true;
+    }
+
+    private void positionSmile() {
+        float currentPosition = mFaceCenter.x;
+        float distance = Integer.MAX_VALUE;
+        Point point = null;
+        @Smiley
+        int smile = GREAT;
+        for (Integer s : mTouchPoints.keySet()) {
+            Point p = mTouchPoints.get(s);
+            float d = Math.abs(p.x - currentPosition);
+            if (distance > d) {
+                point = p;
+                smile = s;
+                distance = d;
+            }
+        }
+        setSelectedSmile(smile, point, false);
+    }
+
+    private void moveSmile(float x) {
+        float fraction = (x - mFromRange) / (mToRange - mFromRange);
+        if (fraction >= 0f && fraction <= 1f) {
+            setFraction(fraction);
+        }
     }
 
     private void onClickView(float x, float y) {
@@ -190,7 +227,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
             Point point = mTouchPoints.get(smile);
             boolean touched = isPointInCircle(point.x, point.y, x, y, mCenterY);
             if (touched) {
-                setSelectedSmile(smile, point);
+                setSelectedSmile(smile, point, true);
             }
         }
     }
@@ -199,9 +236,9 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         return Math.sqrt(Math.pow(cx - tx, 2) + Math.pow(cy - ty, 2)) <= radius;
     }
 
-    private void setSelectedSmile(@Smiley int smile, Point point) {
+    private void setSelectedSmile(@Smiley int smile, Point point, boolean check) {
         Log.i(TAG, "Selected smile: " + smile);
-        if (mSelectedSmile == smile) {
+        if (mSelectedSmile == smile && check) {
             return;
         }
         mSelectedSmile = smile;
