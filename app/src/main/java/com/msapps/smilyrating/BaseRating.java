@@ -23,8 +23,6 @@ public abstract class BaseRating extends View {
 
     private static final String TAG = "BaseSmile";
 
-    protected static final int PADDING = 175;
-
     public static final int TERRIBLE = 0;
     public static final int BAD = 1;
     public static final int OKAY = 2;
@@ -65,6 +63,7 @@ public abstract class BaseRating extends View {
         private int mWidth;
         private int mHeight;
         private float mCenterY;
+        protected float mCenterSmile;
         private Map<Integer, Eye> mEyes = new HashMap<>();
         private Map<Integer, Smile> mSmileys = new HashMap<>();
 
@@ -72,6 +71,7 @@ public abstract class BaseRating extends View {
             mWidth = w;
             mHeight = h;
             mCenterY = (h / 2f) + 75;
+            mCenterSmile = mHeight / 2f;
             createGreatSmile();
             createGoodSmile();
             createOkaySmile();
@@ -222,49 +222,49 @@ public abstract class BaseRating extends View {
         private void createGreatSmile() {
             float div = 0.10f;
             FloatEvaluator f = new FloatEvaluator();
-            createSmile(new Point(PADDING, mCenterY),
-                    new Point(f.evaluate(div, 50, PADDING), f.evaluate(div, mCenterY - 40, mCenterY)),  // Top control
-                    new Point(f.evaluate(div, 50, PADDING), f.evaluate(div, mCenterY - 15, mCenterY)),  // Bottom control
-                    new Point(f.evaluate(div, 100, PADDING), f.evaluate(div, mCenterY - 40, mCenterY)), // Top Point
-                    new Point(f.evaluate(div, 100, PADDING), f.evaluate(div, mCenterY + 20, mCenterY)), // Bottom point
+            createSmile(new Point(mCenterSmile, mCenterY),
+                    new Point(f.evaluate(div, 50, mCenterSmile), f.evaluate(div, mCenterY - 40, mCenterY)),  // Top control
+                    new Point(f.evaluate(div, 50, mCenterSmile), f.evaluate(div, mCenterY - 15, mCenterY)),  // Bottom control
+                    new Point(f.evaluate(div, 100, mCenterSmile), f.evaluate(div, mCenterY - 40, mCenterY)), // Top Point
+                    new Point(f.evaluate(div, 100, mCenterSmile), f.evaluate(div, mCenterY + 20, mCenterY)), // Bottom point
                     Smile.MIRROR, GREAT, -1f, -1f, -1f);
         }
 
         private void createGoodSmile() {
             float div = 0.20f;
             FloatEvaluator f = new FloatEvaluator();
-            createSmile(new Point(PADDING, mCenterY),
-                    new Point(f.evaluate(div, 70, PADDING), f.evaluate(div, mCenterY - 40, mCenterY)),  // Top control
-                    new Point(f.evaluate(div, 60, PADDING), f.evaluate(div, mCenterY - 5, mCenterY)),  // Bottom control
-                    new Point(f.evaluate(div, 110, PADDING), f.evaluate(div, mCenterY - 20, mCenterY)), // Top Point
-                    new Point(f.evaluate(div, 100, PADDING), f.evaluate(div, mCenterY + 20, mCenterY)), // Bottom point
+            createSmile(new Point(mCenterSmile, mCenterY),
+                    new Point(f.evaluate(div, 70, mCenterSmile), f.evaluate(div, mCenterY - 40, mCenterY)),  // Top control
+                    new Point(f.evaluate(div, 60, mCenterSmile), f.evaluate(div, mCenterY - 5, mCenterY)),  // Bottom control
+                    new Point(f.evaluate(div, 110, mCenterSmile), f.evaluate(div, mCenterY - 20, mCenterY)), // Top Point
+                    new Point(f.evaluate(div, 100, mCenterSmile), f.evaluate(div, mCenterY + 20, mCenterY)), // Bottom point
                     Smile.MIRROR, GOOD, -1f, -1f, -1f);
         }
 
         private void createOkaySmile() {
-            createSmile(new Point(PADDING, mCenterY), null, null, null, null,
+            createSmile(new Point(mCenterSmile, mCenterY), null, null, null, null,
                     Smile.STRAIGHT, OKAY, 16f, 350f, 135f /*75 + 75*/);
         }
 
         private void createBadSmile() {
             float div = 0.20f;
             FloatEvaluator f = new FloatEvaluator();
-            createSmile(new Point(PADDING, mCenterY),
-                    new Point(f.evaluate(div, 70, PADDING), f.evaluate(div, mCenterY - 40, mCenterY)),  // Top control
-                    new Point(f.evaluate(div, 60, PADDING), f.evaluate(div, mCenterY - 5, mCenterY)),  // Bottom control
-                    new Point(f.evaluate(div, 110, PADDING), f.evaluate(div, mCenterY - 20, mCenterY)), // Top Point
-                    new Point(f.evaluate(div, 100, PADDING), f.evaluate(div, mCenterY + 20, mCenterY)), // Bottom point
+            createSmile(new Point(mCenterSmile, mCenterY),
+                    new Point(f.evaluate(div, 70, mCenterSmile), f.evaluate(div, mCenterY - 40, mCenterY)),  // Top control
+                    new Point(f.evaluate(div, 60, mCenterSmile), f.evaluate(div, mCenterY - 5, mCenterY)),  // Bottom control
+                    new Point(f.evaluate(div, 110, mCenterSmile), f.evaluate(div, mCenterY - 20, mCenterY)), // Top Point
+                    new Point(f.evaluate(div, 100, mCenterSmile), f.evaluate(div, mCenterY + 20, mCenterY)), // Bottom point
                     Smile.MIRROR_INVERSE, BAD, -1f, -1f, -1f);
         }
 
         private void createTerribleSmile() {
             float div = 0.20f;
             FloatEvaluator f = new FloatEvaluator();
-            createSmile(new Point(PADDING, mCenterY),
-                    new Point(f.evaluate(div, 70, PADDING), f.evaluate(div, mCenterY - 40, mCenterY)),  // Top control
-                    new Point(f.evaluate(div, 60, PADDING), f.evaluate(div, mCenterY - 5, mCenterY)),  // Bottom control
-                    new Point(f.evaluate(div, 110, PADDING), f.evaluate(div, mCenterY - 20, mCenterY)), // Top Point
-                    new Point(f.evaluate(div, 100, PADDING), f.evaluate(div, mCenterY + 20, mCenterY)), // Bottom point
+            createSmile(new Point(mCenterSmile, mCenterY),
+                    new Point(f.evaluate(div, 70, mCenterSmile), f.evaluate(div, mCenterY - 40, mCenterY)),  // Top control
+                    new Point(f.evaluate(div, 60, mCenterSmile), f.evaluate(div, mCenterY - 5, mCenterY)),  // Bottom control
+                    new Point(f.evaluate(div, 110, mCenterSmile), f.evaluate(div, mCenterY - 20, mCenterY)), // Top Point
+                    new Point(f.evaluate(div, 100, mCenterSmile), f.evaluate(div, mCenterY + 20, mCenterY)), // Bottom point
                     Smile.MIRROR_INVERSE, TERRIBLE, -1f, -1f, -1f);
         }
 
@@ -568,7 +568,6 @@ public abstract class BaseRating extends View {
     protected static Point getPointByAngle(Point source, float angle, float width) {
         float endX = (float) (source.x + Math.cos(Math.toRadians(angle)) * width);
         float endY = (float) (source.y + Math.sin(Math.toRadians(angle)) * width);
-        Log.i(TAG, "Gen: " + endX + " " + endY);
         return new Point(endX, endY);
 
     }
