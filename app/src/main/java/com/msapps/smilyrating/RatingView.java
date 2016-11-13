@@ -100,16 +100,6 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         mValueAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
     }
 
-    public void showPoints(boolean b) {
-        mShowPoints = b;
-        invalidate();
-    }
-
-    public void showLines(boolean b) {
-        mShowLines = b;
-        invalidate();
-    }
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -155,14 +145,6 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     public void onAnimationUpdate(ValueAnimator valueAnimator) {
         float anim = (float) valueAnimator.getAnimatedValue();
         moveSmile(anim);
-    }
-
-    public void start() {
-//        mValueAnimator.start();
-    }
-
-    public void stop() {
-//        mValueAnimator.end();
     }
 
     @Override
@@ -236,8 +218,11 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         return Math.sqrt(Math.pow(cx - tx, 2) + Math.pow(cy - ty, 2)) <= radius;
     }
 
+    public void setSelectedSmile(@Smiley int smile) {
+        setSelectedSmile(smile, mTouchPoints.get(smile), true);
+    }
+
     private void setSelectedSmile(@Smiley int smile, Point point, boolean check) {
-        Log.i(TAG, "Selected smile: " + smile);
         if (mSelectedSmile == smile && check) {
             return;
         }
@@ -249,7 +234,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     /**
      * Evaluates click actions using touch events
      */
-    public static class ClickAnalyser {
+    protected static class ClickAnalyser {
 
         private static final int MAX_CLICK_DISTANCE = 20;
         private static final int MAX_CLICK_DURATION = 200;
@@ -316,7 +301,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         }
     }
 
-    public void setFraction(float fraction) {
+    private void setFraction(float fraction) {
         if (mSmileys == null) {
             return;
         }

@@ -11,33 +11,4 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true" />
 
-    <CheckBox
-        android:id="@+id/show_points"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:text="Show points" />
-
-    <CheckBox
-        android:id="@+id/show_lines"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Show lines" />
-
-    <Button
-        android:id="@+id/change"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:text="Change" />
-
-    <SeekBar
-        android:id="@+id/seeker"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_below="@+id/change"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="20dp" />
-
 </RelativeLayout>
