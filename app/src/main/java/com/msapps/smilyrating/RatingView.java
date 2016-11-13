@@ -193,7 +193,6 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         Eye eyeRight = EyeEmotion.prepareEye(mSmileys.getEye(Eye.RIGHT), mFloatEvaluator, fraction, smile);
         eyeLeft.radius = divisions * 2.5f;
         eyeRight.radius = divisions * 2.5f;
-        Log.i(TAG, mTranslation + " " + (mHeight / 2f));
         eyeLeft.center.x = (divisions * 11f) + mTranslation - mCenterY;
         eyeLeft.center.y = mCenterY * 0.65f;
         eyeRight.center.x = (divisions * 21f) + mTranslation - mCenterY;
