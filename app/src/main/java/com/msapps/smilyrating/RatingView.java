@@ -9,7 +9,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
+import android.view.animation.AccelerateDecelerateInterpolator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,15 +45,18 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     private ValueAnimator mValueAnimator = new ValueAnimator();
     private FloatEvaluator mFloatEvaluator = new FloatEvaluator();
     private ArgbEvaluator mColorEvaluator = new ArgbEvaluator();
+    private ClickAnalyser mClickAnalyser;
 
-    @BaseRating.Smiley
-    private int mode = RatingView.GOOD;
+    @Smiley
+    private int mSelectedSmile = TERRIBLE;
 
     private Smileys mSmileys;
     private float mTranslation = 0;
     private float mWidth;
     private float mHeight;
     private float mCenterY;
+    private float mFromRange;
+    private float mToRange;
 
     public RatingView(Context context) {
         super(context);
@@ -69,6 +74,8 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     }
 
     private void init() {
+        mClickAnalyser = ClickAnalyser.newInstance(getResources().getDisplayMetrics().density);
+
         mPathPaint.setAntiAlias(true);
         mPathPaint.setStrokeWidth(3);
         mPathPaint.setColor(PAINT_COLOR);
@@ -85,11 +92,9 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         mPlaceHolderPaint.setColor(PAINT_COLOR);
         mPlaceHolderPaint.setStyle(Paint.Style.FILL);
 
-        mValueAnimator.setDuration(1000);
-        mValueAnimator.setIntValues(0, 100);
+        mValueAnimator.setDuration(250);
         mValueAnimator.addUpdateListener(this);
-        mValueAnimator.setRepeatMode(ValueAnimator.REVERSE);
-        mValueAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        mValueAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
     }
 
     public void showPoints(boolean b) {
@@ -114,6 +119,8 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         setMeasuredDimension(Math.round(mWidth), Math.round(mHeight));
         setFraction(0);
         createTouchPoints();
+        mFromRange = mSmileGap + (mHeight / 2);
+        mToRange = mWidth - (mHeight / 2) - mSmileGap;
     }
 
     private void createTouchPoints() {
@@ -143,7 +150,8 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
 
     @Override
     public void onAnimationUpdate(ValueAnimator valueAnimator) {
-        float fraction = valueAnimator.getAnimatedFraction();
+        float anim = (float) valueAnimator.getAnimatedValue();
+        float fraction = (anim - mFromRange) / (mToRange - mFromRange);
         setFraction(fraction);
     }
 
@@ -157,23 +165,125 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        return super.onTouchEvent(event);
+        int action = event.getAction();
+        float x = event.getX();
+        float y = event.getY();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                mClickAnalyser.start(x, y);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                mClickAnalyser.move(x, y);
+                break;
+            case MotionEvent.ACTION_UP:
+                mClickAnalyser.stop(x, y);
+                if (!mClickAnalyser.isMoved()) {
+                    onClickView(x, y);
+                }
+                break;
+        }
+        return true;
     }
 
-    public void switchMode() {
-        if (OKAY == mode) {
-            mode = GOOD;
-        } else if (mode == GOOD) {
-            mode = OKAY;
+    private void onClickView(float x, float y) {
+        for (Integer smile : mTouchPoints.keySet()) {
+            Point point = mTouchPoints.get(smile);
+            boolean touched = isPointInCircle(point.x, point.y, x, y, mCenterY);
+            if (touched) {
+                setSelectedSmile(smile, point);
+            }
         }
-        invalidate();
+    }
+
+    private boolean isPointInCircle(float cx, float cy, float tx, float ty, float radius) {
+        return Math.sqrt(Math.pow(cx - tx, 2) + Math.pow(cy - ty, 2)) <= radius;
+    }
+
+    private void setSelectedSmile(@Smiley int smile, Point point) {
+        Log.i(TAG, "Selected smile: " + smile);
+        if (mSelectedSmile == smile) {
+            return;
+        }
+        mSelectedSmile = smile;
+        mValueAnimator.setFloatValues(mFaceCenter.x, point.x);
+        mValueAnimator.start();
+    }
+
+    /**
+     * Evaluates click actions using touch events
+     */
+    public static class ClickAnalyser {
+
+        private static final int MAX_CLICK_DISTANCE = 20;
+        private static final int MAX_CLICK_DURATION = 200;
+
+        private float mPressX;
+        private float mPressY;
+        private final float mDensity;
+        private long mPressStartTime;
+        private boolean mMoved = false;
+        private boolean mClickEventOccured = true;
+
+        public ClickAnalyser(float density) {
+            mDensity = density;
+        }
+
+        public static ClickAnalyser newInstance(float density) {
+            return new ClickAnalyser(density);
+        }
+
+        public void start(float x, float y) {
+            mPressX = x;
+            mPressY = y;
+            mMoved = false;
+            mClickEventOccured = true;
+            mPressStartTime = System.currentTimeMillis();
+        }
+
+        /**
+         * returns long press
+         *
+         * @param x
+         * @param y
+         * @return
+         */
+        public void move(float x, float y) {
+            float dist = distance(mPressX, mPressY, x, y);
+            long time = System.currentTimeMillis() - mPressStartTime;
+            if (!mMoved && dist > MAX_CLICK_DISTANCE) {
+                mMoved = true;
+            }
+            if ((time) > MAX_CLICK_DURATION || mMoved) {
+                mClickEventOccured = false;
+            }
+        }
+
+        public boolean stop(float x, float y) {
+            move(x, y);
+            return mClickEventOccured;
+        }
+
+        private float distance(float x1, float y1, float x2, float y2) {
+            float dx = x1 - x2;
+            float dy = y1 - y2;
+            float distanceInPx = (float) Math.sqrt(dx * dx + dy * dy);
+            return pxToDp(distanceInPx);
+        }
+
+        public boolean isMoved() {
+            return mMoved;
+        }
+
+        private float pxToDp(float px) {
+            return px / mDensity;
+        }
     }
 
     public void setFraction(float fraction) {
         if (mSmileys == null) {
             return;
         }
-        mTranslation = mFloatEvaluator.evaluate(fraction, mSmileGap + (mHeight / 2), mWidth - (mHeight / 2) - mSmileGap);
+        mTranslation = mFloatEvaluator.evaluate(fraction, mFromRange, mToRange);
         mFaceCenter.x = mTranslation;
         float trans = mTranslation - mCenterY;
         if (fraction > 0.75f) {

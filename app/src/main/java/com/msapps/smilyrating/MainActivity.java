@@ -26,14 +26,6 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         mRatingView = (RatingView) findViewById(R.id.ratingView);
         mSeekBar = (SeekBar) findViewById(R.id.seeker);
         mSeekBar.setOnSeekBarChangeListener(this);
-        mShowLines.setOnCheckedChangeListener(this);
-        mShowPoints.setOnCheckedChangeListener(this);
-        findViewById(R.id.change).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mRatingView.switchMode();
-            }
-        });
     }
 
     @Override
