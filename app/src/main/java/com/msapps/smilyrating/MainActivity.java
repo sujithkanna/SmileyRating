@@ -1,5 +1,6 @@
 package com.msapps.smilyrating;
 
+import android.animation.ArgbEvaluator;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;

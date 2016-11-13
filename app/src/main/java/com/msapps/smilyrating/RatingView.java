@@ -1,5 +1,6 @@
 package com.msapps.smilyrating;
 
+import android.animation.ArgbEvaluator;
 import android.animation.FloatEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -17,10 +18,14 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
 
     private static final String TAG = "RatingView";
 
+    private static final int ANGRY_COLOR = Color.parseColor("#f29a68");
+    private static final int NORMAL_COLOR = Color.parseColor("#f2dd68");
+    private static final int PAINT_COLOR = Color.parseColor("#353431");
+
     private boolean mShowLines = false;
     private boolean mShowPoints = false;
 
-    private float mEyeRadius = 22f;
+    private float mEyeRadius = 25f;
     private Paint mPathPaint = new Paint();
     private Paint mBackgroundPaint = new Paint();
 
@@ -31,6 +36,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     private Path mSmilePath = new Path();
     private ValueAnimator mValueAnimator = new ValueAnimator();
     private FloatEvaluator mFloatEvaluator = new FloatEvaluator();
+    private ArgbEvaluator mColorEvaluator = new ArgbEvaluator();
 
     @BaseRating.Smiley
     private int mode = RatingView.GOOD;
@@ -39,6 +45,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     private float mTranslation = 0;
     private int mWidth;
     private int mHeight;
+    private float mCenterY;
 
     public RatingView(Context context) {
         super(context);
@@ -58,7 +65,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     private void init() {
         mPathPaint.setAntiAlias(true);
         mPathPaint.setStrokeWidth(3);
-        mPathPaint.setColor(Color.parseColor("#232323"));
+        mPathPaint.setColor(PAINT_COLOR);
         mPathPaint.setStyle(Paint.Style.FILL);
 
         mPointPaint1.setColor(Color.RED);
@@ -67,10 +74,6 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         mPointPaint2.setColor(Color.BLUE);
         mPointPaint2.setStyle(Paint.Style.STROKE);
 
-
-        int color = Color.BLACK;
-        mBackgroundPaint.setColor(Color.argb(50, Color.red(color),
-                Color.green(color), Color.blue(color)));
         mBackgroundPaint.setStyle(Paint.Style.FILL);
 
         mValueAnimator.setDuration(1000);
@@ -95,6 +98,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         mWidth = getMeasuredWidth();
         mHeight = getMeasuredHeight();
+        mCenterY = mHeight / 2f;
         mSmileys = Smileys.newInstance(mWidth, mHeight);
         setFraction(0);
     }
@@ -102,7 +106,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawCircle(PADDING + mTranslation, 475, 160, mBackgroundPaint);
+        canvas.drawCircle(PADDING + mTranslation, mHeight / 2f, 160, mBackgroundPaint);
         if (!mSmilePath.isEmpty()) {
             canvas.drawPath(mSmilePath, mPathPaint);
             canvas.drawPath(mEyePathLeft, mPathPaint);
@@ -147,24 +151,27 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         if (fraction > 0.75f) {
             fraction -= 0.75f;
             fraction *= 4;
-
+            mBackgroundPaint.setColor(NORMAL_COLOR);
             transformSmile(mTranslation, fraction, mSmilePath,
                     mSmileys.getSmile(GOOD), mSmileys.getSmile(GREAT), mFloatEvaluator);
             createEyeLocation(fraction, GREAT);
         } else if (fraction > 0.50f) {
             fraction -= 0.50f;
             fraction *= 4;
+            mBackgroundPaint.setColor(NORMAL_COLOR);
             transformSmile(mTranslation, fraction, mSmilePath,
                     mSmileys.getSmile(OKAY), mSmileys.getSmile(GOOD), mFloatEvaluator);
             createEyeLocation(fraction, GOOD);
         } else if (fraction > 0.25f) {
             fraction -= 0.25f;
             fraction *= 4;
+            mBackgroundPaint.setColor(NORMAL_COLOR);
             transformSmile(mTranslation, fraction, mSmilePath,
                     mSmileys.getSmile(BAD), mSmileys.getSmile(OKAY), mFloatEvaluator);
             createEyeLocation(fraction, BAD);
         } else {
             fraction *= 4;
+            mBackgroundPaint.setColor((Integer) mColorEvaluator.evaluate(fraction, ANGRY_COLOR, NORMAL_COLOR));
             transformSmile(mTranslation, fraction, mSmilePath,
                     mSmileys.getSmile(TERRIBLE), mSmileys.getSmile(BAD), mFloatEvaluator);
             createEyeLocation(fraction, TERRIBLE);
@@ -179,9 +186,9 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         eyeLeft.radius = mEyeRadius;
         eyeRight.radius = mEyeRadius;
         eyeLeft.center.x = 120 + mTranslation;
-        eyeLeft.center.y = 435;
+        eyeLeft.center.y = mCenterY - 50;
         eyeRight.center.x = 220 + mTranslation;
-        eyeRight.center.y = 435;
+        eyeRight.center.y = mCenterY - 45;
         mEyePathLeft = eyeLeft.fillPath(mEyePathLeft);
         mEyePathRight = eyeRight.fillPath(mEyePathRight);
     }
