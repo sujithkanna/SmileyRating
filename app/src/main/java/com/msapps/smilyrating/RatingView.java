@@ -7,7 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
@@ -22,15 +21,13 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     private boolean mShowPoints = false;
 
     private float mEyeRadius = 22f;
-    private RectF mEyeRect1 = new RectF();
-    private RectF mEyeRect2 = new RectF();
     private Paint mPathPaint = new Paint();
     private Paint mBackgroundPaint = new Paint();
 
     private Paint mPointPaint1 = new Paint();
     private Paint mPointPaint2 = new Paint();
-    private Path mEyePath1 = new Path();
-    private Path mEyePath2 = new Path();
+    private Path mEyePathLeft = new Path();
+    private Path mEyePathRight = new Path();
     private Path mSmilePath = new Path();
     private ValueAnimator mValueAnimator = new ValueAnimator();
     private FloatEvaluator mFloatEvaluator = new FloatEvaluator();
@@ -40,6 +37,8 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
 
     private Smileys mSmileys;
     private float mTranslation = 0;
+    private int mWidth;
+    private int mHeight;
 
     public RatingView(Context context) {
         super(context);
@@ -79,9 +78,6 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         mValueAnimator.addUpdateListener(this);
         mValueAnimator.setRepeatMode(ValueAnimator.REVERSE);
         mValueAnimator.setRepeatCount(ValueAnimator.INFINITE);
-
-        mSmileys = Smileys.newInstance();
-        setFraction(0);
     }
 
     public void showPoints(boolean b) {
@@ -97,24 +93,21 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
+        mWidth = getMeasuredWidth();
+        mHeight = getMeasuredHeight();
+        mSmileys = Smileys.newInstance(mWidth, mHeight);
+        setFraction(0);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawCircle(120 + mTranslation, 435, 22, mPathPaint);
-        canvas.drawCircle(220 + mTranslation, 435, 22, mPathPaint);
-        canvas.drawCircle(175 + mTranslation, 475, 160, mBackgroundPaint);
+        canvas.drawCircle(PADDING + mTranslation, 475, 160, mBackgroundPaint);
         if (!mSmilePath.isEmpty()) {
             canvas.drawPath(mSmilePath, mPathPaint);
+            canvas.drawPath(mEyePathLeft, mPathPaint);
+            canvas.drawPath(mEyePathRight, mPathPaint);
         }
-        /*Smile smile = mSmileys.getSmile(mode);
-        canvas.drawPath(smile.fillPath(mSmilePath), mPathPaint);
-        if (mShowPoints) {
-            smile.drawPoints(canvas, mPointPaint1);
-            canvas.drawCircle(175, 540, 10, mPointPaint2);
-        }*/
     }
 
     @Override
@@ -147,33 +140,49 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     }
 
     public void setFraction(float fraction) {
-        createEyeLocation(fraction);
-        mTranslation = mFloatEvaluator.evaluate(fraction, 0, 370);
+        if (mSmileys == null) {
+            return;
+        }
+        mTranslation = mFloatEvaluator.evaluate(fraction, 0, mWidth - (PADDING * 2));
         if (fraction > 0.75f) {
             fraction -= 0.75f;
             fraction *= 4;
+
             transformSmile(mTranslation, fraction, mSmilePath,
                     mSmileys.getSmile(GOOD), mSmileys.getSmile(GREAT), mFloatEvaluator);
+            createEyeLocation(fraction, GREAT);
         } else if (fraction > 0.50f) {
             fraction -= 0.50f;
             fraction *= 4;
             transformSmile(mTranslation, fraction, mSmilePath,
                     mSmileys.getSmile(OKAY), mSmileys.getSmile(GOOD), mFloatEvaluator);
+            createEyeLocation(fraction, GOOD);
         } else if (fraction > 0.25f) {
             fraction -= 0.25f;
             fraction *= 4;
             transformSmile(mTranslation, fraction, mSmilePath,
                     mSmileys.getSmile(BAD), mSmileys.getSmile(OKAY), mFloatEvaluator);
+            createEyeLocation(fraction, BAD);
         } else {
             fraction *= 4;
             transformSmile(mTranslation, fraction, mSmilePath,
                     mSmileys.getSmile(TERRIBLE), mSmileys.getSmile(BAD), mFloatEvaluator);
+            createEyeLocation(fraction, TERRIBLE);
         }
 
         invalidate();
     }
 
-    private void createEyeLocation(float fraction) {
-        
+    private void createEyeLocation(float fraction, @Smiley int smile) {
+        Eye eyeLeft = EyeEmotion.prepareEye(mSmileys.getEye(Eye.LEFT), mFloatEvaluator, fraction, smile);
+        Eye eyeRight = EyeEmotion.prepareEye(mSmileys.getEye(Eye.RIGHT), mFloatEvaluator, fraction, smile);
+        eyeLeft.radius = mEyeRadius;
+        eyeRight.radius = mEyeRadius;
+        eyeLeft.center.x = 120 + mTranslation;
+        eyeLeft.center.y = 435;
+        eyeRight.center.x = 220 + mTranslation;
+        eyeRight.center.y = 435;
+        mEyePathLeft = eyeLeft.fillPath(mEyePathLeft);
+        mEyePathRight = eyeRight.fillPath(mEyePathRight);
     }
 }

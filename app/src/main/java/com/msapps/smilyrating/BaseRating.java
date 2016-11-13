@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.RectF;
 import android.support.annotation.IntDef;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -21,6 +22,8 @@ import java.util.Map;
 public abstract class BaseRating extends View {
 
     private static final String TAG = "BaseSmile";
+
+    protected static final int PADDING = 175;
 
     public static final int TERRIBLE = 0;
     public static final int BAD = 1;
@@ -59,10 +62,16 @@ public abstract class BaseRating extends View {
     }
 
     protected static class Smileys {
-
+        private int mWidth;
+        private int mHeight;
+        private float mCenterY;
+        private Map<Integer, Eye> mEyes = new HashMap<>();
         private Map<Integer, Smile> mSmileys = new HashMap<>();
 
-        private Smileys() {
+        private Smileys(int w, int h) {
+            mWidth = w;
+            mHeight = h;
+            mCenterY = w / 2f;
             createGreatSmile();
             createGoodSmile();
             createOkaySmile();
@@ -70,12 +79,22 @@ public abstract class BaseRating extends View {
             createTerribleSmile();
         }
 
-        public static Smileys newInstance() {
-            return new Smileys();
+        public static Smileys newInstance(int w, int h) {
+            return new Smileys(w, h);
         }
 
         public Smile getSmile(@Smiley int smiley) {
             return mSmileys.get(smiley);
+        }
+
+        public Eye getEye(@Eye.EyeSide int eye) {
+            Eye e = mEyes.get(eye);
+            if (e == null) {
+                e = new Eye();
+                e.eyeSide = eye;
+                mEyes.put(eye, e);
+            }
+            return e;
         }
 
         public void createSmile(Point smileCenter, Point curveControl1, Point curveControl2,
@@ -203,53 +222,53 @@ public abstract class BaseRating extends View {
         private void createGreatSmile() {
             float div = 0.10f;
             FloatEvaluator f = new FloatEvaluator();
-            createSmile(new Point(175, 540),
+            createSmile(new Point(PADDING, mCenterY),
                     /*new Point(50, 500),
                     new Point(50, 525),
                     new Point(100, 500),
                     new Point(100, 560),*/
-                    new Point(f.evaluate(div, 50, 175), f.evaluate(div, 500, 540)),  // Top control
-                    new Point(f.evaluate(div, 50, 175), f.evaluate(div, 525, 540)),  // Bottom control
-                    new Point(f.evaluate(div, 100, 175), f.evaluate(div, 500, 540)), // Top Point
-                    new Point(f.evaluate(div, 100, 175), f.evaluate(div, 560, 540)), // Bottom point
+                    new Point(f.evaluate(div, 50, PADDING), f.evaluate(div, 500, mCenterY)),  // Top control
+                    new Point(f.evaluate(div, 50, PADDING), f.evaluate(div, 525, mCenterY)),  // Bottom control
+                    new Point(f.evaluate(div, 100, PADDING), f.evaluate(div, 500, mCenterY)), // Top Point
+                    new Point(f.evaluate(div, 100, PADDING), f.evaluate(div, 560, mCenterY)), // Bottom point
                     Smile.MIRROR, GREAT, -1f, -1f, -1f);
         }
 
         private void createGoodSmile() {
             float div = 0.20f;
             FloatEvaluator f = new FloatEvaluator();
-            createSmile(new Point(175, 540),
-                    new Point(f.evaluate(div, 70, 175), f.evaluate(div, 500, 540)),  // Top control
-                    new Point(f.evaluate(div, 60, 175), f.evaluate(div, 535, 540)),  // Bottom control
-                    new Point(f.evaluate(div, 110, 175), f.evaluate(div, 520, 540)), // Top Point
-                    new Point(f.evaluate(div, 100, 175), f.evaluate(div, 560, 540)), // Bottom point
+            createSmile(new Point(PADDING, mCenterY),
+                    new Point(f.evaluate(div, 70, PADDING), f.evaluate(div, 500, mCenterY)),  // Top control
+                    new Point(f.evaluate(div, 60, PADDING), f.evaluate(div, 535, mCenterY)),  // Bottom control
+                    new Point(f.evaluate(div, 110, PADDING), f.evaluate(div, 520, mCenterY)), // Top Point
+                    new Point(f.evaluate(div, 100, PADDING), f.evaluate(div, 560, mCenterY)), // Bottom point
                     Smile.MIRROR, GOOD, -1f, -1f, -1f);
         }
 
         private void createOkaySmile() {
-            createSmile(new Point(175, 540), null, null, null, null,
+            createSmile(new Point(PADDING, mCenterY), null, null, null, null,
                     Smile.STRAIGHT, OKAY, 16f, 350f, 135f /*75 + 75*/);
         }
 
         private void createBadSmile() {
             float div = 0.20f;
             FloatEvaluator f = new FloatEvaluator();
-            createSmile(new Point(175, 540),
-                    new Point(f.evaluate(div, 70, 175), f.evaluate(div, 500, 540)),  // Top control
-                    new Point(f.evaluate(div, 60, 175), f.evaluate(div, 535, 540)),  // Bottom control
-                    new Point(f.evaluate(div, 110, 175), f.evaluate(div, 520, 540)), // Top Point
-                    new Point(f.evaluate(div, 100, 175), f.evaluate(div, 560, 540)), // Bottom point
+            createSmile(new Point(PADDING, mCenterY),
+                    new Point(f.evaluate(div, 70, PADDING), f.evaluate(div, 500, mCenterY)),  // Top control
+                    new Point(f.evaluate(div, 60, PADDING), f.evaluate(div, 535, mCenterY)),  // Bottom control
+                    new Point(f.evaluate(div, 110, PADDING), f.evaluate(div, 520, mCenterY)), // Top Point
+                    new Point(f.evaluate(div, 100, PADDING), f.evaluate(div, 560, mCenterY)), // Bottom point
                     Smile.MIRROR_INVERSE, BAD, -1f, -1f, -1f);
         }
 
         private void createTerribleSmile() {
             float div = 0.20f;
             FloatEvaluator f = new FloatEvaluator();
-            createSmile(new Point(175, 540),
-                    new Point(f.evaluate(div, 70, 175), f.evaluate(div, 500, 540)),  // Top control
-                    new Point(f.evaluate(div, 60, 175), f.evaluate(div, 535, 540)),  // Bottom control
-                    new Point(f.evaluate(div, 110, 175), f.evaluate(div, 520, 540)), // Top Point
-                    new Point(f.evaluate(div, 100, 175), f.evaluate(div, 560, 540)), // Bottom point
+            createSmile(new Point(PADDING, mCenterY),
+                    new Point(f.evaluate(div, 70, PADDING), f.evaluate(div, 500, mCenterY)),  // Top control
+                    new Point(f.evaluate(div, 60, PADDING), f.evaluate(div, 535, mCenterY)),  // Bottom control
+                    new Point(f.evaluate(div, 110, PADDING), f.evaluate(div, 520, mCenterY)), // Top Point
+                    new Point(f.evaluate(div, 100, PADDING), f.evaluate(div, 560, mCenterY)), // Bottom point
                     Smile.MIRROR_INVERSE, TERRIBLE, -1f, -1f, -1f);
         }
 
@@ -264,6 +283,89 @@ public abstract class BaseRating extends View {
             BaseRating.getNextPoint(source, new Point(source.x, centerY), point);
             return point;
         }
+    }
+
+    protected static class EyeEmotion {
+
+        private static final float BAD_START_ANGLE = -90;
+        private static final float BAD_SWEEP_ANGLE = 270;
+
+        private static final float TERRIBLE_START_ANGLE = -35;
+        private static final float TERRIBLE_SWEEP_ANGLE = 280;
+
+        private static final float OTHER_START_ANGLE = -135;
+        private static final float OTHER_SWEEP_ANGLE = 360;
+
+        public static Eye prepareEye(Eye eye, FloatEvaluator evaluator, float fraction, @Smiley int smile) {
+            if (TERRIBLE == smile) {
+                float startAngle = evaluator.evaluate(fraction, TERRIBLE_START_ANGLE, BAD_START_ANGLE);
+                float sweepAngle = evaluator.evaluate(fraction, TERRIBLE_SWEEP_ANGLE, BAD_SWEEP_ANGLE);
+                if (eye.eyeSide == Eye.LEFT) {
+                    eye.startAngle = startAngle;
+                    eye.sweepAngle = sweepAngle;
+                } else {
+                    mirrorEye(eye, startAngle, sweepAngle);
+                }
+            } else if (BAD == smile) {
+                float startAngle = evaluator.evaluate(fraction, BAD_START_ANGLE, OTHER_START_ANGLE);
+                float sweepAngle = evaluator.evaluate(fraction, BAD_SWEEP_ANGLE, OTHER_SWEEP_ANGLE);
+                if (eye.eyeSide == Eye.LEFT) {
+                    eye.startAngle = startAngle;
+                    eye.sweepAngle = sweepAngle;
+                } else {
+                    mirrorEye(eye, startAngle, sweepAngle);
+                }
+            } else {
+                eye.startAngle = OTHER_START_ANGLE;
+                eye.sweepAngle = OTHER_SWEEP_ANGLE;
+            }
+            return eye;
+        }
+
+        private static void mirrorEye(Eye eye, float startAngle, float sweepAngle) {
+            float d2 = startAngle + sweepAngle - 180;
+            startAngle = -d2;
+            eye.startAngle = startAngle;
+            eye.sweepAngle = sweepAngle;
+        }
+    }
+
+    protected static class Eye {
+
+        public static final int LEFT = 0;
+        public static final int RIGHT = 1;
+
+        @Retention(RetentionPolicy.SOURCE)
+        @IntDef({LEFT, RIGHT})
+        public @interface EyeSide {
+
+        }
+
+        public float startAngle;
+        public float sweepAngle;
+        public Point center = new Point();
+        @Eye.EyeSide
+        public int eyeSide;
+        public float radius;
+        private RectF eyePosition = new RectF();
+
+        public RectF getEyePosition() {
+            if (center != null) {
+                eyePosition.set(center.x - radius, center.y - radius, center.x + radius
+                        , center.y + radius);
+            }
+            return eyePosition;
+        }
+
+        public Path fillPath(Path path) {
+            if (path == null) {
+                path = new Path();
+            }
+            path.reset();
+            path.addArc(getEyePosition(), startAngle, sweepAngle);
+            return path;
+        }
+
     }
 
     protected static class Smile {

@@ -42,7 +42,7 @@ public class EyeView extends View {
         mPathPaint.setStyle(Paint.Style.FILL);
 
         mRectF.set(0, 0, 50, 50);
-        mPath.addArc(mRectF, 0, 180);
+        mPath.addArc(mRectF, -90, 270);
     }
 
     @Override
