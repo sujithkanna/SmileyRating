@@ -29,6 +29,8 @@ public abstract class BaseRating extends View {
     public static final int GOOD = 3;
     public static final int GREAT = 4;
 
+    protected int[] SMILES_LIST = new int[]{TERRIBLE, BAD, OKAY, GOOD, GREAT};
+
     public static final int POINT_1 = 0;
     public static final int POINT_2 = 1;
     public static final int COTROL_POINT_1 = 2;
@@ -70,7 +72,7 @@ public abstract class BaseRating extends View {
         private Smileys(int w, int h) {
             mWidth = w;
             mHeight = h;
-            mCenterY = (h / 2f) + (h / 4f);
+            mCenterY = (h / 2f) + (h / 5f);
             mCenterSmile = mHeight / 2f;
             createGreatSmile();
             createGoodSmile();
@@ -260,7 +262,6 @@ public abstract class BaseRating extends View {
         private void createTerribleSmile() {
             float div = 0.20f;
             FloatEvaluator f = new FloatEvaluator();
-            Log.i(TAG, mCenterSmile + " " + mCenterY + " " + (mHeight / 2));
             createSmile(new Point(mCenterSmile, mCenterY),
                     new Point(f.evaluate(div, mCenterSmile * 0.414, mCenterSmile), f.evaluate(div, mCenterY - (mCenterSmile * 0.24), mCenterY)),  // Top control
                     new Point(f.evaluate(div, mCenterSmile * 0.355, mCenterSmile), f.evaluate(div, mCenterY - (mCenterSmile * 0.029), mCenterY)),  // Bottom control

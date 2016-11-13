@@ -9,8 +9,10 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by sujith on 11/10/16.
@@ -25,8 +27,8 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
 
     private boolean mShowLines = false;
     private boolean mShowPoints = false;
-
-    private float mEyeRadius = 25f;
+    private Map<Integer, Point> mTouchPoints = new HashMap<>();
+    private float mSmileGap;
     private Paint mPathPaint = new Paint();
     private Paint mBackgroundPaint = new Paint();
 
@@ -36,6 +38,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     private Path mEyePathRight = new Path();
     private Point mFaceCenter = new Point();
     private Path mSmilePath = new Path();
+    private Paint mPlaceHolderPaint = new Paint();
     private float divisions;
     private ValueAnimator mValueAnimator = new ValueAnimator();
     private FloatEvaluator mFloatEvaluator = new FloatEvaluator();
@@ -79,6 +82,9 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
 
         mBackgroundPaint.setStyle(Paint.Style.FILL);
 
+        mPlaceHolderPaint.setColor(PAINT_COLOR);
+        mPlaceHolderPaint.setStyle(Paint.Style.FILL);
+
         mValueAnimator.setDuration(1000);
         mValueAnimator.setIntValues(0, 100);
         mValueAnimator.addUpdateListener(this);
@@ -107,11 +113,26 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         mSmileys = Smileys.newInstance(Math.round(mWidth), Math.round(mHeight));
         setMeasuredDimension(Math.round(mWidth), Math.round(mHeight));
         setFraction(0);
+        createTouchPoints();
+    }
+
+    private void createTouchPoints() {
+        mTouchPoints.clear();
+        float divisions = mWidth / 5f;
+        float divCenter = divisions / 2f;
+        mSmileGap = (divisions - mHeight) / 2f;
+        for (int i = 0; i < 5; i++) {
+            mTouchPoints.put(SMILES_LIST[i], new Point((divisions * i) + divCenter, mCenterY));
+        }
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        for (Integer integer : mTouchPoints.keySet()) {
+            Point point = mTouchPoints.get(integer);
+            canvas.drawCircle(point.x, point.y, mHeight / 2, mPlaceHolderPaint);
+        }
         canvas.drawCircle(mFaceCenter.x, mFaceCenter.y, mHeight / 2f, mBackgroundPaint);
         if (!mSmilePath.isEmpty()) {
             canvas.drawPath(mSmilePath, mPathPaint);
@@ -137,7 +158,6 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return super.onTouchEvent(event);
-
     }
 
     public void switchMode() {
@@ -153,7 +173,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         if (mSmileys == null) {
             return;
         }
-        mTranslation = mFloatEvaluator.evaluate(fraction, mHeight / 2, mWidth - (mHeight / 2));
+        mTranslation = mFloatEvaluator.evaluate(fraction, mSmileGap + (mHeight / 2), mWidth - (mHeight / 2) - mSmileGap);
         mFaceCenter.x = mTranslation;
         float trans = mTranslation - mCenterY;
         if (fraction > 0.75f) {
@@ -194,9 +214,9 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         eyeLeft.radius = divisions * 2.5f;
         eyeRight.radius = divisions * 2.5f;
         eyeLeft.center.x = (divisions * 11f) + mTranslation - mCenterY;
-        eyeLeft.center.y = mCenterY * 0.65f;
+        eyeLeft.center.y = mCenterY * 0.70f;
         eyeRight.center.x = (divisions * 21f) + mTranslation - mCenterY;
-        eyeRight.center.y = mCenterY * 0.65f;
+        eyeRight.center.y = mCenterY * 0.70f;
         mEyePathLeft = eyeLeft.fillPath(mEyePathLeft);
         mEyePathRight = eyeRight.fillPath(mEyePathRight);
     }
