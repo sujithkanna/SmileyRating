@@ -10,6 +10,7 @@ import android.support.annotation.IntDef;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -19,7 +20,7 @@ import java.util.Map;
 /**
  * Created by sujith on 16/10/16.
  */
-public abstract class BaseRating extends View {
+public abstract class BaseRating extends LinearLayout {
 
     private static final String TAG = "BaseSmile";
 

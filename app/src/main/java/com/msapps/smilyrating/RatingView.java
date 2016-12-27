@@ -82,6 +82,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     }
 
     private void init() {
+        setWillNotDraw(false);
         mClickAnalyser = ClickAnalyser.newInstance(getResources().getDisplayMetrics().density);
 
         mPathPaint.setAntiAlias(true);
@@ -112,16 +113,16 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         mWidth = getMeasuredWidth();
-        mHeight = mWidth / 5.3f;
+        // mHeight = mWidth / 5.3f;
+        mHeight = mWidth / (5.3f * 1.3f);
         mCenterY = mHeight / 2f;
         mFaceCenter.y = mCenterY;
         divisions = (mHeight / 32f);
         mSmileys = Smileys.newInstance(Math.round(mWidth), Math.round(mHeight));
         setMeasuredDimension(Math.round(mWidth), Math.round(mHeight));
-        getSmiley(0, mFaceCenter, mSmilePath, mEyePathLeft, mEyePathRight);
         createTouchPoints();
-        mFromRange = mSmileGap + (mHeight / 2);
-        mToRange = mWidth - (mHeight / 2) - mSmileGap;
+        getSmiley(mSmileys, 0, divisions, mFromRange, mToRange,
+                mFaceCenter, mSmilePath, mEyePathLeft, mEyePathRight, mCenterY);
     }
 
     private void createTouchPoints() {
@@ -129,6 +130,8 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         float divisions = mWidth / 5f;
         float divCenter = divisions / 2f;
         mSmileGap = (divisions - mHeight) / 2f;
+        mFromRange = mSmileGap + (mHeight / 2);
+        mToRange = mWidth - (mHeight / 2) - mSmileGap;
         int count = SMILES_LIST.length;
         for (int i = 0; i < count; i++) {
             mFaces[i] = createFace(i, mCenterY);
@@ -138,7 +141,8 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
 
     private Face createFace(int index, float centerY) {
         Face face = new Face();
-        getSmiley(index * 0.25f, face.place, face.smile, face.leftEye, face.rightEye);
+        getSmiley(mSmileys, index * 0.25f, divisions, mFromRange, mToRange, face.place,
+                face.smile, face.leftEye, face.rightEye, centerY);
         face.place.y = centerY;
         return face;
     }
@@ -154,6 +158,9 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
                 canvas.drawPath(face.rightEye, mPlaceHolderFacePaint);
             }
         }
+        /*for (Point point : mTouchPoints.values()) {
+            canvas.drawCircle(point.x, point.y, 20, mBackgroundPaint);
+        }*/
         canvas.drawCircle(mFaceCenter.x, mFaceCenter.y, mHeight / 2f, mBackgroundPaint);
         if (!mSmilePath.isEmpty()) {
             canvas.drawPath(mSmilePath, mPathPaint);
@@ -221,7 +228,8 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     private void moveSmile(float x) {
         float fraction = (x - mFromRange) / (mToRange - mFromRange);
         if (fraction >= 0f && fraction <= 1f) {
-            getSmiley(fraction, mFaceCenter, mSmilePath, mEyePathLeft, mEyePathRight);
+            getSmiley(mSmileys, fraction, divisions, mFromRange, mToRange,
+                    mFaceCenter, mSmilePath, mEyePathLeft, mEyePathRight, mCenterY);
             invalidate();
         }
     }
@@ -323,52 +331,54 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         }
     }
 
-    private void getSmiley(float fraction, Point point, Path smilePath, Path leftEye, Path rightEye) {
-        if (mSmileys == null) {
+    private void getSmiley(Smileys smileys, float fraction, float divisions, float fromRange,
+                           float toRange, Point point, Path smilePath,
+                           Path leftEye, Path rightEye, float centerY) {
+        if (smileys == null) {
             return;
         }
-        float actualTranslation = mFloatEvaluator.evaluate(fraction, mFromRange, mToRange);
+        float actualTranslation = mFloatEvaluator.evaluate(fraction, fromRange, toRange);
         point.x = actualTranslation;
-        float trans = actualTranslation - mCenterY;
+        float trans = actualTranslation - centerY;
         if (fraction > 0.75f) {
             fraction -= 0.75f;
             fraction *= 4;
             mBackgroundPaint.setColor(NORMAL_COLOR);
             transformSmile(trans, fraction, smilePath,
-                    mSmileys.getSmile(GOOD), mSmileys.getSmile(GREAT), mFloatEvaluator);
-            createEyeLocation(fraction, actualTranslation, GREAT, leftEye, rightEye);
+                    smileys.getSmile(GOOD), smileys.getSmile(GREAT), mFloatEvaluator);
+            createEyeLocation(smileys, divisions, fraction, actualTranslation, GREAT, leftEye, rightEye, centerY);
         } else if (fraction > 0.50f) {
             fraction -= 0.50f;
             fraction *= 4;
             mBackgroundPaint.setColor(NORMAL_COLOR);
             transformSmile(trans, fraction, smilePath,
-                    mSmileys.getSmile(OKAY), mSmileys.getSmile(GOOD), mFloatEvaluator);
-            createEyeLocation(fraction, actualTranslation, GOOD, leftEye, rightEye);
+                    smileys.getSmile(OKAY), smileys.getSmile(GOOD), mFloatEvaluator);
+            createEyeLocation(smileys, divisions, fraction, actualTranslation, GOOD, leftEye, rightEye, centerY);
         } else if (fraction > 0.25f) {
             fraction -= 0.25f;
             fraction *= 4;
             mBackgroundPaint.setColor(NORMAL_COLOR);
             transformSmile(trans, fraction, smilePath,
-                    mSmileys.getSmile(BAD), mSmileys.getSmile(OKAY), mFloatEvaluator);
-            createEyeLocation(fraction, actualTranslation, BAD, leftEye, rightEye);
+                    smileys.getSmile(BAD), smileys.getSmile(OKAY), mFloatEvaluator);
+            createEyeLocation(smileys, divisions, fraction, actualTranslation, BAD, leftEye, rightEye, centerY);
         } else {
             fraction *= 4;
             mBackgroundPaint.setColor((Integer) mColorEvaluator.evaluate(fraction, ANGRY_COLOR, NORMAL_COLOR));
             transformSmile(trans, fraction, smilePath,
-                    mSmileys.getSmile(TERRIBLE), mSmileys.getSmile(BAD), mFloatEvaluator);
-            createEyeLocation(fraction, actualTranslation, TERRIBLE, leftEye, rightEye);
+                    smileys.getSmile(TERRIBLE), smileys.getSmile(BAD), mFloatEvaluator);
+            createEyeLocation(smileys, divisions, fraction, actualTranslation, TERRIBLE, leftEye, rightEye, centerY);
         }
     }
 
-    private void createEyeLocation(float fraction, float actualTranslation, @Smiley int smile, Path leftEye, Path rightEye) {
-        Eye eyeLeft = EyeEmotion.prepareEye(mSmileys.getEye(Eye.LEFT), mFloatEvaluator, fraction, smile);
-        Eye eyeRight = EyeEmotion.prepareEye(mSmileys.getEye(Eye.RIGHT), mFloatEvaluator, fraction, smile);
+    private void createEyeLocation(Smileys smileys, float divisions, float fraction, float actualTranslation, @Smiley int smile, Path leftEye, Path rightEye, float centerY) {
+        Eye eyeLeft = EyeEmotion.prepareEye(smileys.getEye(Eye.LEFT), mFloatEvaluator, fraction, smile);
+        Eye eyeRight = EyeEmotion.prepareEye(smileys.getEye(Eye.RIGHT), mFloatEvaluator, fraction, smile);
         eyeLeft.radius = divisions * 2.5f;
         eyeRight.radius = divisions * 2.5f;
-        eyeLeft.center.x = (divisions * 11f) + actualTranslation - mCenterY;
-        eyeLeft.center.y = mCenterY * 0.70f;
-        eyeRight.center.x = (divisions * 21f) + actualTranslation - mCenterY;
-        eyeRight.center.y = mCenterY * 0.70f;
+        eyeLeft.center.x = (divisions * 11f) + actualTranslation - centerY;
+        eyeLeft.center.y = centerY * 0.70f;
+        eyeRight.center.x = (divisions * 21f) + actualTranslation - centerY;
+        eyeRight.center.y = centerY * 0.70f;
         eyeLeft.fillPath(leftEye);
         eyeRight.fillPath(rightEye);
     }
