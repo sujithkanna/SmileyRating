@@ -1,4 +1,4 @@
-package com.msapps.smilyrating;
+package com.example.smilyrating;
 
 import android.app.Application;
 

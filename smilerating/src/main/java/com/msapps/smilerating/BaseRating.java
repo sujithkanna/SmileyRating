@@ -1,4 +1,4 @@
-package com.msapps.smilyrating;
+package com.msapps.smilerating;
 
 import android.animation.FloatEvaluator;
 import android.content.Context;
@@ -10,7 +10,6 @@ import android.support.annotation.IntDef;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

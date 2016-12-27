@@ -1,4 +1,4 @@
-package com.msapps.smilyrating;
+package com.example.smilerating;
 
 import org.junit.Test;
 

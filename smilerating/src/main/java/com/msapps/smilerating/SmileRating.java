@@ -1,9 +1,11 @@
-package com.msapps.smilyrating;
+package com.msapps.smilerating;
 
+import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.FloatEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -18,13 +20,15 @@ import java.util.Map;
 /**
  * Created by sujith on 11/10/16.
  */
-public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpdateListener {
+public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpdateListener, Animator.AnimatorListener {
 
     private static final String TAG = "RatingView";
 
-    private static final int ANGRY_COLOR = Color.parseColor("#f29a68");
-    private static final int NORMAL_COLOR = Color.parseColor("#f2dd68");
-    private static final int PAINT_COLOR = Color.parseColor("#353431");
+    private int mPlaceHolderSmileColor = Color.WHITE;
+    private int mAngryColor = Color.parseColor("#f29a68");
+    private int mNormalColor = Color.parseColor("#f2dd68");
+    private int mDrawingColor = Color.parseColor("#353431");
+    private int mPlaceholderBackgroundColor = Color.parseColor("#e6e8ed");
 
     private Face[] mFaces = new Face[SMILES_LIST.length];
     private Map<Integer, Point> mTouchPoints = new HashMap<>();
@@ -48,6 +52,8 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
 
     @Smiley
     private int mSelectedSmile = TERRIBLE;
+    @Smiley
+    private int mPreviousSmile = -1;
 
     private Smileys mSmileys;
     // private float mTranslation = 0;
@@ -59,20 +65,36 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
 
     private float mPrevX;
     private boolean mFaceClickEngaged = false;
+    private OnRatingSelectedListener mOnRatingSelectedListener = null;
+    private OnSmileySelectionListener mOnSmileySelectionListener = null;
 
-    public RatingView(Context context) {
+    public SmileRating(Context context) {
         super(context);
 
     }
 
-    public RatingView(Context context, AttributeSet attrs) {
+    public SmileRating(Context context, AttributeSet attrs) {
         super(context, attrs);
-
+        parseAttrs(attrs);
     }
 
-    public RatingView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SmileRating(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        parseAttrs(attrs);
+    }
 
+    private void parseAttrs(AttributeSet attrs) {
+        if (attrs != null) {
+            TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.SmileRating);
+            mAngryColor = a.getColor(R.styleable.SmileRating_angryColor, mAngryColor);
+            mNormalColor = a.getColor(R.styleable.SmileRating_normalColor, mNormalColor);
+            mDrawingColor = a.getColor(R.styleable.SmileRating_drawingColor, mDrawingColor);
+            mPlaceHolderSmileColor = a.getColor(R.styleable.SmileRating_placeHolderSmileColor,
+                    mPlaceHolderSmileColor);
+            mPlaceholderBackgroundColor = a.getColor(R.styleable.SmileRating_placeHolderBackgroundColor,
+                    mPlaceholderBackgroundColor);
+            a.recycle();
+        }
     }
 
     @Override
@@ -86,7 +108,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
 
         mPathPaint.setAntiAlias(true);
         mPathPaint.setStrokeWidth(3);
-        mPathPaint.setColor(PAINT_COLOR);
+        mPathPaint.setColor(mDrawingColor);
         mPathPaint.setStyle(Paint.Style.FILL);
 
         mPointPaint1.setColor(Color.RED);
@@ -97,15 +119,25 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
 
         mBackgroundPaint.setStyle(Paint.Style.FILL);
 
-        mPlaceHolderFacePaint.setColor(Color.WHITE);
+        mPlaceHolderFacePaint.setColor(mPlaceHolderSmileColor);
         mPlaceHolderFacePaint.setStyle(Paint.Style.FILL);
 
-        mPlaceHolderCirclePaint.setColor(Color.parseColor("#e6e8ed"));
+        mPlaceHolderCirclePaint.setColor(mPlaceholderBackgroundColor);
         mPlaceHolderCirclePaint.setStyle(Paint.Style.FILL);
 
         mValueAnimator.setDuration(250);
+        mValueAnimator.addListener(this);
         mValueAnimator.addUpdateListener(this);
         mValueAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+    }
+
+    public void setOnSmileySelectionListener(OnSmileySelectionListener l) {
+        mOnSmileySelectionListener = l;
+    }
+
+
+    public void setOnRatingSelectedListener(OnRatingSelectedListener l) {
+        mOnRatingSelectedListener = l;
     }
 
     @Override
@@ -260,6 +292,41 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         mValueAnimator.start();
     }
 
+    @Override
+    public void onAnimationStart(Animator animator) {
+
+    }
+
+    @Override
+    public void onAnimationEnd(Animator animator) {
+        if (mOnSmileySelectionListener != null && mPreviousSmile != getSelectedSmile()) {
+            mPreviousSmile = mSelectedSmile;
+            mOnSmileySelectionListener.onSmileySelected(mSelectedSmile);
+            if (mOnRatingSelectedListener != null) {
+                mOnRatingSelectedListener.onRatingSelected(getRating());
+            }
+        }
+    }
+
+    @Smiley
+    public int getSelectedSmile() {
+        return mSelectedSmile;
+    }
+
+    public int getRating() {
+        return getSelectedSmile() + 1;
+    }
+
+    @Override
+    public void onAnimationCancel(Animator animator) {
+
+    }
+
+    @Override
+    public void onAnimationRepeat(Animator animator) {
+
+    }
+
     /**
      * Evaluates click actions using touch events
      */
@@ -342,27 +409,27 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         if (fraction > 0.75f) {
             fraction -= 0.75f;
             fraction *= 4;
-            mBackgroundPaint.setColor(NORMAL_COLOR);
+            mBackgroundPaint.setColor(mNormalColor);
             transformSmile(trans, fraction, smilePath,
                     smileys.getSmile(GOOD), smileys.getSmile(GREAT), mFloatEvaluator);
             createEyeLocation(smileys, divisions, fraction, actualTranslation, GREAT, leftEye, rightEye, centerY);
         } else if (fraction > 0.50f) {
             fraction -= 0.50f;
             fraction *= 4;
-            mBackgroundPaint.setColor(NORMAL_COLOR);
+            mBackgroundPaint.setColor(mNormalColor);
             transformSmile(trans, fraction, smilePath,
                     smileys.getSmile(OKAY), smileys.getSmile(GOOD), mFloatEvaluator);
             createEyeLocation(smileys, divisions, fraction, actualTranslation, GOOD, leftEye, rightEye, centerY);
         } else if (fraction > 0.25f) {
             fraction -= 0.25f;
             fraction *= 4;
-            mBackgroundPaint.setColor(NORMAL_COLOR);
+            mBackgroundPaint.setColor(mNormalColor);
             transformSmile(trans, fraction, smilePath,
                     smileys.getSmile(BAD), smileys.getSmile(OKAY), mFloatEvaluator);
             createEyeLocation(smileys, divisions, fraction, actualTranslation, BAD, leftEye, rightEye, centerY);
         } else {
             fraction *= 4;
-            mBackgroundPaint.setColor((Integer) mColorEvaluator.evaluate(fraction, ANGRY_COLOR, NORMAL_COLOR));
+            mBackgroundPaint.setColor((Integer) mColorEvaluator.evaluate(fraction, mAngryColor, mNormalColor));
             transformSmile(trans, fraction, smilePath,
                     smileys.getSmile(TERRIBLE), smileys.getSmile(BAD), mFloatEvaluator);
             createEyeLocation(smileys, divisions, fraction, actualTranslation, TERRIBLE, leftEye, rightEye, centerY);
@@ -387,5 +454,13 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         Path smile = new Path();
         Path leftEye = new Path();
         Path rightEye = new Path();
+    }
+
+    public interface OnSmileySelectionListener {
+        void onSmileySelected(@Smiley int smiley);
+    }
+
+    public interface OnRatingSelectedListener {
+        void onRatingSelected(int level);
     }
 }
