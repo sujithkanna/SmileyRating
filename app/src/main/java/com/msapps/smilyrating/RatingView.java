@@ -100,7 +100,7 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
         mPlaceHolderFacePaint.setColor(Color.WHITE);
         mPlaceHolderFacePaint.setStyle(Paint.Style.FILL);
 
-        mPlaceHolderCirclePaint.setColor(Color.parseColor("#ced5e0"));
+        mPlaceHolderCirclePaint.setColor(Color.parseColor("#e6e8ed"));
         mPlaceHolderCirclePaint.setStyle(Paint.Style.FILL);
 
         mValueAnimator.setDuration(250);
