@@ -82,7 +82,6 @@ public class RatingView extends BaseRating implements ValueAnimator.AnimatorUpda
     }
 
     private void init() {
-        setWillNotDraw(false);
         mClickAnalyser = ClickAnalyser.newInstance(getResources().getDisplayMetrics().density);
 
         mPathPaint.setAntiAlias(true);

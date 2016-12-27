@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * Created by sujith on 16/10/16.
  */
-public abstract class BaseRating extends LinearLayout {
+public abstract class BaseRating extends View {
 
     private static final String TAG = "BaseSmile";
 
