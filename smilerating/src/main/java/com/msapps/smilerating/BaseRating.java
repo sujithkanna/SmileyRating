@@ -359,7 +359,6 @@ public abstract class BaseRating extends View {
             if (path == null) {
                 path = new Path();
             }
-            path.reset();
             path.addArc(getEyePosition(), startAngle, sweepAngle);
             return path;
         }

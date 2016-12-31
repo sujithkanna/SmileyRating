@@ -8,9 +8,12 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
@@ -38,8 +41,8 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
 
     private Paint mPointPaint1 = new Paint();
     private Paint mPointPaint2 = new Paint();
-    private Path mEyePathLeft = new Path();
-    private Path mEyePathRight = new Path();
+    //    private Path mEyePathLeft = new Path();
+//    private Path mEyePathRight = new Path();
     private Point mFaceCenter = new Point();
     private Path mSmilePath = new Path();
     private Paint mPlaceHolderFacePaint = new Paint();
@@ -49,12 +52,16 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
     private FloatEvaluator mFloatEvaluator = new FloatEvaluator();
     private ArgbEvaluator mColorEvaluator = new ArgbEvaluator();
     private ClickAnalyser mClickAnalyser;
+    private Matrix mScaleMatrix = new Matrix();
+    private RectF mScaleRect = new RectF();
+    private Path mDummyDrawPah = new Path();
 
     @Smiley
     private int mSelectedSmile = TERRIBLE;
     @Smiley
     private int mPreviousSmile = -1;
-
+    @Smiley
+    private int mNearestSmile = TERRIBLE;
     private Smileys mSmileys;
     // private float mTranslation = 0;
     private float mWidth;
@@ -62,11 +69,11 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
     private float mCenterY;
     private float mFromRange;
     private float mToRange;
-
     private float mPrevX;
     private boolean mFaceClickEngaged = false;
     private OnRatingSelectedListener mOnRatingSelectedListener = null;
     private OnSmileySelectionListener mOnSmileySelectionListener = null;
+    private float mPlaceHolderScale = 1f;
 
     public SmileRating(Context context) {
         super(context);
@@ -153,7 +160,7 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
         setMeasuredDimension(Math.round(mWidth), Math.round(mHeight));
         createTouchPoints();
         getSmiley(mSmileys, 0, divisions, mFromRange, mToRange,
-                mFaceCenter, mSmilePath, mEyePathLeft, mEyePathRight, mCenterY);
+                mFaceCenter, mSmilePath, mCenterY);
     }
 
     private void createTouchPoints() {
@@ -172,8 +179,9 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
 
     private Face createFace(int index, float centerY) {
         Face face = new Face();
+        face.smileType = index;
         getSmiley(mSmileys, index * 0.25f, divisions, mFromRange, mToRange, face.place,
-                face.smile, face.leftEye, face.rightEye, centerY);
+                face.smile, centerY);
         face.place.y = centerY;
         return face;
     }
@@ -182,22 +190,44 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         for (Face face : mFaces) {
-            canvas.drawCircle(face.place.x, face.place.y, mHeight / 2, mPlaceHolderCirclePaint);
             if (!mSmilePath.isEmpty()) {
-                canvas.drawPath(face.smile, mPlaceHolderFacePaint);
-                canvas.drawPath(face.leftEye, mPlaceHolderFacePaint);
-                canvas.drawPath(face.rightEye, mPlaceHolderFacePaint);
+                if (mNearestSmile == face.smileType) {
+                    canvas.drawCircle(face.place.x, face.place.y,
+                            mPlaceHolderScale * (mHeight / 2), mPlaceHolderCirclePaint);
+                    mScaleMatrix.reset();
+                    face.smile.computeBounds(mScaleRect, true);
+                    mScaleMatrix.setScale(mPlaceHolderScale, mPlaceHolderScale,
+                            mScaleRect.centerX(), mScaleRect.centerY());
+                    mDummyDrawPah.reset();
+                    mDummyDrawPah.addPath(face.smile, mScaleMatrix);
+                    Log.i(TAG, "Nearest smile: " + getSmileName(mNearestSmile) + " - " + mPlaceHolderScale);
+                    canvas.drawPath(mDummyDrawPah, mPlaceHolderFacePaint);
+                } else {
+                    canvas.drawCircle(face.place.x, face.place.y, mHeight / 2, mPlaceHolderCirclePaint);
+                    canvas.drawPath(face.smile, mPlaceHolderFacePaint);
+                }
             }
         }
-        /*for (Point point : mTouchPoints.values()) {
-            canvas.drawCircle(point.x, point.y, 20, mBackgroundPaint);
-        }*/
         canvas.drawCircle(mFaceCenter.x, mFaceCenter.y, mHeight / 2f, mBackgroundPaint);
         if (!mSmilePath.isEmpty()) {
             canvas.drawPath(mSmilePath, mPathPaint);
-            canvas.drawPath(mEyePathLeft, mPathPaint);
-            canvas.drawPath(mEyePathRight, mPathPaint);
         }
+    }
+
+    public static String getSmileName(int smile) {
+        switch (smile) {
+            case BaseRating.BAD:
+                return "Bad";
+            case BaseRating.GOOD:
+                return "Good";
+            case BaseRating.GREAT:
+                return "Great";
+            case BaseRating.OKAY:
+                return "Okay";
+            case BaseRating.TERRIBLE:
+                return "Terrible";
+        }
+        return null;
     }
 
     @Override
@@ -260,7 +290,7 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
         float fraction = (x - mFromRange) / (mToRange - mFromRange);
         if (fraction >= 0f && fraction <= 1f) {
             getSmiley(mSmileys, fraction, divisions, mFromRange, mToRange,
-                    mFaceCenter, mSmilePath, mEyePathLeft, mEyePathRight, mCenterY);
+                    mFaceCenter, mSmilePath, mCenterY);
             invalidate();
         }
     }
@@ -399,7 +429,7 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
 
     private void getSmiley(Smileys smileys, float fraction, float divisions, float fromRange,
                            float toRange, Point point, Path smilePath,
-                           Path leftEye, Path rightEye, float centerY) {
+                           float centerY) {
         if (smileys == null) {
             return;
         }
@@ -409,30 +439,44 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
         if (fraction > 0.75f) {
             fraction -= 0.75f;
             fraction *= 4;
+            findNearestSmile(fraction, GOOD, GREAT);
             mBackgroundPaint.setColor(mNormalColor);
             transformSmile(trans, fraction, smilePath,
                     smileys.getSmile(GOOD), smileys.getSmile(GREAT), mFloatEvaluator);
-            createEyeLocation(smileys, divisions, fraction, actualTranslation, GREAT, leftEye, rightEye, centerY);
+            createEyeLocation(smileys, divisions, fraction, actualTranslation, GREAT, smilePath, smilePath, centerY);
         } else if (fraction > 0.50f) {
             fraction -= 0.50f;
             fraction *= 4;
+            findNearestSmile(fraction, OKAY, GOOD);
             mBackgroundPaint.setColor(mNormalColor);
             transformSmile(trans, fraction, smilePath,
                     smileys.getSmile(OKAY), smileys.getSmile(GOOD), mFloatEvaluator);
-            createEyeLocation(smileys, divisions, fraction, actualTranslation, GOOD, leftEye, rightEye, centerY);
+            createEyeLocation(smileys, divisions, fraction, actualTranslation, GOOD, smilePath, smilePath, centerY);
         } else if (fraction > 0.25f) {
             fraction -= 0.25f;
             fraction *= 4;
+            findNearestSmile(fraction, BAD, OKAY);
             mBackgroundPaint.setColor(mNormalColor);
             transformSmile(trans, fraction, smilePath,
                     smileys.getSmile(BAD), smileys.getSmile(OKAY), mFloatEvaluator);
-            createEyeLocation(smileys, divisions, fraction, actualTranslation, BAD, leftEye, rightEye, centerY);
+            createEyeLocation(smileys, divisions, fraction, actualTranslation, BAD, smilePath, smilePath, centerY);
         } else {
             fraction *= 4;
+            findNearestSmile(fraction, TERRIBLE, BAD);
             mBackgroundPaint.setColor((Integer) mColorEvaluator.evaluate(fraction, mAngryColor, mNormalColor));
             transformSmile(trans, fraction, smilePath,
                     smileys.getSmile(TERRIBLE), smileys.getSmile(BAD), mFloatEvaluator);
-            createEyeLocation(smileys, divisions, fraction, actualTranslation, TERRIBLE, leftEye, rightEye, centerY);
+            createEyeLocation(smileys, divisions, fraction, actualTranslation, TERRIBLE, smilePath, smilePath, centerY);
+        }
+    }
+
+    private void findNearestSmile(float fraction, @Smiley int leftSmile, @Smiley int rightSmile) {
+        if (fraction < 0.5f) {
+            mPlaceHolderScale = fraction * 2;
+            mNearestSmile = leftSmile;
+        } else {
+            mPlaceHolderScale = 1f - (fraction - 0.5f) * 2;
+            mNearestSmile = rightSmile;
         }
     }
 
@@ -452,8 +496,10 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
     private static class Face {
         Point place = new Point();
         Path smile = new Path();
-        Path leftEye = new Path();
-        Path rightEye = new Path();
+        @Smiley
+        int smileType;
+        /*Path leftEye = new Path();
+        Path rightEye = new Path();*/
     }
 
     public interface OnSmileySelectionListener {
