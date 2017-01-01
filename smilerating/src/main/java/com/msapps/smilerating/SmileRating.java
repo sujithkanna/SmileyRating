@@ -12,6 +12,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -56,6 +57,7 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
     private Matrix mScaleMatrix = new Matrix();
     private RectF mScaleRect = new RectF();
     private Path mDummyDrawPah = new Path();
+    private Paint mTextPaint = new Paint();
 
     @Smiley
     private int mSelectedSmile = TERRIBLE;
@@ -114,6 +116,9 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
     private void init() {
         mClickAnalyser = ClickAnalyser.newInstance(getResources().getDisplayMetrics().density);
 
+        mTextPaint.setColor(Color.BLACK);
+        mTextPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+
         mPathPaint.setAntiAlias(true);
         mPathPaint.setStrokeWidth(3);
         mPathPaint.setColor(mDrawingColor);
@@ -160,8 +165,9 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
         mCenterY = mHeight / 2f;
         mFaceCenter.y = mCenterY;
         divisions = (mHeight / 32f);
+        mTextPaint.setTextSize(mHeight / 4.5f);
         mSmileys = Smileys.newInstance(Math.round(mWidth), Math.round(mHeight));
-        setMeasuredDimension(Math.round(mWidth), (int) Math.round(mHeight + (mHeight * 0.3)));
+        setMeasuredDimension(Math.round(mWidth), (int) Math.round(mHeight + (mHeight * 0.45)));
         createTouchPoints();
         mPlaceholderLinePaint.setStrokeWidth(mHeight * 0.05f);
         getSmiley(mSmileys, 0, divisions, mFromRange, mToRange,
@@ -209,12 +215,24 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
                 mDummyDrawPah.reset();
                 mDummyDrawPah.addPath(face.smile, mScaleMatrix);
                 canvas.drawPath(mDummyDrawPah, mPlaceHolderFacePaint);
+                float transY = 0.15f - (scale * 0.15f);
+                mTextPaint.setColor((int) mColorEvaluator.evaluate((transY / 0.15f),
+                        mPlaceholderBackgroundColor, Color.BLACK));
+                drawTextCentered(getSmileName(face.smileType), face.place.x,
+                        face.place.y + (mHeight * (0.70f + transY)), mTextPaint, canvas);
             }
         }
         canvas.drawCircle(mFaceCenter.x, mFaceCenter.y, mHeight / 2f, mBackgroundPaint);
         if (!mSmilePath.isEmpty()) {
             canvas.drawPath(mSmilePath, mPathPaint);
         }
+    }
+
+    private void drawTextCentered(String text, float x, float y, Paint paint, Canvas canvas) {
+        float xPos = x - (paint.measureText(text) / 2);
+        float yPos = (y - ((paint.descent() + paint.ascent()) / 2));
+
+        canvas.drawText(text, xPos, yPos, paint);
     }
 
     private float getScale(@Smiley int smile) {
@@ -491,10 +509,8 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
     }
 
     private float limitNumberInRange(float num) {
-        // The range is going to be in between 0.15 to 0.85
-        Log.i(TAG, "Before conversion: " + num);
-        num = (num * 0.80f);
-        Log.i(TAG, "After conversion: " + num);
+        // The range is going to be in between 0 to 0.80
+        num *= 0.80f;
         return num;
     }
 
