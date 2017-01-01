@@ -167,7 +167,7 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
         divisions = (mHeight / 32f);
         mTextPaint.setTextSize(mHeight / 4.5f);
         mSmileys = Smileys.newInstance(Math.round(mWidth), Math.round(mHeight));
-        setMeasuredDimension(Math.round(mWidth), (int) Math.round(mHeight + (mHeight * 0.45)));
+        setMeasuredDimension(Math.round(mWidth), (int) Math.round(mHeight + (mHeight * 0.48)));
         createTouchPoints();
         mPlaceholderLinePaint.setStrokeWidth(mHeight * 0.05f);
         getSmiley(mSmileys, 0, divisions, mFromRange, mToRange,
