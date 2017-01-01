@@ -46,6 +46,7 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
     private Point mFaceCenter = new Point();
     private Path mSmilePath = new Path();
     private Paint mPlaceHolderFacePaint = new Paint();
+    private Paint mPlaceholderLinePaint = new Paint();
     private Paint mPlaceHolderCirclePaint = new Paint();
     private float divisions;
     private ValueAnimator mValueAnimator = new ValueAnimator();
@@ -132,6 +133,9 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
         mPlaceHolderCirclePaint.setColor(mPlaceholderBackgroundColor);
         mPlaceHolderCirclePaint.setStyle(Paint.Style.FILL);
 
+        mPlaceholderLinePaint.setColor(mPlaceholderBackgroundColor);
+        mPlaceholderLinePaint.setStyle(Paint.Style.STROKE);
+
         mValueAnimator.setDuration(250);
         mValueAnimator.addListener(this);
         mValueAnimator.addUpdateListener(this);
@@ -157,8 +161,9 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
         mFaceCenter.y = mCenterY;
         divisions = (mHeight / 32f);
         mSmileys = Smileys.newInstance(Math.round(mWidth), Math.round(mHeight));
-        setMeasuredDimension(Math.round(mWidth), Math.round(mHeight));
+        setMeasuredDimension(Math.round(mWidth), (int) Math.round(mHeight + (mHeight * 0.3)));
         createTouchPoints();
+        mPlaceholderLinePaint.setStrokeWidth(mHeight * 0.05f);
         getSmiley(mSmileys, 0, divisions, mFromRange, mToRange,
                 mFaceCenter, mSmilePath, mCenterY);
     }
@@ -189,29 +194,34 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        Point start = mFaces[0].place;
+        Point end = mFaces[mFaces.length - 1].place;
+        canvas.drawLine(start.x, start.y, end.x, end.y, mPlaceholderLinePaint);
         for (Face face : mFaces) {
             if (!mSmilePath.isEmpty()) {
-                if (mNearestSmile == face.smileType) {
-                    canvas.drawCircle(face.place.x, face.place.y,
-                            mPlaceHolderScale * (mHeight / 2), mPlaceHolderCirclePaint);
-                    mScaleMatrix.reset();
-                    face.smile.computeBounds(mScaleRect, true);
-                    mScaleMatrix.setScale(mPlaceHolderScale, mPlaceHolderScale,
-                            mScaleRect.centerX(), mScaleRect.centerY());
-                    mDummyDrawPah.reset();
-                    mDummyDrawPah.addPath(face.smile, mScaleMatrix);
-                    Log.i(TAG, "Nearest smile: " + getSmileName(mNearestSmile) + " - " + mPlaceHolderScale);
-                    canvas.drawPath(mDummyDrawPah, mPlaceHolderFacePaint);
-                } else {
-                    canvas.drawCircle(face.place.x, face.place.y, mHeight / 2, mPlaceHolderCirclePaint);
-                    canvas.drawPath(face.smile, mPlaceHolderFacePaint);
-                }
+                float scale = getScale(face.smileType);
+                canvas.drawCircle(face.place.x, face.place.y,
+                        scale * (mHeight / 2), mPlaceHolderCirclePaint);
+                mScaleMatrix.reset();
+                face.smile.computeBounds(mScaleRect, true);
+                mScaleMatrix.setScale(scale, scale,
+                        mScaleRect.centerX(), mScaleRect.centerY());
+                mDummyDrawPah.reset();
+                mDummyDrawPah.addPath(face.smile, mScaleMatrix);
+                canvas.drawPath(mDummyDrawPah, mPlaceHolderFacePaint);
             }
         }
         canvas.drawCircle(mFaceCenter.x, mFaceCenter.y, mHeight / 2f, mBackgroundPaint);
         if (!mSmilePath.isEmpty()) {
             canvas.drawPath(mSmilePath, mPathPaint);
         }
+    }
+
+    private float getScale(@Smiley int smile) {
+        if (smile == mNearestSmile) {
+            return mPlaceHolderScale;
+        }
+        return 0.80f;
     }
 
     public static String getSmileName(int smile) {
@@ -472,12 +482,20 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
 
     private void findNearestSmile(float fraction, @Smiley int leftSmile, @Smiley int rightSmile) {
         if (fraction < 0.5f) {
-            mPlaceHolderScale = fraction * 2;
+            mPlaceHolderScale = limitNumberInRange(fraction * 2);
             mNearestSmile = leftSmile;
         } else {
-            mPlaceHolderScale = 1f - (fraction - 0.5f) * 2;
+            mPlaceHolderScale = limitNumberInRange(1f - (fraction - 0.5f) * 2);
             mNearestSmile = rightSmile;
         }
+    }
+
+    private float limitNumberInRange(float num) {
+        // The range is going to be in between 0.15 to 0.85
+        Log.i(TAG, "Before conversion: " + num);
+        num = (num * 0.80f);
+        Log.i(TAG, "After conversion: " + num);
+        return num;
     }
 
     private void createEyeLocation(Smileys smileys, float divisions, float fraction, float actualTranslation, @Smiley int smile, Path leftEye, Path rightEye, float centerY) {
