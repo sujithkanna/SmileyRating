@@ -14,7 +14,6 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
@@ -56,6 +55,7 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
     private ClickAnalyser mClickAnalyser;
     private Matrix mScaleMatrix = new Matrix();
     private RectF mScaleRect = new RectF();
+    private RectF mTouchBounds = new RectF();
     private Path mDummyDrawPah = new Path();
     private Paint mTextPaint = new Paint();
 
@@ -272,7 +272,7 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 mClickAnalyser.start(x, y);
-                mFaceClickEngaged = isPointInCircle(mFaceCenter.x, mFaceCenter.y,
+                mFaceClickEngaged = isSmileyBounds(mFaceCenter.x, mFaceCenter.y,
                         x, y, mCenterY);
                 mPrevX = x;
                 break;
@@ -326,15 +326,16 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
     private void onClickView(float x, float y) {
         for (Integer smile : mTouchPoints.keySet()) {
             Point point = mTouchPoints.get(smile);
-            boolean touched = isPointInCircle(point.x, point.y, x, y, mCenterY);
+            boolean touched = isSmileyBounds(point.x, point.y, x, y, mCenterY);
             if (touched) {
                 setSelectedSmile(smile, point, true);
             }
         }
     }
 
-    private boolean isPointInCircle(float cx, float cy, float tx, float ty, float radius) {
-        return Math.sqrt(Math.pow(cx - tx, 2) + Math.pow(cy - ty, 2)) <= radius;
+    private boolean isSmileyBounds(float cx, float cy, float tx, float ty, float width) {
+        mTouchBounds.set(cx - width, 0, cx + width, getMeasuredHeight());
+        return mTouchBounds.contains(tx, ty);
     }
 
     public void setSelectedSmile(@Smiley int smile) {
