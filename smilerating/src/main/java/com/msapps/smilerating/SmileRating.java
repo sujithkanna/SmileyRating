@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * Created by sujith on 11/10/16.
  */
-public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpdateListener, Animator.AnimatorListener {
+public class SmileRating extends BaseRating {
 
     private static final String TAG = "RatingView";
 
@@ -142,10 +142,46 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
         mPlaceholderLinePaint.setStyle(Paint.Style.STROKE);
 
         mValueAnimator.setDuration(250);
-        mValueAnimator.addListener(this);
-        mValueAnimator.addUpdateListener(this);
+        mValueAnimator.addUpdateListener(mAnimatorUpdateListener);
         mValueAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
     }
+
+    private ValueAnimator.AnimatorUpdateListener mAnimatorUpdateListener
+            = new ValueAnimator.AnimatorUpdateListener() {
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
+            float anim = (float) animation.getAnimatedValue();
+            moveSmile(anim);
+        }
+    };
+
+    private Animator.AnimatorListener mAnimatorListener = new Animator.AnimatorListener() {
+        @Override
+        public void onAnimationStart(Animator animation) {
+
+        }
+
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            if (mOnSmileySelectionListener != null && mPreviousSmile != getSelectedSmile()) {
+                mPreviousSmile = mSelectedSmile;
+                mOnSmileySelectionListener.onSmileySelected(mSelectedSmile);
+                if (mOnRatingSelectedListener != null) {
+                    mOnRatingSelectedListener.onRatingSelected(getRating());
+                }
+            }
+        }
+
+        @Override
+        public void onAnimationCancel(Animator animation) {
+
+        }
+
+        @Override
+        public void onAnimationRepeat(Animator animation) {
+
+        }
+    };
 
     public void setOnSmileySelectionListener(OnSmileySelectionListener l) {
         mOnSmileySelectionListener = l;
@@ -259,12 +295,6 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
     }
 
     @Override
-    public void onAnimationUpdate(ValueAnimator valueAnimator) {
-        float anim = (float) valueAnimator.getAnimatedValue();
-        moveSmile(anim);
-    }
-
-    @Override
     public boolean onTouchEvent(MotionEvent event) {
         int action = event.getAction();
         float x = event.getX();
@@ -351,22 +381,6 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
         mValueAnimator.start();
     }
 
-    @Override
-    public void onAnimationStart(Animator animator) {
-
-    }
-
-    @Override
-    public void onAnimationEnd(Animator animator) {
-        if (mOnSmileySelectionListener != null && mPreviousSmile != getSelectedSmile()) {
-            mPreviousSmile = mSelectedSmile;
-            mOnSmileySelectionListener.onSmileySelected(mSelectedSmile);
-            if (mOnRatingSelectedListener != null) {
-                mOnRatingSelectedListener.onRatingSelected(getRating());
-            }
-        }
-    }
-
     @Smiley
     public int getSelectedSmile() {
         return mSelectedSmile;
@@ -374,16 +388,6 @@ public class SmileRating extends BaseRating implements ValueAnimator.AnimatorUpd
 
     public int getRating() {
         return getSelectedSmile() + 1;
-    }
-
-    @Override
-    public void onAnimationCancel(Animator animator) {
-
-    }
-
-    @Override
-    public void onAnimationRepeat(Animator animator) {
-
     }
 
     /**
