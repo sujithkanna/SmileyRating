@@ -63,7 +63,7 @@ smileRating.setOnRatingSelectedListener(new SmileRating.OnRatingSelectedListener
             }
         });
 ```
-### You can set selected smiley without interaction
+### You can set selected smiley without user interaction
 #### Without animation
 ```java
 smileRating.setSelectedSmile(BaseRating.GREAT);
