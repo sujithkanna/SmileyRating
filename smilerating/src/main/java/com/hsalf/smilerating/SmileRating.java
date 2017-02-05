@@ -14,6 +14,7 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
@@ -60,11 +61,13 @@ public class SmileRating extends BaseRating {
     private Paint mTextPaint = new Paint();
 
     @Smiley
-    private int mSelectedSmile = TERRIBLE;
+    private int mSelectedSmile = OKAY;
     @Smiley
     private int mPreviousSmile = -1;
     @Smiley
-    private int mNearestSmile = TERRIBLE;
+    private int mNearestSmile = OKAY;
+    @Smiley
+    private int mPendingActionSmile = OKAY;
     private Smileys mSmileys;
     // private float mTranslation = 0;
     private float mWidth;
@@ -163,13 +166,7 @@ public class SmileRating extends BaseRating {
 
         @Override
         public void onAnimationEnd(Animator animation) {
-            if (mOnSmileySelectionListener != null && mPreviousSmile != getSelectedSmile()) {
-                mPreviousSmile = mSelectedSmile;
-                mOnSmileySelectionListener.onSmileySelected(mSelectedSmile);
-                if (mOnRatingSelectedListener != null) {
-                    mOnRatingSelectedListener.onRatingSelected(getRating());
-                }
-            }
+            notifyListener();
         }
 
         @Override
@@ -182,6 +179,16 @@ public class SmileRating extends BaseRating {
 
         }
     };
+
+    private void notifyListener() {
+        if (mOnSmileySelectionListener != null && mPreviousSmile != getSelectedSmile()) {
+            mPreviousSmile = mSelectedSmile;
+            mOnSmileySelectionListener.onSmileySelected(mSelectedSmile);
+            if (mOnRatingSelectedListener != null) {
+                mOnRatingSelectedListener.onRatingSelected(getRating());
+            }
+        }
+    }
 
     public void setOnSmileySelectionListener(OnSmileySelectionListener l) {
         mOnSmileySelectionListener = l;
@@ -206,8 +213,10 @@ public class SmileRating extends BaseRating {
         setMeasuredDimension(Math.round(mWidth), (int) Math.round(mHeight + (mHeight * 0.48)));
         createTouchPoints();
         mPlaceholderLinePaint.setStrokeWidth(mHeight * 0.05f);
-        getSmiley(mSmileys, 0, divisions, mFromRange, mToRange,
-                mFaceCenter, mSmilePath, mCenterY);
+        /*getSmiley(mSmileys, 0.5f, divisions, mFromRange, mToRange,
+                mFaceCenter, mSmilePath, mCenterY);*/
+        setSelectedSmile(mPendingActionSmile, mTouchPoints.get(mPendingActionSmile), false, false);
+        Log.i(TAG, "Selected smile:" + getSmileName(mPendingActionSmile));
     }
 
     private void createTouchPoints() {
@@ -341,11 +350,15 @@ public class SmileRating extends BaseRating {
                 distance = d;
             }
         }
-        setSelectedSmile(smile, point, false);
+        setSelectedSmile(smile, point, false, true);
     }
 
-    private void moveSmile(float x) {
-        float fraction = (x - mFromRange) / (mToRange - mFromRange);
+    private void moveSmile(float position) {
+        float fraction = (position - mFromRange) / (mToRange - mFromRange);
+        moveSmileByFraction(fraction);
+    }
+
+    private void moveSmileByFraction(float fraction) {
         if (fraction >= 0f && fraction <= 1f) {
             getSmiley(mSmileys, fraction, divisions, mFromRange, mToRange,
                     mFaceCenter, mSmilePath, mCenterY);
@@ -358,7 +371,7 @@ public class SmileRating extends BaseRating {
             Point point = mTouchPoints.get(smile);
             boolean touched = isSmileyBounds(point.x, point.y, x, y, mCenterY);
             if (touched) {
-                setSelectedSmile(smile, point, true);
+                setSelectedSmile(smile, point, true, true);
             }
         }
     }
@@ -369,16 +382,30 @@ public class SmileRating extends BaseRating {
     }
 
     public void setSelectedSmile(@Smiley int smile) {
-        setSelectedSmile(smile, mTouchPoints.get(smile), true);
+        setSelectedSmile(smile, false);
     }
 
-    private void setSelectedSmile(@Smiley int smile, Point point, boolean check) {
+    public void setSelectedSmile(@Smiley int smile, boolean animate) {
+        mPendingActionSmile = smile;
+        setSelectedSmile(smile, mTouchPoints.get(smile), true, animate);
+    }
+
+    private void setSelectedSmile(@Smiley int smile, Point point, boolean check, boolean animate) {
         if (mSelectedSmile == smile && check) {
+            return;
+        }
+        if (mFaceCenter == null || point == null) {
+            mSelectedSmile = smile;
             return;
         }
         mSelectedSmile = smile;
         mValueAnimator.setFloatValues(mFaceCenter.x, point.x);
-        mValueAnimator.start();
+        if (animate) {
+            mValueAnimator.start();
+        } else {
+            moveSmile(point.x);
+            // notifyListener();
+        }
     }
 
     @Smiley
