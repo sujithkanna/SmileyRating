@@ -1,4 +1,4 @@
-package com.msapps.smilerating;
+package com.hsalf.smilerating;
 
 import android.animation.Animator;
 import android.animation.ArgbEvaluator;

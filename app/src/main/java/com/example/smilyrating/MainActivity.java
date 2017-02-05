@@ -4,8 +4,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import com.msapps.smilerating.BaseRating;
-import com.msapps.smilerating.SmileRating;
+import com.hsalf.smilerating.BaseRating;
+import com.hsalf.smilerating.SmileRating;
 
 public class MainActivity extends AppCompatActivity implements SmileRating.OnSmileySelectionListener, SmileRating.OnRatingSelectedListener {
 

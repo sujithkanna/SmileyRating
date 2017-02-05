@@ -1,4 +1,4 @@
-package com.msapps.smilerating;
+package com.hsalf.smilerating;
 
 import android.animation.FloatEvaluator;
 import android.content.Context;

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.msapps.smilerating.SmileRating
+    <com.hsalf.smilerating.SmileRating
         android:id="@+id/ratingView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
