@@ -25,19 +25,19 @@ public class MainActivity extends AppCompatActivity implements SmileRating.OnSmi
     @Override
     public void onSmileySelected(@BaseRating.Smiley int smiley) {
         switch (smiley) {
-            case BaseRating.BAD:
+            case SmileRating.BAD:
                 Log.i(TAG, "Bad");
                 break;
-            case BaseRating.GOOD:
+            case SmileRating.GOOD:
                 Log.i(TAG, "Good");
                 break;
-            case BaseRating.GREAT:
+            case SmileRating.GREAT:
                 Log.i(TAG, "Great");
                 break;
-            case BaseRating.OKAY:
+            case SmileRating.OKAY:
                 Log.i(TAG, "Okay");
                 break;
-            case BaseRating.TERRIBLE:
+            case SmileRating.TERRIBLE:
                 Log.i(TAG, "Terrible");
                 break;
         }
