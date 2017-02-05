@@ -5,7 +5,7 @@ SmileyRating is a simple rating bar which for android. It displayes animated smi
 
 ## Demo
  
-![alttg](https://raw.githubusercontent.com/sujithkanna/SmileyRating/master/app/src/main/assets/demo.gif)
+ <img src="https://raw.githubusercontent.com/sujithkanna/SmileyRating/master/app/src/main/assets/demo.gif" alt="" data-canonical-src="https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png" width="250" height="445" />
 
 ## Integration
 Integrating SmileyRating in your project is very simple.
