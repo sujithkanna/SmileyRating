@@ -145,6 +145,7 @@ public class SmileRating extends BaseRating {
         mPlaceholderLinePaint.setStyle(Paint.Style.STROKE);
 
         mValueAnimator.setDuration(250);
+        mValueAnimator.addListener(mAnimatorListener);
         mValueAnimator.addUpdateListener(mAnimatorUpdateListener);
         mValueAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
     }
@@ -181,6 +182,7 @@ public class SmileRating extends BaseRating {
     };
 
     private void notifyListener() {
+        Log.i(TAG, mPreviousSmile + " " + getSelectedSmile());
         if (mOnSmileySelectionListener != null && mPreviousSmile != getSelectedSmile()) {
             mPreviousSmile = mSelectedSmile;
             mOnSmileySelectionListener.onSmileySelected(mSelectedSmile);
