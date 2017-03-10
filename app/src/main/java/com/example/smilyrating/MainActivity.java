@@ -20,10 +20,11 @@ public class MainActivity extends AppCompatActivity implements SmileRating.OnSmi
         mSmileRating = (SmileRating) findViewById(R.id.ratingView);
         mSmileRating.setOnSmileySelectionListener(this);
         mSmileRating.setOnRatingSelectedListener(this);
+        mSmileRating.setSelectedSmile(BaseRating.GREAT);
     }
 
     @Override
-    public void onSmileySelected(@BaseRating.Smiley int smiley) {
+    public void onSmileySelected(@BaseRating.Smiley int smiley, boolean reselected) {
         switch (smiley) {
             case SmileRating.BAD:
                 Log.i(TAG, "Bad");
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements SmileRating.OnSmi
     }
 
     @Override
-    public void onRatingSelected(int level) {
-        Log.i(TAG, "Rated as: " + level);
+    public void onRatingSelected(int level, boolean reselected) {
+        Log.i(TAG, "Rated as: " + level + " - " + reselected);
     }
 }

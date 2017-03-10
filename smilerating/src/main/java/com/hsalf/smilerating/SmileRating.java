@@ -186,16 +186,14 @@ public class SmileRating extends BaseRating {
     };
 
     private void notifyListener() {
-        Log.i(TAG, mPreviousSmile + " " + getSelectedSmile());
-        //if (mPreviousSmile != getSelectedSmile()) {
+        boolean reselected = mPreviousSmile == getSelectedSmile();
         mPreviousSmile = mSelectedSmile;
         if (mOnSmileySelectionListener != null) {
-            mOnSmileySelectionListener.onSmileySelected(mSelectedSmile);
+            mOnSmileySelectionListener.onSmileySelected(mSelectedSmile, reselected);
         }
         if (mOnRatingSelectedListener != null) {
-            mOnRatingSelectedListener.onRatingSelected(getRating());
+            mOnRatingSelectedListener.onRatingSelected(getRating(), reselected);
         }
-        //}
     }
 
     public void setOnSmileySelectionListener(OnSmileySelectionListener l) {
@@ -576,10 +574,10 @@ public class SmileRating extends BaseRating {
     }
 
     public interface OnSmileySelectionListener {
-        void onSmileySelected(@Smiley int smiley);
+        void onSmileySelected(@Smiley int smiley, boolean reselected);
     }
 
     public interface OnRatingSelectedListener {
-        void onRatingSelected(int level);
+        void onRatingSelected(int level, boolean reselected);
     }
 }
