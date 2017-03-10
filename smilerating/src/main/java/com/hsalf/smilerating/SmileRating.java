@@ -34,6 +34,10 @@ public class SmileRating extends BaseRating {
     private int mDrawingColor = Color.parseColor("#353431");
     private int mPlaceholderBackgroundColor = Color.parseColor("#e6e8ed");
 
+    private String[] mNames = new String[]{
+            "Terrible", "Bad", "Okay", "Good", "Great"
+    };
+
     private Face[] mFaces = new Face[SMILES_LIST.length];
     private Map<Integer, Point> mTouchPoints = new HashMap<>();
     private float mSmileGap;
@@ -289,20 +293,16 @@ public class SmileRating extends BaseRating {
         return 0.80f;
     }
 
-    public static String getSmileName(int smile) {
-        switch (smile) {
-            case BaseRating.BAD:
-                return "Bad";
-            case BaseRating.GOOD:
-                return "Good";
-            case BaseRating.GREAT:
-                return "Great";
-            case BaseRating.OKAY:
-                return "Okay";
-            case BaseRating.TERRIBLE:
-                return "Terrible";
+    public String getSmileName(int smile) {
+        if (smile >= mNames.length) {
+            return null;
         }
-        return null;
+        return mNames[smile];
+    }
+
+    public void setNameForSmile(@Smiley int smile, String title) {
+        mNames[smile] = title != null ? title : "";
+        invalidate();
     }
 
     @Override
