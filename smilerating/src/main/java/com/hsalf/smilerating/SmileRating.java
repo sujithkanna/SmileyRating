@@ -402,11 +402,10 @@ public class SmileRating extends BaseRating {
         if (mSelectedSmile == smile && check) {
             return;
         }
+        mSelectedSmile = smile;
         if (mFaceCenter == null || point == null) {
-            mSelectedSmile = smile;
             return;
         }
-        mSelectedSmile = smile;
         mValueAnimator.setFloatValues(mFaceCenter.x, point.x);
         if (animate) {
             mValueAnimator.start();
