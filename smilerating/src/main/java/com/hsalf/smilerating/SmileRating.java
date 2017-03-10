@@ -387,10 +387,20 @@ public class SmileRating extends BaseRating {
         return mTouchBounds.contains(tx, ty);
     }
 
+    /**
+     * Set the selected smiley
+     * @param smile is he smiley type you want this rating bar to show as selected smile
+     */
     public void setSelectedSmile(@Smiley int smile) {
         setSelectedSmile(smile, false);
     }
 
+    /**
+     * Set the selected smiley
+     * @param smile is he smiley type you want this rating bar to show as selected smile
+     * @param animate true if you want to set the selected smiley and animate it,
+     *                false for no animation
+     */
     public void setSelectedSmile(@Smiley int smile, boolean animate) {
         mPendingActionSmile = smile;
         setSelectedSmile(smile, mTouchPoints.get(smile), true, animate);
@@ -574,10 +584,27 @@ public class SmileRating extends BaseRating {
     }
 
     public interface OnSmileySelectionListener {
+        /**
+         * Called when a smiley is selected
+         *
+         * @param smiley     is the type of smiley the user selected ({@link #GREAT}, {@link #BAD},
+         *                   {@link #OKAY},{@link #GOOD},{@link #GREAT})
+         * @param reselected is false when user selects different smiley that previously selected
+         *                   one true when the same smiley is selected. Except if it first time,
+         *                   then the value will be false.
+         */
         void onSmileySelected(@Smiley int smiley, boolean reselected);
     }
 
     public interface OnRatingSelectedListener {
+        /**
+         * Called when a smiley is selected
+         *
+         * @param level      is the level of the rating (0 to 4)
+         * @param reselected is false when user selects different smiley that previously selected
+         *                   one true when the same smiley is selected. Except if it first time,
+         *                   then the value will be false.
+         */
         void onRatingSelected(int level, boolean reselected);
     }
 }
