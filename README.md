@@ -12,7 +12,7 @@ Integrating SmileyRating in your project is very simple.
 ### Step 1:
 Add this dependency in your project's build.gradle file which is in your app folder
 ```groovy
-compile 'com.github.sujithkanna:smileyrating:1.4.1'
+compile 'com.github.sujithkanna:smileyrating:1.5.0'
 ```
 add this to your dependencies.
 ## Step 2:
@@ -33,7 +33,10 @@ SmileRating smileRating = (SmileRating) findViewById(R.id.smile_rating);
 ```java
 smileRating.setOnSmileySelectionListener(new SmileRating.OnSmileySelectionListener() {
             @Override
-            public void onSmileySelected(int smiley) {
+            public void onSmileySelected(@BaseRating.Smiley int smiley, boolean reselected) {
+	            // reselected is false when user selects different smiley that previously selected one
+		        // true when the same smiley is selected.
+		        // Except if it first time, then the value will be false.
                 switch (smiley) {
                     case SmileRating.BAD:
                         Log.i(TAG, "Bad");
@@ -58,8 +61,11 @@ smileRating.setOnSmileySelectionListener(new SmileRating.OnSmileySelectionListen
 ```java
 smileRating.setOnRatingSelectedListener(new SmileRating.OnRatingSelectedListener() {
             @Override
-            public void onRatingSelected(int level) {
+            public void onRatingSelected(int level, boolean reselected) {
                 // level is from 1 to 5
+                // reselected is false when user selects different smiley that previously selected one
+		        // true when the same smiley is selected.
+		        // Except if it first time, then the value will be false.
             }
         });
 ```
