@@ -4,7 +4,7 @@ SmileyRating is a simple rating bar for android. It displayes animated smileys a
   - Inspired by [Bill Labus](https://dribbble.com/shots/2790473-Feedback)
 
 ## Demo
- 
+
  <img src="https://raw.githubusercontent.com/sujithkanna/SmileyRating/master/app/src/main/assets/demo.gif" alt="" data-canonical-src="https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png" width="575" height="205" />
 
 ## Integration
@@ -12,7 +12,7 @@ Integrating SmileyRating in your project is very simple.
 ### Step 1:
 Add this dependency in your project's build.gradle file which is in your app folder
 ```groovy
-compile 'com.github.sujithkanna:smileyrating:1.4'
+compile 'com.github.sujithkanna:smileyrating:1.4.1'
 ```
 add this to your dependencies.
 ## Step 2:
@@ -78,3 +78,8 @@ smileRating.setSelectedSmile(BaseRating.GREAT, false);
 smileRating.setSelectedSmile(BaseRating.GREAT, true);
 ```
 *Smiley will be selected with animation and listeners will also be triggered(Only if the second param is true)*
+#### You can change the smiley name also
+```java
+mSmileRating.setNameForSmile(BaseRating.TERRIBLE, "Angry");
+```
+![Angry](https://raw.githubusercontent.com/sujithkanna/SmileyRating/master/app/src/main/assets/angry.jpg)
