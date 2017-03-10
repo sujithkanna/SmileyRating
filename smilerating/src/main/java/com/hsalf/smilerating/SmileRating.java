@@ -187,9 +187,11 @@ public class SmileRating extends BaseRating {
 
     private void notifyListener() {
         Log.i(TAG, mPreviousSmile + " " + getSelectedSmile());
-        if (mOnSmileySelectionListener != null && mPreviousSmile != getSelectedSmile()) {
+        if (mPreviousSmile != getSelectedSmile()) {
             mPreviousSmile = mSelectedSmile;
-            mOnSmileySelectionListener.onSmileySelected(mSelectedSmile);
+            if (mOnSmileySelectionListener != null) {
+                mOnSmileySelectionListener.onSmileySelected(mSelectedSmile);
+            }
             if (mOnRatingSelectedListener != null) {
                 mOnRatingSelectedListener.onRatingSelected(getRating());
             }
