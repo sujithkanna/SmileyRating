@@ -375,7 +375,11 @@ public class SmileRating extends BaseRating {
             Point point = mTouchPoints.get(smile);
             boolean touched = isSmileyBounds(point.x, point.y, x, y, mCenterY);
             if (touched) {
-                setSelectedSmile(smile, point, true, true);
+                if (smile == getSelectedSmile()) {
+                    notifyListener();
+                } else {
+                    setSelectedSmile(smile, point, true, true);
+                }
             }
         }
     }
