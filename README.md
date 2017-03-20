@@ -92,7 +92,7 @@ mSmileRating.setNameForSmile(BaseRating.TERRIBLE, "Angry");
 #### Change colors
 You can set change the colors by xml
 ```xml
-	<com.hsalf.smilerating.SmileRating
+<com.hsalf.smilerating.SmileRating
         android:id="@+id/ratingView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
