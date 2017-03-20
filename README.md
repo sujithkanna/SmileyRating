@@ -1,5 +1,5 @@
 # Smiley Rating
-SmileyRating is a simple rating bar for android. It displayes animated smileys as rating icon.
+SmileyRating is a simple rating bar for android. It displays animated smileys as rating icon.
   - Drawn completely using android canvas
   - Inspired by [Bill Labus](https://dribbble.com/shots/2790473-Feedback)
 
@@ -12,7 +12,7 @@ Integrating SmileyRating in your project is very simple.
 ### Step 1:
 Add this dependency in your project's build.gradle file which is in your app folder
 ```groovy
-compile 'com.github.sujithkanna:smileyrating:1.5.0'
+compile 'com.github.sujithkanna:smileyrating:1.6.0'
 ```
 add this to your dependencies.
 ## Step 2:
@@ -89,3 +89,49 @@ smileRating.setSelectedSmile(BaseRating.GREAT, true);
 mSmileRating.setNameForSmile(BaseRating.TERRIBLE, "Angry");
 ```
 ![Angry](https://raw.githubusercontent.com/sujithkanna/SmileyRating/master/app/src/main/assets/angry.jpg)
+#### Change colors
+You can set change the colors by xml
+```xml
+	<com.hsalf.smilerating.SmileRating
+        android:id="@+id/ratingView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        app:angryColor="#f29a68"
+        app:drawingColor="#353431"
+        app:normalColor="#f2dd68"
+        app:placeHolderBackgroundColor="#e6e8ed"
+        app:placeHolderSmileColor="#ffffff"
+        app:textNonSelectionColor="#AEB3B5"
+        app:textSelectionColor="#000000" />
+```
+
+| Params  | Description |
+| ------------- | ------------- |
+| `app:angryColor`  | To set the color of the Angry/Terrible smiley's background color.  |
+| `app:normalColor`  | To change the color of all smileys background color except Angry/Terrible smiley.  |
+| `app:drawingColor`  | To change the color of all smileys (Smile and eyes).  |
+| `app:placeHolderSmileColor`  | To set the color of all placeholder smiley's (Smile and eyes) color.  |
+| `app:placeHolderBackgroundColor`  | To set the color of all placeholder smiley's background color.  |
+| `app:textSelectionColor`  | To set the color of the selected smiley's text color.  |
+| `app:textNonSelectionColor`  | To set the color of the non-selected smiley's text color  |
+
+Or, you can change colors on runtime also
+```java
+smileyRating.setAngryColor(int color);
+smileRating.setNormalColor(int color);
+smileRating.setDrawingColor(int color);
+smileRating.setPlaceHolderSmileColor(int color);
+smileRating.setPlaceHolderBackgroundColor(int color);
+smileRating.setTextSelectionColor(int color);
+smileRating.setTextNonSelectionColor(int color);
+```
+
+All colors should have be provided as color int.
+
+####*Example*
+```java
+smileRating.setAngryColor(Color.RED);```
+smileRating.setAngryColor(Color.parseColor("#f29a68"));
+smileRating.setNormalColor(ContextCompat.getColor(context, R.color.your_color));
+```
