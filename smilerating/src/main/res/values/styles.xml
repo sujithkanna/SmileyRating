@@ -7,6 +7,8 @@
         <attr name="drawingColor" format="color" />
         <attr name="placeHolderSmileColor" format="color" />
         <attr name="placeHolderBackgroundColor" format="color" />
+        <attr name="textSelectionColor" format="color" />
+        <attr name="textNonSelectionColor" format="color" />
     </declare-styleable>
 
 </resources>

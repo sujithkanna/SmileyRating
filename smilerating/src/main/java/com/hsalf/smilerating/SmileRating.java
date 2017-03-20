@@ -33,7 +33,7 @@ public class SmileRating extends BaseRating {
     private int mNormalColor = Color.parseColor("#f2dd68");
     private int mDrawingColor = Color.parseColor("#353431");
     private int mTextSelectedColor = Color.BLACK;
-    private int mTextNonSelectedColor = Color.parseColor("#e6e8ed");
+    private int mTextNonSelectedColor = Color.parseColor("#AEB3B5");
     private int mPlaceholderBackgroundColor = Color.parseColor("#e6e8ed");
 
     private String[] mNames = new String[]{
@@ -112,6 +112,10 @@ public class SmileRating extends BaseRating {
                     mPlaceHolderSmileColor);
             mPlaceholderBackgroundColor = a.getColor(R.styleable.SmileRating_placeHolderBackgroundColor,
                     mPlaceholderBackgroundColor);
+            mTextSelectedColor = a.getColor(R.styleable.SmileRating_textSelectionColor,
+                    mTextSelectedColor);
+            mTextNonSelectedColor = a.getColor(R.styleable.SmileRating_textNonSelectionColor,
+                    mTextNonSelectedColor);
             a.recycle();
         }
     }
