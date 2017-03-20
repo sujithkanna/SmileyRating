@@ -13,6 +13,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.support.annotation.ColorInt;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -310,41 +311,41 @@ public class SmileRating extends BaseRating {
         invalidate();
     }
 
-    public void setAngryColor(int color) {
+    public void setAngryColor(@ColorInt int color) {
         this.mAngryColor = color;
         getSmiley(mSmileys, getFractionBySmiley(mSelectedSmile), divisions, mFromRange, mToRange,
                 mFaceCenter, mSmilePath, mCenterY);
     }
 
-    public void setNormalColor(int color) {
+    public void setNormalColor(@ColorInt int color) {
         this.mNormalColor = color;
         getSmiley(mSmileys, getFractionBySmiley(mSelectedSmile), divisions, mFromRange, mToRange,
                 mFaceCenter, mSmilePath, mCenterY);
     }
 
-    public void setDrawingColor(int color) {
+    public void setDrawingColor(@ColorInt int color) {
         this.mDrawingColor = color;
         mPathPaint.setColor(mDrawingColor);
         invalidate();
     }
 
-    public void setTextSelectedColor(int color) {
+    public void setTextSelectedColor(@ColorInt int color) {
         this.mTextSelectedColor = color;
         invalidate();
     }
 
-    public void setTextNonSelectedColor(int color) {
+    public void setTextNonSelectedColor(@ColorInt int color) {
         this.mTextNonSelectedColor = color;
         invalidate();
     }
 
-    public void setPlaceHolderSmileColor(int color) {
+    public void setPlaceHolderSmileColor(@ColorInt int color) {
         this.mPlaceHolderSmileColor = color;
         mPlaceHolderFacePaint.setColor(mPlaceHolderSmileColor);
         invalidate();
     }
 
-    public void setPlaceholderBackgroundColor(int color) {
+    public void setPlaceholderBackgroundColor(@ColorInt int color) {
         this.mPlaceholderBackgroundColor = color;
         mPlaceHolderCirclePaint.setColor(mPlaceholderBackgroundColor);
         invalidate();
