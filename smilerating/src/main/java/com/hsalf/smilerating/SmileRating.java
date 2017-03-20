@@ -271,7 +271,7 @@ public class SmileRating extends BaseRating {
                 mDummyDrawPah.addPath(face.smile, mScaleMatrix);
                 canvas.drawPath(mDummyDrawPah, mPlaceHolderFacePaint);
                 float transY = 0.15f - (scale * 0.15f);
-                mTextPaint.setColor((int) mColorEvaluator.evaluate((transY / 0.15f),
+                mTextPaint.setColor((int) mColorEvaluator.evaluate(((transY / 0.15f) - 0.2f) / 0.8f,
                         mTextNonSelectedColor, mTextSelectedColor));
                 drawTextCentered(getSmileName(face.smileType), face.place.x,
                         face.place.y + (mHeight * (0.70f + transY)), mTextPaint, canvas);
