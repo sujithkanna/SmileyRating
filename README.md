@@ -131,7 +131,7 @@ All colors should have be provided as color int.
 
 *Example*
 ```java
-smileRating.setAngryColor(Color.RED);```
+smileRating.setAngryColor(Color.RED);
 smileRating.setAngryColor(Color.parseColor("#f29a68"));
 smileRating.setNormalColor(ContextCompat.getColor(context, R.color.your_color));
 ```
