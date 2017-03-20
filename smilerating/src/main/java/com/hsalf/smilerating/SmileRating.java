@@ -32,6 +32,8 @@ public class SmileRating extends BaseRating {
     private int mAngryColor = Color.parseColor("#f29a68");
     private int mNormalColor = Color.parseColor("#f2dd68");
     private int mDrawingColor = Color.parseColor("#353431");
+    private int mTextSelectedColor = Color.BLACK;
+    private int mTextNonSelectedColor = Color.parseColor("#e6e8ed");
     private int mPlaceholderBackgroundColor = Color.parseColor("#e6e8ed");
 
     private String[] mNames = new String[]{
@@ -122,8 +124,6 @@ public class SmileRating extends BaseRating {
 
     private void init() {
         mClickAnalyser = ClickAnalyser.newInstance(getResources().getDisplayMetrics().density);
-
-        mTextPaint.setColor(Color.BLACK);
         mTextPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
 
         mPathPaint.setAntiAlias(true);
@@ -268,7 +268,7 @@ public class SmileRating extends BaseRating {
                 canvas.drawPath(mDummyDrawPah, mPlaceHolderFacePaint);
                 float transY = 0.15f - (scale * 0.15f);
                 mTextPaint.setColor((int) mColorEvaluator.evaluate((transY / 0.15f),
-                        mPlaceholderBackgroundColor, Color.BLACK));
+                        mTextNonSelectedColor, mTextSelectedColor));
                 drawTextCentered(getSmileName(face.smileType), face.place.x,
                         face.place.y + (mHeight * (0.70f + transY)), mTextPaint, canvas);
             }
