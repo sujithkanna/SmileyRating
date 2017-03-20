@@ -129,7 +129,7 @@ smileRating.setTextNonSelectionColor(int color);
 
 All colors should have be provided as color int.
 
-####*Example*
+*Example*
 ```java
 smileRating.setAngryColor(Color.RED);```
 smileRating.setAngryColor(Color.parseColor("#f29a68"));
