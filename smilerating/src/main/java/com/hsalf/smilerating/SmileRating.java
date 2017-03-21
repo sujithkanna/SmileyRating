@@ -90,17 +90,19 @@ public class SmileRating extends BaseRating {
 
     public SmileRating(Context context) {
         super(context);
-
+        init();
     }
 
     public SmileRating(Context context, AttributeSet attrs) {
         super(context, attrs);
         parseAttrs(attrs);
+        init();
     }
 
     public SmileRating(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         parseAttrs(attrs);
+        init();
     }
 
     private void parseAttrs(AttributeSet attrs) {
@@ -121,11 +123,6 @@ public class SmileRating extends BaseRating {
         }
     }
 
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        init();
-    }
 
     private void init() {
         mClickAnalyser = ClickAnalyser.newInstance(getResources().getDisplayMetrics().density);
