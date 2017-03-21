@@ -12,7 +12,7 @@ Integrating SmileyRating in your project is very simple.
 ### Step 1:
 Add this dependency in your project's build.gradle file which is in your app folder
 ```groovy
-compile 'com.github.sujithkanna:smileyrating:1.6.0'
+compile 'com.github.sujithkanna:smileyrating:1.6.1'
 ```
 add this to your dependencies.
 ## Step 2:
