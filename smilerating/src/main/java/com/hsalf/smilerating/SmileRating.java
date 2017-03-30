@@ -190,6 +190,7 @@ public class SmileRating extends BaseRating {
     private void notifyListener() {
         boolean reselected = mPreviousSmile == getSelectedSmile();
         mPreviousSmile = mSelectedSmile;
+        mPendingActionSmile = mSelectedSmile;
         if (mOnSmileySelectionListener != null) {
             mOnSmileySelectionListener.onSmileySelected(mSelectedSmile, reselected);
         }
