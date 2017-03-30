@@ -434,7 +434,7 @@ public class SmileRating extends BaseRating {
     /**
      * Set the selected smiley
      *
-     * @param smile is he smiley type you want this rating bar to show as selected smile
+     * @param smile is the smiley type you want this rating bar to show as selected smile
      */
     public void setSelectedSmile(@Smiley int smile) {
         setSelectedSmile(smile, false);
@@ -443,13 +443,30 @@ public class SmileRating extends BaseRating {
     /**
      * Set the selected smiley
      *
-     * @param smile   is he smiley type you want this rating bar to show as selected smile
+     * @param smile   is the smiley type you want this rating bar to show as selected smile
      * @param animate true if you want to set the selected smiley and animate it,
      *                false for no animation
      */
     public void setSelectedSmile(@Smiley int smile, boolean animate) {
         mPendingActionSmile = smile;
         setSelectedSmile(smile, mTouchPoints.get(smile), true, animate);
+    }
+
+    /**
+     * @return the current selected smiley {@link #TERRIBLE} ,{@link #BAD},
+     * {@link #OKAY},{@link #GOOD},{@link #GREAT}
+     */
+    @Smiley
+    public int getSelectedSmiley() {
+        return mSelectedSmile;
+    }
+
+
+    /**
+     * @return the selected rating level from range of 0 to 4
+     */
+    public int getRatingLevel() {
+        return getRating();
     }
 
     private void setSelectedSmile(@Smiley int smile, Point point, boolean check, boolean animate) {
