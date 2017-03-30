@@ -345,6 +345,7 @@ public class SmileRating extends BaseRating {
 
     public void setPlaceholderBackgroundColor(@ColorInt int color) {
         this.mPlaceholderBackgroundColor = color;
+        mPlaceholderLinePaint.setColor(mPlaceholderBackgroundColor);
         mPlaceHolderCirclePaint.setColor(mPlaceholderBackgroundColor);
         invalidate();
     }
