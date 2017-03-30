@@ -12,7 +12,7 @@ Integrating SmileyRating in your project is very simple.
 ### Step 1:
 Add this dependency in your project's build.gradle file which is in your app folder
 ```groovy
-compile 'com.github.sujithkanna:smileyrating:1.6.2'
+compile 'com.github.sujithkanna:smileyrating:1.6.3'
 ```
 add this to your dependencies.
 ## Step 2:
@@ -68,6 +68,33 @@ smileRating.setOnRatingSelectedListener(new SmileRating.OnRatingSelectedListener
 		        // Except if it first time, then the value will be false.
             }
         });
+```
+
+### Get current selection
+```java
+@Smiley int smiley = mSmileRating.getSelectedSmile();
+switch (smiley) {
+    case SmileRating.BAD:
+        Log.i(TAG, "Bad");
+        break;
+    case SmileRating.GOOD:
+        Log.i(TAG, "Good");
+        break;
+    case SmileRating.GREAT:
+        Log.i(TAG, "Great");
+        break;
+    case SmileRating.OKAY:
+        Log.i(TAG, "Okay");
+        break;
+    case SmileRating.TERRIBLE:
+        Log.i(TAG, "Terrible");
+        break;
+}
+```
+this will return you an int value which indicated the current selected smiley
+### Get current rating level
+```java
+int level = mSmileRating.getRating(); level is from 1 to 5
 ```
 ### You can set selected smiley without user interaction
 #### Without animation

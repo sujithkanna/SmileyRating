@@ -479,7 +479,7 @@ public class SmileRating extends BaseRating {
     }
 
     /**
-     * @return the selected rating level from range of 0 to 4
+     * @return the selected rating level from range of 1 to 5
      */
     public int getRating() {
         return getSelectedSmile() + 1;
