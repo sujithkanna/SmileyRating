@@ -452,23 +452,6 @@ public class SmileRating extends BaseRating {
         setSelectedSmile(smile, mTouchPoints.get(smile), true, animate);
     }
 
-    /**
-     * @return the current selected smiley {@link #TERRIBLE} ,{@link #BAD},
-     * {@link #OKAY},{@link #GOOD},{@link #GREAT}
-     */
-    @Smiley
-    public int getSelectedSmiley() {
-        return mSelectedSmile;
-    }
-
-
-    /**
-     * @return the selected rating level from range of 0 to 4
-     */
-    public int getRatingLevel() {
-        return getRating();
-    }
-
     private void setSelectedSmile(@Smiley int smile, Point point, boolean check, boolean animate) {
         if (mSelectedSmile == smile && check) {
             return;
@@ -486,11 +469,18 @@ public class SmileRating extends BaseRating {
         }
     }
 
+    /**
+     * @return the current selected smiley {@link #TERRIBLE} ,{@link #BAD},
+     * {@link #OKAY},{@link #GOOD},{@link #GREAT}
+     */
     @Smiley
     public int getSelectedSmile() {
         return mSelectedSmile;
     }
 
+    /**
+     * @return the selected rating level from range of 0 to 4
+     */
     public int getRating() {
         return getSelectedSmile() + 1;
     }
