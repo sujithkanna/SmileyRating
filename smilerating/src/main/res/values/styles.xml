@@ -5,6 +5,7 @@
         <attr name="angryColor" format="color" />
         <attr name="normalColor" format="color" />
         <attr name="drawingColor" format="color" />
+        <attr name="showLine" format="boolean" />
         <attr name="placeHolderSmileColor" format="color" />
         <attr name="placeHolderBackgroundColor" format="color" />
         <attr name="textSelectionColor" format="color" />
