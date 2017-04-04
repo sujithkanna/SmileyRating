@@ -12,7 +12,7 @@ Integrating SmileyRating in your project is very simple.
 ### Step 1:
 Add this dependency in your project's build.gradle file which is in your app folder
 ```groovy
-compile 'com.github.sujithkanna:smileyrating:1.6.3'
+compile 'com.github.sujithkanna:smileyrating:1.6.4'
 ```
 add this to your dependencies.
 ## Step 2:
@@ -161,4 +161,17 @@ All colors should have be provided as color int.
 smileRating.setAngryColor(Color.RED);
 smileRating.setAngryColor(Color.parseColor("#f29a68"));
 smileRating.setNormalColor(ContextCompat.getColor(context, R.color.your_color));
+```
+#### Show/Hide line
+You can customize wheather to show or hide the line behind smileys.
+```java
+mSmileRating.setShowLine(true/false);
+```
+or
+```xml
+app:showLine="true/false"
+```
+passing true will show the line and passig false will hide the line. You can get the current visibility of the line by calling
+```java
+boolean showing = mSmileRating.isShowingLine();
 ```
