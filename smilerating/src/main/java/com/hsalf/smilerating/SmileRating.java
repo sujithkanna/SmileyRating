@@ -135,20 +135,26 @@ public class SmileRating extends BaseRating {
         mPathPaint.setColor(mDrawingColor);
         mPathPaint.setStyle(Paint.Style.FILL);
 
+        mPointPaint1.setAntiAlias(true);
         mPointPaint1.setColor(Color.RED);
         mPointPaint1.setStyle(Paint.Style.FILL);
 
+        mPointPaint2.setAntiAlias(true);
         mPointPaint2.setColor(Color.BLUE);
         mPointPaint2.setStyle(Paint.Style.STROKE);
 
+        mBackgroundPaint.setAntiAlias(true);
         mBackgroundPaint.setStyle(Paint.Style.FILL);
 
+        mPlaceHolderFacePaint.setAntiAlias(true);
         mPlaceHolderFacePaint.setColor(mPlaceHolderSmileColor);
         mPlaceHolderFacePaint.setStyle(Paint.Style.FILL);
 
+        mPlaceHolderCirclePaint.setAntiAlias(true);
         mPlaceHolderCirclePaint.setColor(mPlaceholderBackgroundColor);
         mPlaceHolderCirclePaint.setStyle(Paint.Style.FILL);
 
+        mPlaceholderLinePaint.setAntiAlias(true);
         mPlaceholderLinePaint.setColor(mPlaceholderBackgroundColor);
         mPlaceholderLinePaint.setStyle(Paint.Style.STROKE);
 
