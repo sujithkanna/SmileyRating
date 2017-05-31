@@ -63,7 +63,7 @@ smileRating.setOnSmileySelectionListener(new SmileRating.OnSmileySelectionListen
 smileRating.setOnRatingSelectedListener(new SmileRating.OnRatingSelectedListener() {
             @Override
             public void onRatingSelected(int level, boolean reselected) {
-                // level is from 1 to 5
+                // level is from 1 to 5 (0 when none selected)
                 // reselected is false when user selects different smiley that previously selected one
 		        // true when the same smiley is selected.
 		        // Except if it first time, then the value will be false.
