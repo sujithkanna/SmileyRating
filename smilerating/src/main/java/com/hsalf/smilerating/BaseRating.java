@@ -64,7 +64,7 @@ public abstract class BaseRating extends View {
     protected static class Smileys {
         private int mWidth;
         private int mHeight;
-        private float mCenterY;
+        protected float mCenterY;
         protected float mCenterSmile;
         private Map<Integer, Eye> mEyes = new HashMap<>();
         private Map<Integer, Smile> mSmileys = new HashMap<>();
@@ -295,7 +295,9 @@ public abstract class BaseRating extends View {
         private static final float OTHER_SWEEP_ANGLE = 360;
 
         public static Eye prepareEye(Eye eye, FloatEvaluator evaluator, float fraction, @Smiley int smile) {
+            Log.i(TAG, "Fraction: " + fraction);
             if (TERRIBLE == smile) {
+                Log.i(TAG, "Terrible");
                 float startAngle = evaluator.evaluate(fraction, TERRIBLE_START_ANGLE, BAD_START_ANGLE);
                 float sweepAngle = evaluator.evaluate(fraction, TERRIBLE_SWEEP_ANGLE, BAD_SWEEP_ANGLE);
                 if (eye.eyeSide == Eye.LEFT) {
@@ -305,6 +307,7 @@ public abstract class BaseRating extends View {
                     mirrorEye(eye, startAngle, sweepAngle);
                 }
             } else if (BAD == smile) {
+                Log.i(TAG, "Bad");
                 float startAngle = evaluator.evaluate(fraction, BAD_START_ANGLE, OTHER_START_ANGLE);
                 float sweepAngle = evaluator.evaluate(fraction, BAD_SWEEP_ANGLE, OTHER_SWEEP_ANGLE);
                 if (eye.eyeSide == Eye.LEFT) {
@@ -314,6 +317,7 @@ public abstract class BaseRating extends View {
                     mirrorEye(eye, startAngle, sweepAngle);
                 }
             } else {
+                Log.i(TAG, "Oay");
                 eye.startAngle = OTHER_START_ANGLE;
                 eye.sweepAngle = OTHER_SWEEP_ANGLE;
             }
@@ -573,9 +577,40 @@ public abstract class BaseRating extends View {
 
     }
 
-    protected Path transformSmile(float trans, float fraction, Path path, Smile s1, Smile s2, FloatEvaluator evaluator) {
-        path.reset();
-        path.moveTo(
+    protected Path transformSmile(float trans, Smile mCommonSmile, float fraction, Path path, Smile s1, Smile s2, FloatEvaluator evaluator) {
+        mCommonSmile.START_POINT.x = evaluator.evaluate(fraction, s1.START_POINT.x, s2.START_POINT.x);
+        mCommonSmile.START_POINT.y = evaluator.evaluate(fraction, s1.START_POINT.y, s2.START_POINT.y);
+
+        mCommonSmile.TOP_CURVE[0].x = evaluator.evaluate(fraction, s1.TOP_CURVE[0].x, s2.TOP_CURVE[0].x);
+        mCommonSmile.TOP_CURVE[0].y = evaluator.evaluate(fraction, s1.TOP_CURVE[0].y, s2.TOP_CURVE[0].y);
+        mCommonSmile.TOP_CURVE[1].x = evaluator.evaluate(fraction, s1.TOP_CURVE[1].x, s2.TOP_CURVE[1].x);
+        mCommonSmile.TOP_CURVE[1].y = evaluator.evaluate(fraction, s1.TOP_CURVE[1].y, s2.TOP_CURVE[1].y);
+        mCommonSmile.TOP_CURVE[2].x = evaluator.evaluate(fraction, s1.TOP_CURVE[2].x, s2.TOP_CURVE[2].x);
+        mCommonSmile.TOP_CURVE[2].y = evaluator.evaluate(fraction, s1.TOP_CURVE[2].y, s2.TOP_CURVE[2].y);
+
+        mCommonSmile.RIGHT_CURVE[0].x = evaluator.evaluate(fraction, s1.RIGHT_CURVE[0].x, s2.RIGHT_CURVE[0].x);
+        mCommonSmile.RIGHT_CURVE[0].y = evaluator.evaluate(fraction, s1.RIGHT_CURVE[0].y, s2.RIGHT_CURVE[0].y);
+        mCommonSmile.RIGHT_CURVE[1].x = evaluator.evaluate(fraction, s1.RIGHT_CURVE[1].x, s2.RIGHT_CURVE[1].x);
+        mCommonSmile.RIGHT_CURVE[1].y = evaluator.evaluate(fraction, s1.RIGHT_CURVE[1].y, s2.RIGHT_CURVE[1].y);
+        mCommonSmile.RIGHT_CURVE[2].x = evaluator.evaluate(fraction, s1.RIGHT_CURVE[2].x, s2.RIGHT_CURVE[2].x);
+        mCommonSmile.RIGHT_CURVE[2].y = evaluator.evaluate(fraction, s1.RIGHT_CURVE[2].y, s2.RIGHT_CURVE[2].y);
+
+        mCommonSmile.BOTTOM_CURVE[0].x = evaluator.evaluate(fraction, s1.BOTTOM_CURVE[0].x, s2.BOTTOM_CURVE[0].x);
+        mCommonSmile.BOTTOM_CURVE[0].y = evaluator.evaluate(fraction, s1.BOTTOM_CURVE[0].y, s2.BOTTOM_CURVE[0].y);
+        mCommonSmile.BOTTOM_CURVE[1].x = evaluator.evaluate(fraction, s1.BOTTOM_CURVE[1].x, s2.BOTTOM_CURVE[1].x);
+        mCommonSmile.BOTTOM_CURVE[1].y = evaluator.evaluate(fraction, s1.BOTTOM_CURVE[1].y, s2.BOTTOM_CURVE[1].y);
+        mCommonSmile.BOTTOM_CURVE[2].x = evaluator.evaluate(fraction, s1.BOTTOM_CURVE[2].x, s2.BOTTOM_CURVE[2].x);
+        mCommonSmile.BOTTOM_CURVE[2].y = evaluator.evaluate(fraction, s1.BOTTOM_CURVE[2].y, s2.BOTTOM_CURVE[2].y);
+
+        mCommonSmile.LEFT_CURVE[0].x = evaluator.evaluate(fraction, s1.LEFT_CURVE[0].x, s2.LEFT_CURVE[0].x);
+        mCommonSmile.LEFT_CURVE[0].y = evaluator.evaluate(fraction, s1.LEFT_CURVE[0].y, s2.LEFT_CURVE[0].y);
+        mCommonSmile.LEFT_CURVE[1].x = evaluator.evaluate(fraction, s1.LEFT_CURVE[1].x, s2.LEFT_CURVE[1].x);
+        mCommonSmile.LEFT_CURVE[1].y = evaluator.evaluate(fraction, s1.LEFT_CURVE[1].y, s2.LEFT_CURVE[1].y);
+        mCommonSmile.LEFT_CURVE[2].x = evaluator.evaluate(fraction, s1.LEFT_CURVE[2].x, s2.LEFT_CURVE[2].x);
+        mCommonSmile.LEFT_CURVE[2].y = evaluator.evaluate(fraction, s1.LEFT_CURVE[2].y, s2.LEFT_CURVE[2].y);
+
+        mCommonSmile.fillPath(path);
+        /*path.moveTo(
                 evaluator.evaluate(fraction, s1.START_POINT.x, s2.START_POINT.x) + trans,
                 evaluator.evaluate(fraction, s1.START_POINT.y, s2.START_POINT.y)
         );
@@ -610,8 +645,7 @@ public abstract class BaseRating extends View {
                 evaluator.evaluate(fraction, s1.LEFT_CURVE[1].y, s2.LEFT_CURVE[1].y),
                 evaluator.evaluate(fraction, s1.LEFT_CURVE[2].x, s2.LEFT_CURVE[2].x) + trans,
                 evaluator.evaluate(fraction, s1.LEFT_CURVE[2].y, s2.LEFT_CURVE[2].y)
-        );
-        path.close();
+        );*/
         return path;
     }
 

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -17,7 +18,6 @@ import android.support.annotation.ColorInt;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.animation.AccelerateDecelerateInterpolator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +36,7 @@ public class SmileRating extends BaseRating {
     private int mTextSelectedColor = Color.BLACK;
     private int mTextNonSelectedColor = Color.parseColor("#AEB3B5");
     private int mPlaceholderBackgroundColor = Color.parseColor("#e6e8ed");
-
+    private Point mBufferPoint = new Point();
     private String[] mNames = new String[]{
             "Terrible", "Bad", "Okay", "Good", "Great"
     };
@@ -88,6 +88,9 @@ public class SmileRating extends BaseRating {
     private OnRatingSelectedListener mOnRatingSelectedListener = null;
     private OnSmileySelectionListener mOnSmileySelectionListener = null;
     private float mPlaceHolderScale = 1f;
+    private Smile mCommonSmile = new Smile();
+    private Paint mDashPaint = new Paint();
+    private Path mDashPath = new Path();
 
     public SmileRating(Context context) {
         super(context);
@@ -131,17 +134,23 @@ public class SmileRating extends BaseRating {
         mTextPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
 
         mPathPaint.setAntiAlias(true);
-        mPathPaint.setStrokeWidth(3);
-        mPathPaint.setColor(mDrawingColor);
+        mPathPaint.setStrokeWidth(8);
+        mPathPaint.setColor(Color.parseColor("#bcbfc4"));
         mPathPaint.setStyle(Paint.Style.FILL);
 
         mPointPaint1.setAntiAlias(true);
+        mPointPaint1.setStrokeWidth(8);
         mPointPaint1.setColor(Color.RED);
         mPointPaint1.setStyle(Paint.Style.FILL);
 
         mPointPaint2.setAntiAlias(true);
         mPointPaint2.setColor(Color.BLUE);
         mPointPaint2.setStyle(Paint.Style.STROKE);
+
+        mDashPaint.setStrokeWidth(8);
+        mDashPaint.setAntiAlias(true);
+        mDashPaint.setStyle(Paint.Style.STROKE);
+        mDashPaint.setPathEffect(new DashPathEffect(new float[]{10, 10}, 5));
 
         mBackgroundPaint.setAntiAlias(true);
         mBackgroundPaint.setStyle(Paint.Style.FILL);
@@ -158,20 +167,111 @@ public class SmileRating extends BaseRating {
         mPlaceholderLinePaint.setColor(mPlaceholderBackgroundColor);
         mPlaceholderLinePaint.setStyle(Paint.Style.STROKE);
 
-        mValueAnimator.setDuration(250);
+        mValueAnimator.setDuration(4000);
+        mValueAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        mValueAnimator.setRepeatCount(ValueAnimator.INFINITE);
         mValueAnimator.addListener(mAnimatorListener);
         mValueAnimator.addUpdateListener(mAnimatorUpdateListener);
-        mValueAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+
+        mCommonSmile.START_POINT = new Point();
+        mCommonSmile.TOP_CURVE[0] = new Point();
+        mCommonSmile.TOP_CURVE[1] = new Point();
+        mCommonSmile.TOP_CURVE[2] = new Point();
+        mCommonSmile.RIGHT_CURVE[0] = new Point();
+        mCommonSmile.RIGHT_CURVE[1] = new Point();
+        mCommonSmile.RIGHT_CURVE[2] = new Point();
+        mCommonSmile.LEFT_CURVE[0] = new Point();
+        mCommonSmile.LEFT_CURVE[1] = new Point();
+        mCommonSmile.LEFT_CURVE[2] = new Point();
+        mCommonSmile.BOTTOM_CURVE[0] = new Point();
+        mCommonSmile.BOTTOM_CURVE[1] = new Point();
+        mCommonSmile.BOTTOM_CURVE[2] = new Point();
     }
 
     private ValueAnimator.AnimatorUpdateListener mAnimatorUpdateListener
             = new ValueAnimator.AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
-            float anim = (float) animation.getAnimatedValue();
-            moveSmile(anim);
+            float anim = animation.getAnimatedFraction();
+            // moveSmile(anim);
+            createTestSmile(1 - anim);
+//            createEyes(anim);
+            invalidate();
         }
     };
+
+    private void createEyes(float fraction) {
+        // fraction = mFloatEvaluator.evaluate(fraction, 0, .9f);
+        int smile;
+        if (fraction < .5) {
+            smile = TERRIBLE;
+            fraction = (fraction) / .5f;
+        } else {
+            smile = BAD;
+            fraction = ((fraction - .5f)) / .5f;
+        }
+        Eye eyeLeft = EyeEmotion.prepareEye(mSmileys.getEye(Eye.LEFT), mFloatEvaluator, fraction, smile);
+        eyeLeft.radius = divisions * 2.5f;
+        eyeLeft.center.x = (getMeasuredWidth() / 2) - eyeLeft.radius - 35;
+        eyeLeft.center.y = getMeasuredHeight() / 2;
+
+        Eye eyeRight = EyeEmotion.prepareEye(mSmileys.getEye(Eye.RIGHT), mFloatEvaluator, fraction, smile);
+        eyeRight.radius = divisions * 2.5f;
+        eyeRight.center.x = (getMeasuredWidth() / 2) + eyeLeft.radius + 35;
+        eyeRight.center.y = getMeasuredHeight() / 2;
+
+        if (!mSmilePath.isEmpty()) {
+            mSmilePath.reset();
+        }
+        eyeLeft.fillPath(mSmilePath);
+        // eyeRight.fillPath(mSmilePath);
+        mSmilePath.close();
+
+        if (!mDashPath.isEmpty()) {
+            mDashPath.reset();
+        }
+
+        Point position;
+        mDashPath.moveTo(eyeLeft.center.x, eyeLeft.center.y);
+        position = getPositionOfObjectAroundCircle(eyeLeft.center.x, eyeLeft.center.y,
+                Math.round(eyeLeft.radius) + 50, roundDegreeOfAngle(eyeLeft.startAngle - 90));
+        mDashPath.lineTo(position.x, position.y);
+
+        mDashPath.moveTo(eyeLeft.center.x, eyeLeft.center.y);
+        position = getPositionOfObjectAroundCircle(eyeLeft.center.x, eyeLeft.center.y,
+                Math.round(eyeLeft.radius) + 50, roundDegreeOfAngle(eyeLeft.sweepAngle + eyeLeft.startAngle - 90));
+        mDashPath.lineTo(position.x, position.y);
+
+        /*mDashPath.moveTo(eyeRight.center.x, eyeRight.center.y);
+        position = getPositionOfObjectAroundCircle(eyeRight.center.x, eyeRight.center.y,
+                Math.round(eyeRight.radius) + 50, roundDegreeOfAngle(eyeRight.startAngle - 90));
+        mDashPath.lineTo(position.x, position.y);
+
+        mDashPath.moveTo(eyeRight.center.x, eyeRight.center.y);
+        position = getPositionOfObjectAroundCircle(eyeRight.center.x, eyeRight.center.y,
+                Math.round(eyeRight.radius) + 50, roundDegreeOfAngle(eyeRight.sweepAngle + eyeRight.startAngle - 90));
+        mDashPath.lineTo(position.x, position.y);*/
+    }
+
+    public Point getPositionOfObjectAroundCircle(double x, double y, int radius, float angle) {
+        float radAngle = roundDegreeOfAngle((float) degreesToRadians(360 - angle));
+        mBufferPoint.x = (float) (x + Math.sin(radAngle) * radius);
+        mBufferPoint.y = (float) (y + Math.cos(radAngle) * radius);
+        return mBufferPoint;
+    }
+
+    public static float roundDegreeOfAngle(float angle) {
+        if (angle < 0) {
+            return roundDegreeOfAngle(angle + 360);
+        } else if (angle >= 360) {
+            return angle % 360;
+        }
+        return angle + 0.0f;
+    }
+
+    public static double degreesToRadians(double angle) {
+        return angle * Math.PI / 180;
+    }
 
     private Animator.AnimatorListener mAnimatorListener = new Animator.AnimatorListener() {
         @Override
@@ -221,7 +321,7 @@ public class SmileRating extends BaseRating {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         mWidth = getMeasuredWidth();
         // mHeight = mWidth / 5.3f;
-        mHeight = mWidth / (5.3f * 1.3f);
+        mHeight = mWidth;/// (5.3f * 1.3f);
         mCenterY = mHeight / 2f;
         mFaceCenter.y = mCenterY;
         divisions = (mHeight / 32f);
@@ -234,6 +334,11 @@ public class SmileRating extends BaseRating {
                 mFaceCenter, mSmilePath, mCenterY);*/
         setSelectedSmile(mPendingActionSmile, mTouchPoints.get(mPendingActionSmile), false, false);
         Log.i(TAG, "Selected smile:" + getSmileName(mPendingActionSmile));
+        if (!mValueAnimator.isRunning()) {
+            mValueAnimator.start();
+        }
+//        createTestSmile(.25f);
+        // createEyes(0);
     }
 
     private void createTouchPoints() {
@@ -262,7 +367,7 @@ public class SmileRating extends BaseRating {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Point start = mFaces[0].place;
+        /*Point start = mFaces[0].place;
         Point end = mFaces[mFaces.length - 1].place;
         if (mShowLine) {
             canvas.drawLine(start.x, start.y, end.x, end.y, mPlaceholderLinePaint);
@@ -287,9 +392,84 @@ public class SmileRating extends BaseRating {
                         face.place.y + (mHeight * (0.70f + transY)), mTextPaint, canvas);
             }
         }
-        canvas.drawCircle(mFaceCenter.x, mFaceCenter.y, mHeight / 2f, mBackgroundPaint);
+        canvas.drawCircle(mFaceCenter.x, mFaceCenter.y, mHeight / 2f, mBackgroundPaint);*/
+        // mPathPaint.setColor(Color.BLACK);
         if (!mSmilePath.isEmpty()) {
             canvas.drawPath(mSmilePath, mPathPaint);
+            // canvas.drawPath(mDashPath, mDashPaint);
+        }
+
+
+        if (!mDashPath.isEmpty()) {
+            mDashPath.reset();
+        }
+
+        mDashPath.moveTo(mCommonSmile.LEFT_CURVE[1].x, mCommonSmile.LEFT_CURVE[1].y);
+        mDashPath.lineTo(mCommonSmile.TOP_CURVE[0].x, mCommonSmile.TOP_CURVE[0].y);
+
+        mDashPath.moveTo(mCommonSmile.LEFT_CURVE[0].x, mCommonSmile.LEFT_CURVE[0].y);
+        mDashPath.lineTo(mCommonSmile.BOTTOM_CURVE[1].x, mCommonSmile.BOTTOM_CURVE[1].y);
+
+
+        mDashPaint.setColor(Color.parseColor("#e2562f"));
+        canvas.drawPath(mDashPath, mDashPaint);
+        mPointPaint1.setStyle(Paint.Style.STROKE);
+        mPointPaint1.setColor(Color.RED);
+        mDashPath.reset();
+        mDashPath.moveTo(mCommonSmile.BOTTOM_CURVE[2].x, mCommonSmile.BOTTOM_CURVE[2].y);
+        mDashPath.cubicTo(mCommonSmile.LEFT_CURVE[0].x, mCommonSmile.LEFT_CURVE[0].y,
+                mCommonSmile.LEFT_CURVE[1].x, mCommonSmile.LEFT_CURVE[1].y,
+                mCommonSmile.LEFT_CURVE[2].x, mCommonSmile.LEFT_CURVE[2].y);
+        mDashPaint.setColor(Color.parseColor("#4286f4"));
+        canvas.drawPath(mDashPath, mDashPaint);
+
+        mBackgroundPaint.setColor(Color.WHITE);
+        canvas.drawCircle(mSmileys.mCenterSmile, mSmileys.mCenterY, 10, mBackgroundPaint);
+        mBackgroundPaint.setColor(Color.BLACK);
+        canvas.drawCircle(mCommonSmile.LEFT_CURVE[0].x, mCommonSmile.LEFT_CURVE[0].y, 10, mBackgroundPaint);
+        canvas.drawCircle(mCommonSmile.LEFT_CURVE[1].x, mCommonSmile.LEFT_CURVE[1].y, 10, mBackgroundPaint);
+        mBackgroundPaint.setColor(Color.parseColor("#2e6ad1"));
+        canvas.drawCircle(mCommonSmile.LEFT_CURVE[2].x, mCommonSmile.LEFT_CURVE[2].y, 10, mBackgroundPaint);
+        canvas.drawCircle(mCommonSmile.BOTTOM_CURVE[2].x, mCommonSmile.BOTTOM_CURVE[2].y, 10, mBackgroundPaint);
+        mBackgroundPaint.setColor(Color.parseColor("#30b712"));
+        canvas.drawCircle(mCommonSmile.TOP_CURVE[0].x, mCommonSmile.TOP_CURVE[0].y, 10, mBackgroundPaint);
+        canvas.drawCircle(mCommonSmile.BOTTOM_CURVE[1].x, mCommonSmile.BOTTOM_CURVE[1].y, 10, mBackgroundPaint);
+    }
+
+    public void createTestSmile(float fraction) {
+        fraction = mFloatEvaluator.evaluate(fraction, 0.25f, 1f);
+        Smileys smileys = mSmileys;
+        if (fraction > 0.75f) {
+            fraction -= 0.75f;
+            fraction *= 4;
+            findNearestSmile(fraction, GOOD, GREAT);
+            mBackgroundPaint.setColor(mNormalColor);
+            transformSmile(0, mCommonSmile, fraction, mSmilePath,
+                    smileys.getSmile(GOOD), smileys.getSmile(GREAT), mFloatEvaluator);
+            // createEyeLocation(smileys, divisions, fraction, actualTranslation, GREAT, smilePath, smilePath, centerY);
+        } else if (fraction > 0.50f) {
+            fraction -= 0.50f;
+            fraction *= 4;
+            findNearestSmile(fraction, OKAY, GOOD);
+            mBackgroundPaint.setColor(mNormalColor);
+            transformSmile(0, mCommonSmile, fraction, mSmilePath,
+                    smileys.getSmile(OKAY), smileys.getSmile(GOOD), mFloatEvaluator);
+            // createEyeLocation(smileys, divisions, fraction, actualTranslation, GOOD, smilePath, smilePath, centerY);
+        } else if (fraction > 0.25f) {
+            fraction -= 0.25f;
+            fraction *= 4;
+            findNearestSmile(fraction, BAD, OKAY);
+            mBackgroundPaint.setColor(mNormalColor);
+            transformSmile(0, mCommonSmile, fraction, mSmilePath,
+                    smileys.getSmile(BAD), smileys.getSmile(OKAY), mFloatEvaluator);
+            // createEyeLocation(smileys, divisions, fraction, actualTranslation, BAD, smilePath, smilePath, centerY);
+        } else {
+            fraction *= 4;
+            findNearestSmile(fraction, TERRIBLE, BAD);
+            mBackgroundPaint.setColor((Integer) mColorEvaluator.evaluate(fraction, mAngryColor, mNormalColor));
+            transformSmile(0, mCommonSmile, fraction, mSmilePath,
+                    smileys.getSmile(TERRIBLE), smileys.getSmile(BAD), mFloatEvaluator);
+            //createEyeLocation(smileys, divisions, fraction, actualTranslation, TERRIBLE, smilePath, smilePath, centerY);
         }
     }
 
@@ -482,7 +662,7 @@ public class SmileRating extends BaseRating {
         }
         mValueAnimator.setFloatValues(mFaceCenter.x, point.x);
         if (animate) {
-            mValueAnimator.start();
+            // mValueAnimator.start();
         } else {
             moveSmile(point.x);
             // notifyListener();
@@ -595,7 +775,7 @@ public class SmileRating extends BaseRating {
     private void getSmiley(Smileys smileys, float fraction, float divisions, float fromRange,
                            float toRange, Point point, Path smilePath,
                            float centerY) {
-        if (smileys == null) {
+        /*if (smileys == null) {
             return;
         }
         float actualTranslation = mFloatEvaluator.evaluate(fraction, fromRange, toRange);
@@ -632,7 +812,7 @@ public class SmileRating extends BaseRating {
             transformSmile(trans, fraction, smilePath,
                     smileys.getSmile(TERRIBLE), smileys.getSmile(BAD), mFloatEvaluator);
             createEyeLocation(smileys, divisions, fraction, actualTranslation, TERRIBLE, smilePath, smilePath, centerY);
-        }
+        }*/
     }
 
     private void findNearestSmile(float fraction, @Smiley int leftSmile, @Smiley int rightSmile) {
