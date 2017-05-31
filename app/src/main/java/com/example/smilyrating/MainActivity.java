@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity implements SmileRating.OnSmi
         mSmileRating = (SmileRating) findViewById(R.id.ratingView);
         mSmileRating.setOnSmileySelectionListener(this);
         mSmileRating.setOnRatingSelectedListener(this);
-        mSmileRating.setSelectedSmile(BaseRating.GREAT);
+        mSmileRating.setSelectedSmile(BaseRating.NONE);
     }
 
     @Override

@@ -23,6 +23,7 @@ public abstract class BaseRating extends View {
 
     private static final String TAG = "BaseSmile";
 
+    public static final int NONE = -1;
     public static final int TERRIBLE = 0;
     public static final int BAD = 1;
     public static final int OKAY = 2;
@@ -38,7 +39,7 @@ public abstract class BaseRating extends View {
 
 
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({TERRIBLE, BAD, OKAY, GOOD, GREAT})
+    @IntDef({TERRIBLE, BAD, OKAY, GOOD, GREAT, NONE})
     public @interface Smiley {
 
     }
