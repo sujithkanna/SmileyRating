@@ -14,6 +14,7 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.support.annotation.ColorInt;
+import android.support.annotation.StringRes;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -350,6 +351,10 @@ public class SmileRating extends BaseRating {
             return null;
         }
         return mNames[smile];
+    }
+
+    public void setNameForSmile(@Smiley int smile, @StringRes int stringRes) {
+        setNameForSmile(smile, getResources().getString(stringRes));
     }
 
     public void setNameForSmile(@Smiley int smile, String title) {
