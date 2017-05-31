@@ -18,6 +18,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -62,6 +63,7 @@ public class SmileRating extends BaseRating {
     private ValueAnimator mValueAnimator = new ValueAnimator();
     private FloatEvaluator mFloatEvaluator = new FloatEvaluator();
     private ArgbEvaluator mColorEvaluator = new ArgbEvaluator();
+    private OvershootInterpolator mInterpolator = new OvershootInterpolator();
     private ClickAnalyser mClickAnalyser;
     private Matrix mScaleMatrix = new Matrix();
     private RectF mScaleRect = new RectF();
@@ -311,7 +313,8 @@ public class SmileRating extends BaseRating {
                         .evaluate(mSmileyAlpha, mPlaceHolderCirclePaint.getColor(), mNormalColor));
                 mScaleMatrix.reset();
                 mSmilePath.computeBounds(mScaleRect, true);
-                float nonSelectedScale = mFloatEvaluator.evaluate(mSmileyAlpha, getScale(NONE), 1f);
+                float nonSelectedScale = mFloatEvaluator.evaluate(
+                        mInterpolator.getInterpolation(mSmileyAlpha), getScale(NONE), 1f);
                 mScaleMatrix.setScale(nonSelectedScale, nonSelectedScale,
                         mScaleRect.centerX(), mScaleRect.centerY());
                 mDummyDrawPah.reset();
@@ -439,11 +442,14 @@ public class SmileRating extends BaseRating {
     }
 
     private void positionSmile() {
+        if (NONE == mSelectedSmile) {
+            return;
+        }
         float currentPosition = mFaceCenter.x;
         float distance = Integer.MAX_VALUE;
         Point point = null;
         @Smiley
-        int smile = GREAT;
+        int smile = NONE;
         for (Integer s : mTouchPoints.keySet()) {
             Point p = mTouchPoints.get(s);
             float d = Math.abs(p.x - currentPosition);
