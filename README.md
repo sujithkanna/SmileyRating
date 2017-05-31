@@ -130,7 +130,8 @@ mSmileRating.setNameForSmile(BaseRating.TERRIBLE, R.string.anyTitle);
 ```
 
 ![Angry](https://raw.githubusercontent.com/sujithkanna/SmileyRating/master/app/src/main/assets/angry.jpg)
-Now you don't like your default font?
+####Custom font
+You can change the title color of smileys.
 ```java
 mSmileRating.setTypeface(yourTypeface);
 ```
