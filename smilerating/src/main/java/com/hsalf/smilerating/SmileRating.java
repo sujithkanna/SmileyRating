@@ -405,6 +405,13 @@ public class SmileRating extends BaseRating {
         invalidate();
     }
 
+    public void setTypeface(Typeface typeface) {
+        if (typeface == null) {
+            typeface = Typeface.DEFAULT;
+        }
+        mTextPaint.setTypeface(typeface);
+    }
+
     public boolean isShowingLine() {
         return mShowLine;
     }
