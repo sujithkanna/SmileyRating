@@ -12,7 +12,7 @@ Integrating SmileyRating in your project is very simple.
 ### Step 1:
 Add this dependency in your project's build.gradle file which is in your app folder
 ```groovy
-compile 'com.github.sujithkanna:smileyrating:1.6.5'
+compile 'com.github.sujithkanna:smileyrating:1.6.6'
 ```
 add this to your dependencies.
 ## Step 2:
@@ -30,6 +30,7 @@ Now place the SmileyRating in your layout.
 SmileRating smileRating = (SmileRating) findViewById(R.id.smile_rating);
 ```
 ### Set this SmileySelectionListener to get notified when user selects a smiley
+*By default the selected smiley will be NONE*
 ```java
 smileRating.setOnSmileySelectionListener(new SmileRating.OnSmileySelectionListener() {
             @Override
@@ -89,12 +90,16 @@ switch (smiley) {
     case SmileRating.TERRIBLE:
         Log.i(TAG, "Terrible");
         break;
+    case SmileyRating.NONE:
+	    Log.i(TAG, "None");
+	    break;
 }
 ```
 this will return you an int value which indicated the current selected smiley
 ### Get current rating level
 ```java
-int level = mSmileRating.getRating(); level is from 1 to 5
+int level = mSmileRating.getRating(); // level is from 1 to 5
+// Will return 0 if NONE selected
 ```
 ### You can set selected smiley without user interaction
 #### Without animation
@@ -111,11 +116,25 @@ smileRating.setSelectedSmile(BaseRating.GREAT, false);
 smileRating.setSelectedSmile(BaseRating.GREAT, true);
 ```
 *Smiley will be selected with animation and listeners will also be triggered(Only if the second param is true)*
+
+You can even set the smiley to NONE with/without animation by passing NONE using same API.
+
 #### You can change the smiley name also
+Raw string
 ```java
 mSmileRating.setNameForSmile(BaseRating.TERRIBLE, "Angry");
 ```
+String resources
+```java
+mSmileRating.setNameForSmile(BaseRating.TERRIBLE, R.string.anyTitle);
+```
+
 ![Angry](https://raw.githubusercontent.com/sujithkanna/SmileyRating/master/app/src/main/assets/angry.jpg)
+Now you don't like your default font?
+```java
+mSmileRating.setTypeface(yourTypeface);
+```
+
 #### Change colors
 You can set change the colors by xml
 ```xml
