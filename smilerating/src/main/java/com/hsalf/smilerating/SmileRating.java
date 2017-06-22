@@ -14,6 +14,7 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
 import android.support.annotation.StringRes;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -91,6 +92,7 @@ public class SmileRating extends BaseRating {
     private OnSmileySelectionListener mOnSmileySelectionListener = null;
     private float mPlaceHolderScale = 1f;
     private boolean mSmileyNotSelectedPreviously = true;
+    private boolean mIndicator = false;
 
     public SmileRating(Context context) {
         super(context);
@@ -124,6 +126,7 @@ public class SmileRating extends BaseRating {
             mTextNonSelectedColor = a.getColor(R.styleable.SmileRating_textNonSelectionColor,
                     mTextNonSelectedColor);
             mShowLine = a.getBoolean(R.styleable.SmileRating_showLine, true);
+            mIndicator = a.getBoolean(R.styleable.SmileRating_isIndicator, false);
             a.recycle();
         }
     }
@@ -359,6 +362,14 @@ public class SmileRating extends BaseRating {
         return mNames[smile];
     }
 
+    public void setIndicator(boolean isIndicator) {
+        mIndicator = isIndicator;
+    }
+
+    public boolean isIndicator() {
+        return mIndicator;
+    }
+
     public void setNameForSmile(@Smiley int smile, @StringRes int stringRes) {
         setNameForSmile(smile, getResources().getString(stringRes));
     }
@@ -427,6 +438,9 @@ public class SmileRating extends BaseRating {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (mIndicator) {
+            return super.onTouchEvent(event);
+        }
         int action = event.getAction();
         float x = event.getX();
         float y = event.getY();

@@ -10,6 +10,7 @@
         <attr name="placeHolderBackgroundColor" format="color" />
         <attr name="textSelectionColor" format="color" />
         <attr name="textNonSelectionColor" format="color" />
+        <attr name="isIndicator" format="boolean" />
     </declare-styleable>
 
 </resources>
