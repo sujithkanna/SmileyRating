@@ -12,7 +12,7 @@ Integrating SmileyRating in your project is very simple.
 ### Step 1:
 Add this dependency in your project's build.gradle file which is in your app folder
 ```groovy
-compile 'com.github.sujithkanna:smileyrating:1.6.6'
+compile 'com.github.sujithkanna:smileyrating:1.6.7'
 ```
 add this to your dependencies.
 ## Step 2:
@@ -148,6 +148,7 @@ You can set change the colors by xml
         app:angryColor="#f29a68"
         app:drawingColor="#353431"
         app:normalColor="#f2dd68"
+        app:isIndicator="false"
         app:placeHolderBackgroundColor="#e6e8ed"
         app:placeHolderSmileColor="#ffffff"
         app:textNonSelectionColor="#AEB3B5"
@@ -163,6 +164,10 @@ You can set change the colors by xml
 | `app:placeHolderBackgroundColor`  | To set the color of all placeholder smiley's background color.  |
 | `app:textSelectionColor`  | To set the color of the selected smiley's text color.  |
 | `app:textNonSelectionColor`  | To set the color of the non-selected smiley's text color  |
+| `app:isIndicator` | A boolean to switch modes between editable and non editable bar|
+
+
+
 
 Or, you can change colors on runtime also
 ```java
@@ -196,3 +201,7 @@ passing true will show the line and passig false will hide the line. You can get
 ```java
 boolean showing = mSmileRating.isShowingLine();
 ```
+####Indicator
+To set the mode of the RatingBar.
+```java mSmileyRating.setIndicator(false);```
+passing false will allow the user to set smiley rating. passing true will make the RatingBar just an inticator which is untouchable and will be used to just show some rating by default.
