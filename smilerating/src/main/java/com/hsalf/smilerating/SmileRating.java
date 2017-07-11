@@ -498,11 +498,10 @@ public class SmileRating extends BaseRating {
     }
 
     private void moveSmileByFraction(float fraction) {
-        if (fraction >= 0f && fraction <= 1f) {
-            getSmiley(mSmileys, fraction, divisions, mFromRange, mToRange,
-                    mFaceCenter, mSmilePath, mCenterY);
-            invalidate();
-        }
+        fraction = Math.max(Math.min(fraction, 1.0f), 0.0f);
+        getSmiley(mSmileys, fraction, divisions, mFromRange, mToRange,
+                mFaceCenter, mSmilePath, mCenterY);
+        invalidate();
     }
 
     private void onClickView(float x, float y) {
