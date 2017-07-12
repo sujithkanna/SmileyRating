@@ -318,7 +318,8 @@ public class SmileRating extends BaseRating {
                 mPathPaint.setColor((Integer) mColorEvaluator
                         .evaluate(mMainSmileyTransformaFraction, mPlaceHolderFacePaint.getColor(), mDrawingColor));
                 mBackgroundPaint.setColor((Integer) mColorEvaluator
-                        .evaluate(mMainSmileyTransformaFraction, mPlaceHolderCirclePaint.getColor(), mNormalColor));
+                        .evaluate(mMainSmileyTransformaFraction, mPlaceHolderCirclePaint.getColor(),
+                                (mSelectedSmile == TERRIBLE || mPreviousSmile == TERRIBLE) ? mAngryColor : mNormalColor));
                 mScaleMatrix.reset();
                 mSmilePath.computeBounds(mScaleRect, true);
                 float nonSelectedScale = mFloatEvaluator.evaluate(
