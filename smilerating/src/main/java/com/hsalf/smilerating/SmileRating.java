@@ -134,6 +134,7 @@ public class SmileRating extends BaseRating {
 
     private void init() {
         mClickAnalyser = ClickAnalyser.newInstance(getResources().getDisplayMetrics().density);
+        mTextPaint.setAntiAlias(true);
         mTextPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
 
         mPathPaint.setAntiAlias(true);
