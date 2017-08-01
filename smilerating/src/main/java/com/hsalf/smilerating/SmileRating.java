@@ -284,7 +284,6 @@ public class SmileRating extends BaseRating {
         if (mShowLine) {
             canvas.drawLine(start.x, start.y, end.x, end.y, mPlaceholderLinePaint);
         }
-        Log.i(TAG, "******************");
         for (Face face : mFaces) {
             float scale = getScale(face.smileType);
             canvas.drawCircle(face.place.x, face.place.y,
