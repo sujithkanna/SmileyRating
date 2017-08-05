@@ -14,7 +14,6 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.support.annotation.ColorInt;
-import android.support.annotation.ColorRes;
 import android.support.annotation.StringRes;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -36,6 +35,13 @@ public class SmileRating extends BaseRating {
     private int mAngryColor = Color.parseColor("#f29a68");
     private int mNormalColor = Color.parseColor("#f2dd68");
     private int mDrawingColor = Color.parseColor("#353431");
+
+    private int mTerribleColor = Color.parseColor("#f4511e");
+    private int mBadColor = Color.parseColor("#f29a68");
+    private int mOkayColor = mNormalColor;
+    private int mGoodColor = Color.parseColor("#8bc34a");
+    private int mGreatColor = Color.parseColor("#00bcd4");
+
     private int mTextSelectedColor = Color.BLACK;
     private int mTextNonSelectedColor = Color.parseColor("#AEB3B5");
     private int mPlaceholderBackgroundColor = Color.parseColor("#e6e8ed");
@@ -311,31 +317,33 @@ public class SmileRating extends BaseRating {
                     face.place.y + (mHeight * (0.70f + transY)), mTextPaint, canvas);
         }
         if (!mSmilePath.isEmpty()) {
-            if (mSmileyNotSelectedPreviously) {
-                Log.i(TAG, "Non selection");
-                /*mPathPaint.setAlpha(Math.round(255 * mMainSmileyTransformaFraction));
-                mBackgroundPaint.setAlpha(Math.round(255 * mMainSmileyTransformaFraction));*/
-                mPathPaint.setColor((Integer) mColorEvaluator
-                        .evaluate(mMainSmileyTransformaFraction, mPlaceHolderFacePaint.getColor(), mDrawingColor));
-                mBackgroundPaint.setColor((Integer) mColorEvaluator
-                        .evaluate(mMainSmileyTransformaFraction, mPlaceHolderCirclePaint.getColor(),
-                                (mSelectedSmile == TERRIBLE || mPreviousSmile == TERRIBLE) ? mAngryColor : mNormalColor));
-                mScaleMatrix.reset();
-                mSmilePath.computeBounds(mScaleRect, true);
-                float nonSelectedScale = mFloatEvaluator.evaluate(
-                        mInterpolator.getInterpolation(mMainSmileyTransformaFraction), getScale(NONE), 1f);
-                mScaleMatrix.setScale(nonSelectedScale, nonSelectedScale,
-                        mScaleRect.centerX(), mScaleRect.centerY());
-                mDummyDrawPah.reset();
-                mDummyDrawPah.addPath(mSmilePath, mScaleMatrix);
-
-                canvas.drawCircle(mFaceCenter.x, mFaceCenter.y,
-                        nonSelectedScale * (mHeight / 2f), mBackgroundPaint);
-                canvas.drawPath(mDummyDrawPah, mPathPaint);
-            } else {
-                canvas.drawCircle(mFaceCenter.x, mFaceCenter.y, mHeight / 2f, mBackgroundPaint);
-                canvas.drawPath(mSmilePath, mPathPaint);
-            }
+//            if (mSmileyNotSelectedPreviously) {
+//                Log.i(TAG, "Non selection");
+//                /*mPathPaint.setAlpha(Math.round(255 * mMainSmileyTransformaFraction));
+//                mBackgroundPaint.setAlpha(Math.round(255 * mMainSmileyTransformaFraction));*/
+//                mPathPaint.setColor((Integer) mColorEvaluator
+//                        .evaluate(mMainSmileyTransformaFraction, mPlaceHolderFacePaint.getColor(), mDrawingColor));
+//                mBackgroundPaint.setColor((Integer) mColorEvaluator
+//                        .evaluate(mMainSmileyTransformaFraction, mPlaceHolderCirclePaint.getColor(),
+//                                (mSelectedSmile == TERRIBLE || mPreviousSmile == TERRIBLE) ? mAngryColor : mNormalColor));
+//                mScaleMatrix.reset();
+//                mSmilePath.computeBounds(mScaleRect, true);
+//                float nonSelectedScale = mFloatEvaluator.evaluate(
+//                        mInterpolator.getInterpolation(mMainSmileyTransformaFraction), getScale(NONE), 1f);
+//                mScaleMatrix.setScale(nonSelectedScale, nonSelectedScale,
+//                        mScaleRect.centerX(), mScaleRect.centerY());
+//                mDummyDrawPah.reset();
+//                mDummyDrawPah.addPath(mSmilePath, mScaleMatrix);
+//
+//                canvas.drawCircle(mFaceCenter.x, mFaceCenter.y,
+//                        nonSelectedScale * (mHeight / 2f), mBackgroundPaint);
+//                canvas.drawPath(mDummyDrawPah, mPathPaint);
+//            } else {
+//                canvas.drawCircle(mFaceCenter.x, mFaceCenter.y, mHeight / 2f, mBackgroundPaint);
+//                canvas.drawPath(mSmilePath, mPathPaint);
+//            }
+            canvas.drawCircle(mFaceCenter.x, mFaceCenter.y, mHeight / 2f, mBackgroundPaint);
+            canvas.drawPath(mSmilePath, mPathPaint);
         }
     }
 
@@ -689,7 +697,7 @@ public class SmileRating extends BaseRating {
             fraction -= 0.75f;
             fraction *= 4;
             findNearestSmile(fraction, GOOD, GREAT);
-            mBackgroundPaint.setColor(mNormalColor);
+            mBackgroundPaint.setColor((Integer) mColorEvaluator.evaluate(fraction, mGoodColor, mGreatColor));
             transformSmile(trans, fraction, smilePath,
                     smileys.getSmile(GOOD), smileys.getSmile(GREAT), mFloatEvaluator);
             createEyeLocation(smileys, divisions, fraction, actualTranslation, GREAT, smilePath, smilePath, centerY);
@@ -697,7 +705,7 @@ public class SmileRating extends BaseRating {
             fraction -= 0.50f;
             fraction *= 4;
             findNearestSmile(fraction, OKAY, GOOD);
-            mBackgroundPaint.setColor(mNormalColor);
+            mBackgroundPaint.setColor((Integer) mColorEvaluator.evaluate(fraction, mOkayColor, mGoodColor));
             transformSmile(trans, fraction, smilePath,
                     smileys.getSmile(OKAY), smileys.getSmile(GOOD), mFloatEvaluator);
             createEyeLocation(smileys, divisions, fraction, actualTranslation, GOOD, smilePath, smilePath, centerY);
@@ -705,14 +713,14 @@ public class SmileRating extends BaseRating {
             fraction -= 0.25f;
             fraction *= 4;
             findNearestSmile(fraction, BAD, OKAY);
-            mBackgroundPaint.setColor(mNormalColor);
+            mBackgroundPaint.setColor((Integer) mColorEvaluator.evaluate(fraction, mBadColor, mOkayColor));
             transformSmile(trans, fraction, smilePath,
                     smileys.getSmile(BAD), smileys.getSmile(OKAY), mFloatEvaluator);
             createEyeLocation(smileys, divisions, fraction, actualTranslation, BAD, smilePath, smilePath, centerY);
         } else if (fraction >= 0) {
             fraction *= 4;
             findNearestSmile(fraction, TERRIBLE, BAD);
-            mBackgroundPaint.setColor((Integer) mColorEvaluator.evaluate(fraction, mAngryColor, mNormalColor));
+            mBackgroundPaint.setColor((Integer) mColorEvaluator.evaluate(fraction, mTerribleColor, mBadColor));
             transformSmile(trans, fraction, smilePath,
                     smileys.getSmile(TERRIBLE), smileys.getSmile(BAD), mFloatEvaluator);
             createEyeLocation(smileys, divisions, fraction, actualTranslation, TERRIBLE, smilePath, smilePath, centerY);
