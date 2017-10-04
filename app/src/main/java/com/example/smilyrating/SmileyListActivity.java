@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.hsalf.smilerating.BaseRating;
 import com.hsalf.smilerating.SmileRating;
 
 import java.util.LinkedList;
@@ -45,7 +44,7 @@ public class SmileyListActivity extends AppCompatActivity {
         List<SmileyData> data = new LinkedList<>();
         for (int i = 0; i < 50; i++) {
             SmileyData smileyData = new SmileyData();
-            smileyData.smiley = NONE;
+            smileyData.rating = NONE;
             smileyData.title = "Smiley " + (i + 1);
             data.add(smileyData);
         }
@@ -71,12 +70,12 @@ public class SmileyListActivity extends AppCompatActivity {
         public void onBindViewHolder(SmileyHolder holder, int position) {
             final SmileyData data = mDataSet.get(position);
             holder.title.setText(data.title);
-            holder.sRating.setSelectedSmile(data.smiley);
+            holder.sRating.setSelectedSmile(data.rating);
 
             holder.sRating.setOnSmileySelectionListener(new SmileRating.OnSmileySelectionListener() {
                 @Override
                 public void onSmileySelected(int smiley, boolean reselected) {
-                    data.smiley = smiley;
+                    data.rating = smiley;
                     notifyDataSetChanged();
                 }
             });
@@ -102,8 +101,16 @@ public class SmileyListActivity extends AppCompatActivity {
     }
 
     private static class SmileyData {
-        @BaseRating.Smiley
-        public int smiley = NONE;
+        /**
+         * The value should be only within (-1 to 4)
+         * -1 NONE
+         * 0 TERRIBLE
+         * 1 BAD
+         * 2 OKAY
+         * 3 GOOD
+         * 4 GREAT
+         */
+        public int rating;
         public String title;
     }
 }
