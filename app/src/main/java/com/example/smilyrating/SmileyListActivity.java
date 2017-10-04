@@ -14,6 +14,7 @@ import com.hsalf.smilerating.SmileRating;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.hsalf.smilerating.BaseRating.GREAT;
 import static com.hsalf.smilerating.BaseRating.NONE;
 
 /**
@@ -44,7 +45,7 @@ public class SmileyListActivity extends AppCompatActivity {
         List<SmileyData> data = new LinkedList<>();
         for (int i = 0; i < 50; i++) {
             SmileyData smileyData = new SmileyData();
-            smileyData.rating = NONE;
+            smileyData.rating = GREAT;
             smileyData.title = "Smiley " + (i + 1);
             data.add(smileyData);
         }
