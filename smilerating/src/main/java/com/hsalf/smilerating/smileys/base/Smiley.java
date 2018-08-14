@@ -1,6 +1,8 @@
 package com.hsalf.smilerating.smileys.base;
 
 import android.animation.FloatEvaluator;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.Log;
@@ -27,21 +29,25 @@ public abstract class Smiley {
 
     private static final FloatEvaluator evaluator = new FloatEvaluator();
 
+    public abstract int getFaceColor();
+
+    public abstract int getDrawingColor();
+
     public Smiley(float eyeLeftStartAngle, float eyeLeftSweepAngle) {
         mLeftEye = new Eye(Eye.Side.LEFT, eyeLeftStartAngle, eyeLeftSweepAngle);
         mRightEye = new Eye(Eye.Side.RIGHT, eyeLeftStartAngle, eyeLeftSweepAngle);
     }
 
 
-    public void to(Smiley to, Path path, float fraction) {
-        fillPath(this, to, path, fraction);
+    public void drawFace(Smiley to, Path path, float fraction) {
+        drawFace(this, to, path, fraction);
     }
 
-    public static void fillPath(Smiley from, Smiley to, Path path, float fraction) {
-        Log.i(TAG, "fillPath: " + fraction);
+    public static void drawFace(Smiley from, Smiley to, Path path, float fraction) {
+        Log.i(TAG, "drawFace: " + fraction);
         path.reset();
 
-        path.addCircle(CENTER_X, CENTER_Y, 0.5f, Path.Direction.CCW);
+        // path.addCircle(CENTER_X, CENTER_Y, 0.5f, Path.Direction.CCW);
 
         path.moveTo(
                 evaluator.evaluate(fraction, from.START_POINT.x, to.START_POINT.x),

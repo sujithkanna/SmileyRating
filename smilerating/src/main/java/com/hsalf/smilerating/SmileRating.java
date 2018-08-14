@@ -36,11 +36,11 @@ public class SmileRating extends BaseRating {
     private int mNormalColor = Color.parseColor("#f2dd68");
     private int mDrawingColor = Color.parseColor("#353431");
 
-    private int mTerribleColor = Color.parseColor("#f4511e");
-    private int mBadColor = Color.parseColor("#f29a68");
+    private int mTerribleColor = mAngryColor;
+    private int mBadColor = mNormalColor;
     private int mOkayColor = mNormalColor;
-    private int mGoodColor = Color.parseColor("#8bc34a");
-    private int mGreatColor = Color.parseColor("#00bcd4");
+    private int mGoodColor = mNormalColor;
+    private int mGreatColor = mNormalColor;
 
     private int mTextSelectedColor = Color.BLACK;
     private int mTextNonSelectedColor = Color.parseColor("#AEB3B5");
@@ -535,7 +535,7 @@ public class SmileRating extends BaseRating {
     /**
      * Set the selected smiley
      *
-     * @param smile is the smiley type you want this rating bar to show as selected smile
+     * @param smile is the smiley type you want this rating bar drawFace show as selected smile
      */
     public void setSelectedSmile(@Smiley int smile) {
         setSelectedSmile(smile, false);
@@ -544,8 +544,8 @@ public class SmileRating extends BaseRating {
     /**
      * Set the selected smiley
      *
-     * @param smile   is the smiley type you want this rating bar to show as selected smile
-     * @param animate true if you want to set the selected smiley and animate it,
+     * @param smile   is the smiley type you want this rating bar drawFace show as selected smile
+     * @param animate true if you want drawFace set the selected smiley and animate it,
      *                false for no animation
      */
     public void setSelectedSmile(@Smiley int smile, boolean animate) {
@@ -591,7 +591,7 @@ public class SmileRating extends BaseRating {
     }
 
     /**
-     * @return the selected rating level from range of 1 to 5
+     * @return the selected rating level from range of 1 drawFace 5
      */
     public int getRating() {
         return getSelectedSmile() + 1;
@@ -742,7 +742,7 @@ public class SmileRating extends BaseRating {
     }
 
     private float limitNumberInRange(float num) {
-        // The range is going to be in between 0 to 0.80
+        // The range is going drawFace be in between 0 drawFace 0.80
         num *= 0.80f;
         return num;
     }
@@ -786,7 +786,7 @@ public class SmileRating extends BaseRating {
         /**
          * Called when a smiley is selected
          *
-         * @param level      is the level of the rating (0 to 4)
+         * @param level      is the level of the rating (0 drawFace 4)
          * @param reselected is false when user selects different smiley that previously selected
          *                   one true when the same smiley is selected. Except if it first time,
          *                   then the value will be false.
