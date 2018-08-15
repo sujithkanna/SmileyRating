@@ -22,6 +22,11 @@ public class Good extends Smiley {
     }
 
     @Override
+    public String getName() {
+        return getClass().getSimpleName();
+    }
+
+    @Override
     public int getFaceColor() {
         return Color.parseColor("#f2dd68");
     }

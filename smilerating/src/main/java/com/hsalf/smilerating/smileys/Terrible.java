@@ -22,6 +22,11 @@ public class Terrible extends Smiley {
     }
 
     @Override
+    public String getName() {
+        return getClass().getSimpleName();
+    }
+
+    @Override
     public int getFaceColor() {
         return Color.parseColor("#f29a68");
     }

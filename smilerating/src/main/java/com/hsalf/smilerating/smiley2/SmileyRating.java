@@ -8,14 +8,18 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.support.annotation.Nullable;
+import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.hsalf.smilerating.FractionEvaluator;
+import com.hsalf.smilerating.Point;
 import com.hsalf.smilerating.smileys.Bad;
 import com.hsalf.smilerating.smileys.Good;
+import com.hsalf.smilerating.smileys.Great;
 import com.hsalf.smilerating.smileys.Okay;
 import com.hsalf.smilerating.smileys.Terrible;
 import com.hsalf.smilerating.smileys.base.Smiley;
@@ -24,8 +28,10 @@ public class SmileyRating extends View {
 
     private static final String TAG = "SmileyRating";
 
+    private static final float DRAWING_PADDING_SCALE = .9f;
     private static final float PLACEHOLDER_PADDING_SCALE = .6f;
     private static final float TOTAL_DIVIDER_SPACE_SCALE = .25f;
+    private static final float TEXT_SIZE_SCALE_FROM_SMILEY_SIZE = .2f;
     private static final float CONNECTOR_LINE_SCALE_FROM_SMILEY_SIZE = .02f;
 
     private static final ArgbEvaluator ARGB_EVALUATOR = new ArgbEvaluator();
@@ -33,9 +39,12 @@ public class SmileyRating extends View {
     private static final FractionEvaluator FRACTION_EVALUATOR = new FractionEvaluator();
 
     private Smiley[] mSmileys = new Smiley[]{
-            new Terrible(), new Bad(), new Okay(), new Good(), new Good()
+            new Terrible(), new Bad(), new Okay(), new Good(), new Great()
     };
 
+    private Text[] mTitlePoints = new Text[]{
+            new Text(), new Text(), new Text(), new Text(), new Text()
+    };
     private RectF[] mPlaceHolders = new RectF[mSmileys.length];
     private Path[] mPlaceHolderPaths = new Path[mSmileys.length];
 
@@ -45,13 +54,19 @@ public class SmileyRating extends View {
 
     private Type mSelectedSmiley = Type.NONE;
 
+    private float mHolderScale = 0f;
     private float mSmileyPositionX = 0f;
+    private int mCurrentFocusedIndex = 0;
     private Path mSmileyPath = new Path();
     private Paint mDrawPaint = new Paint();
+    private TextPaint mTextPaint = new TextPaint();
 
     private int mFaceColor;
     private int mDrawingColor;
     private RectF mFacePosition = new RectF();
+
+    private int mTextSelectedColor = Color.BLACK;
+    private int mTextNonSelectedColor = Color.parseColor("#AEB3B5");
     private int mPlaceholderBackgroundColor = Color.parseColor("#e6e8ed");
 
     public SmileyRating(Context context) {
@@ -70,12 +85,15 @@ public class SmileyRating extends View {
     }
 
     private void init() {
-        // setBackgroundColor(Color.RED);
-        setColors();
+        // setColors();
 
         mDrawPaint.setAntiAlias(true);
         mDrawPaint.setColor(Color.BLACK);
         mDrawPaint.setStyle(Paint.Style.FILL);
+
+        mTextPaint.setAntiAlias(true);
+        mTextPaint.setColor(Color.BLACK);
+        mTextPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
     }
 
     private void setColors() {
@@ -121,13 +139,15 @@ public class SmileyRating extends View {
         int height = calculateHeight(width);
         setMeasuredDimension(width, height);
         createPlaceHolders(width);
-        setSmileyPosition(0);
+        setSmileyPosition(mSmileyPositionX);
     }
 
     private int calculateHeight(int width) {
         int smileys = mSmileys.length;
         float estimatedHeight = width / smileys;
-        // estimatedHeight += estimatedHeight * .25f; // Adding some space to place text below
+        // Reducing 1 divider space from height since divider
+        // space will give double space at bottom twice in #createPlaceHolders later
+        // estimatedHeight -= estimatedHeight * (TOTAL_DIVIDER_SPACE_SCALE / 3);
         return Math.round(estimatedHeight);
     }
 
@@ -157,25 +177,35 @@ public class SmileyRating extends View {
         mDrawPaint.setStrokeWidth(spaceForEachSmiley * CONNECTOR_LINE_SCALE_FROM_SMILEY_SIZE);
 
         createPlaceHolderSmileys();
+        createTitleSpots(spaceForEachSmiley);
     }
 
     private void applyScalesToSmileys(float scale) {
-        for (int i = 0; i < mSmileys.length; i++) {
-            mSmileys[i].scale(scale);
+        for (Smiley mSmiley : mSmileys) {
+            mSmiley.scale(scale);
         }
     }
 
     private void createPlaceHolderSmileys() {
         for (int i = 0; i < mSmileys.length; i++) {
             Path path = new Path();
-            RectF holder = mPlaceHolders[i];
-            float dimen = holder.width() / 2;
-            // float padding = holder.width() * ((1 - PLACEHOLDER_MAX_SCALE) / 2);
             mSmileys[i].drawFace(path);
-
-            /*path.addCircle(
-                    dimen, dimen, dimen, Path.Direction.CCW);*/
             mPlaceHolderPaths[i] = path;
+        }
+    }
+
+
+    private void createTitleSpots(float smileySpace) {
+        mTextPaint.setTextSize(smileySpace * TEXT_SIZE_SCALE_FROM_SMILEY_SIZE);
+        int height = getMeasuredHeight();
+        float textToY = (smileySpace) + ((height - smileySpace) / 2);
+        for (int i = 0; i < mSmileys.length; i++) {
+            String text = mSmileys[i].getName();
+            float x = mPlaceHolders[i].centerX() - (mTextPaint.measureText(text) / 2);
+            float textY = ((mTextPaint.descent() + mTextPaint.ascent()) / 2);
+            float fromY = smileySpace - textY;
+            float toY = textToY - textY;
+            mTitlePoints[i].set(x, fromY, toY);
         }
     }
 
@@ -189,20 +219,33 @@ public class SmileyRating extends View {
         super.onDraw(canvas);
         if (mPlaceHolders[0] != null) {
             mDrawPaint.setColor(Color.WHITE);
-            /*for (int i = 0; i < mPlaceHolders.length; i++) {
-                canvas.drawRect(mPlaceHolders[i], mDrawPaint);
-            }*/
 
             drawConnectorLine(canvas, mPlaceHolders);
 
             for (int i = 0; i < mPlaceHolderPaths.length; i++) {
+                float scale = PLACEHOLDER_PADDING_SCALE;
+                float textTranslate = 1;
+                if (i == mCurrentFocusedIndex) {
+                    scale *= mHolderScale;
+                    textTranslate = mHolderScale;
+                }
                 drawSmileyInRect(canvas, mPlaceHolders[i], mPlaceHolderPaths[i],
-                        PLACEHOLDER_PADDING_SCALE, Color.WHITE, mPlaceholderBackgroundColor);
+                        scale, Color.WHITE, mPlaceholderBackgroundColor);
+
+                drawText(canvas, mSmileys[i], mTitlePoints[i], textTranslate);
             }
 
             drawSmileyInRect(canvas, mFacePosition, mSmileyPath,
-                    1, mDrawingColor, mFaceColor);
+                    DRAWING_PADDING_SCALE, mDrawingColor, mFaceColor);
         }
+    }
+
+    private void drawText(Canvas canvas, Smiley smiley, Text point, float trans) {
+        int color = (Integer) ARGB_EVALUATOR.evaluate(1 - trans,
+                mTextNonSelectedColor, mTextSelectedColor);
+        mTextPaint.setColor(color);
+        float textY = FLOAT_EVALUATOR.evaluate(1 - trans, point.fromY, point.toY);
+        canvas.drawText(smiley.getName(), point.x, textY, mTextPaint);
     }
 
     private void drawConnectorLine(Canvas canvas, RectF[] holders) {
@@ -231,20 +274,27 @@ public class SmileyRating extends View {
         canvas.restoreToCount(save);
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        setSmileyPosition(event.getX());
+        return true;
+    }
+
     private void setSmileyPosition(float pointX) {
-        float startX = mPlaceHolders[0].centerX();
-        float endX = mPlaceHolders[mPlaceHolders.length - 1].centerX();
-        if (pointX < startX) {
-            pointX = startX;
-        } else if (pointX > endX) {
-            pointX = endX;
+        float start = mPlaceHolders[0].centerX();
+        float end = mPlaceHolders[mPlaceHolders.length - 1].centerX();
+        if (pointX < start) {
+            pointX = start;
+        } else if (pointX > end) {
+            pointX = end;
         }
 
         mSmileyPositionX = pointX;
 
-        float fraction = FRACTION_EVALUATOR.evaluate(pointX, startX, endX); // fraction will be between 0 - 1
+        // fraction will be between 0 - 1
+        float fraction = FRACTION_EVALUATOR.evaluate(pointX, start, end);
 
-        int index = (int) Math.ceil(fraction / .202f);
+        int index = (int) Math.floor(fraction / .202f);
 
         RectF holder = mPlaceHolders[index];
 
@@ -262,27 +312,59 @@ public class SmileyRating extends View {
             startIndex = index;
         }
 
-        RectF smileySpace1 = mPlaceHolders[startIndex];
-        RectF smileySpace2 = mPlaceHolders[endIndex];
-
         Smiley to = mSmileys[startIndex];
         Smiley from = mSmileys[endIndex];
-
+        RectF smileySpace2 = mPlaceHolders[endIndex];
+        RectF smileySpace1 = mPlaceHolders[startIndex];
         float drawFraction = FRACTION_EVALUATOR.evaluate(pointX,
                 smileySpace1.centerX(), smileySpace2.centerX());
 
+        calculateHolderScale(startIndex, endIndex, pointX);
+
+        drawFraction = 1 - drawFraction;
         from.drawFace(to, mSmileyPath, drawFraction);
 
-        mFacePosition.set(smileySpace1);
         float space = smileySpace1.width() / 2;
+        mFacePosition.set(smileySpace1);
         mFacePosition.left = pointX - space;
         mFacePosition.right = pointX + space;
 
-        mFaceColor = from.getFaceColor();
-        mDrawingColor = (int) ARGB_EVALUATOR.evaluate(drawFraction,
-                from.getDrawingColor(), to.getDrawingColor());
-
+        mDrawingColor = from.getDrawingColor();
+        mFaceColor = (int) ARGB_EVALUATOR.evaluate(drawFraction,
+                from.getFaceColor(), to.getFaceColor());
+        invalidate();
     }
 
+    private void calculateHolderScale(int startIndex, int endIndex, float pointX) {
+        RectF end = mPlaceHolders[endIndex];
+        RectF start = mPlaceHolders[startIndex];
+
+        float middle = (end.centerX() - start.centerX()) / 2f;
+        int index = (pointX < start.centerX() + middle) ? startIndex : endIndex;
+
+        RectF currentHolder = mPlaceHolders[index];
+        if (currentHolder.centerX() >= pointX) {
+            mHolderScale = 1 - FRACTION_EVALUATOR.evaluate(pointX,
+                    currentHolder.centerX() - middle, currentHolder.centerX());
+        } else {
+            mHolderScale = FRACTION_EVALUATOR.evaluate(pointX,
+                    currentHolder.centerX(), currentHolder.centerX() + middle);
+        }
+
+        mCurrentFocusedIndex = index;
+    }
+
+    private static class Text {
+
+        private float x;
+        private float toY;
+        private float fromY;
+
+        public void set(float x, float fromY, float toY) {
+            this.x = x;
+            this.toY = toY;
+            this.fromY = fromY;
+        }
+    }
 
 }

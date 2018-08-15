@@ -29,9 +29,9 @@ public abstract class Smiley {
 
     private Points mScaledPoints;
 
-    private float mScale = 1f;
-
     private static final FloatEvaluator evaluator = new FloatEvaluator();
+
+    public abstract String getName();
 
     public abstract int getFaceColor();
 
@@ -134,7 +134,6 @@ public abstract class Smiley {
     }
 
     public void scale(float scale) {
-        mScale = scale;
         mScaledPoints.scale(this, scale);
     }
 
