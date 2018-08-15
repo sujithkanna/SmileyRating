@@ -2,6 +2,7 @@ package com.hsalf.smilerating.smiley2;
 
 import android.animation.ArgbEvaluator;
 import android.animation.FloatEvaluator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -14,9 +15,9 @@ import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 
 import com.hsalf.smilerating.FractionEvaluator;
-import com.hsalf.smilerating.Point;
 import com.hsalf.smilerating.smileys.Bad;
 import com.hsalf.smilerating.smileys.Good;
 import com.hsalf.smilerating.smileys.Great;
@@ -49,7 +50,13 @@ public class SmileyRating extends View {
     private Path[] mPlaceHolderPaths = new Path[mSmileys.length];
 
     public enum Type {
-        NONE, GREAT, GOOD, OKAY, BAD, TERRIBLE
+        GREAT(0), GOOD(1), OKAY(2), BAD(3), TERRIBLE(4), NONE(-1);
+
+        int index;
+
+        Type(int i) {
+            index = i;
+        }
     }
 
     private Type mSelectedSmiley = Type.NONE;
@@ -59,15 +66,20 @@ public class SmileyRating extends View {
     private int mCurrentFocusedIndex = 0;
     private Path mSmileyPath = new Path();
     private Paint mDrawPaint = new Paint();
+    private float mSmileyAppearScale = 0.f;
     private TextPaint mTextPaint = new TextPaint();
 
     private int mFaceColor;
     private int mDrawingColor;
+    private ClickAnalyser mClickAnalyser;
     private RectF mFacePosition = new RectF();
 
     private int mTextSelectedColor = Color.BLACK;
     private int mTextNonSelectedColor = Color.parseColor("#AEB3B5");
     private int mPlaceholderBackgroundColor = Color.parseColor("#e6e8ed");
+
+    private ValueAnimator mSlideAnimator = new ValueAnimator();
+    private ValueAnimator mAppearAnimator = new ValueAnimator();
 
     public SmileyRating(Context context) {
         super(context);
@@ -85,7 +97,7 @@ public class SmileyRating extends View {
     }
 
     private void init() {
-        // setColors();
+        mClickAnalyser = ClickAnalyser.newInstance(getResources().getDisplayMetrics().density);
 
         mDrawPaint.setAntiAlias(true);
         mDrawPaint.setColor(Color.BLACK);
@@ -94,42 +106,25 @@ public class SmileyRating extends View {
         mTextPaint.setAntiAlias(true);
         mTextPaint.setColor(Color.BLACK);
         mTextPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-    }
 
-    private void setColors() {
-        Smiley smiley;
-        switch (mSelectedSmiley) {
+        mSlideAnimator.setDuration(350);
+        mSlideAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        mSlideAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                setSmileyPosition((float) animation.getAnimatedValue());
+            }
+        });
 
-            case NONE:
-                mFaceColor = Color.TRANSPARENT;
-                mDrawingColor = Color.TRANSPARENT;
-                break;
-            case GREAT:
-                smiley = mSmileys[4];
-                mFaceColor = smiley.getFaceColor();
-                mDrawingColor = smiley.getDrawingColor();
-                break;
-            case GOOD:
-                smiley = mSmileys[3];
-                mFaceColor = smiley.getFaceColor();
-                mDrawingColor = smiley.getDrawingColor();
-                break;
-            case OKAY:
-                smiley = mSmileys[2];
-                mFaceColor = smiley.getFaceColor();
-                mDrawingColor = smiley.getDrawingColor();
-                break;
-            case BAD:
-                smiley = mSmileys[1];
-                mFaceColor = smiley.getFaceColor();
-                mDrawingColor = smiley.getDrawingColor();
-                break;
-            case TERRIBLE:
-                smiley = mSmileys[0];
-                mFaceColor = smiley.getFaceColor();
-                mDrawingColor = smiley.getDrawingColor();
-                break;
-        }
+        mAppearAnimator.setDuration(200);
+        mAppearAnimator.setFloatValues(0, 1);
+        mAppearAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        mAppearAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                mSmileyAppearScale = animation.getAnimatedFraction();
+            }
+        });
     }
 
     @Override
@@ -209,77 +204,6 @@ public class SmileyRating extends View {
         }
     }
 
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        if (mPlaceHolders[0] != null) {
-            mDrawPaint.setColor(Color.WHITE);
-
-            drawConnectorLine(canvas, mPlaceHolders);
-
-            for (int i = 0; i < mPlaceHolderPaths.length; i++) {
-                float scale = PLACEHOLDER_PADDING_SCALE;
-                float textTranslate = 1;
-                if (i == mCurrentFocusedIndex) {
-                    scale *= mHolderScale;
-                    textTranslate = mHolderScale;
-                }
-                drawSmileyInRect(canvas, mPlaceHolders[i], mPlaceHolderPaths[i],
-                        scale, Color.WHITE, mPlaceholderBackgroundColor);
-
-                drawText(canvas, mSmileys[i], mTitlePoints[i], textTranslate);
-            }
-
-            drawSmileyInRect(canvas, mFacePosition, mSmileyPath,
-                    DRAWING_PADDING_SCALE, mDrawingColor, mFaceColor);
-        }
-    }
-
-    private void drawText(Canvas canvas, Smiley smiley, Text point, float trans) {
-        int color = (Integer) ARGB_EVALUATOR.evaluate(1 - trans,
-                mTextNonSelectedColor, mTextSelectedColor);
-        mTextPaint.setColor(color);
-        float textY = FLOAT_EVALUATOR.evaluate(1 - trans, point.fromY, point.toY);
-        canvas.drawText(smiley.getName(), point.x, textY, mTextPaint);
-    }
-
-    private void drawConnectorLine(Canvas canvas, RectF[] holders) {
-        mDrawPaint.setColor(mPlaceholderBackgroundColor);
-        RectF start = holders[0];
-        RectF end = holders[holders.length - 1];
-        canvas.drawLine(start.centerX(), start.centerY(),
-                end.centerX(), end.centerY(), mDrawPaint);
-    }
-
-    private void drawSmileyInRect(Canvas canvas, RectF holder, Path path,
-                                  float scale, int drawingColor, int faceColor) {
-        float padding = ((1 - scale) * (holder.width() / 2f));
-
-        mDrawPaint.setColor(faceColor);
-        canvas.drawCircle(holder.centerX(), holder.centerY(),
-                (holder.width() / 2) * scale, mDrawPaint);
-
-        int save = canvas.save();
-        canvas.translate(holder.left + padding, holder.top + padding);
-        canvas.scale(scale, scale, 0, 0);
-
-        mDrawPaint.setColor(drawingColor);
-        canvas.drawPath(path, mDrawPaint);
-
-        canvas.restoreToCount(save);
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        setSmileyPosition(event.getX());
-        return true;
-    }
-
     private void setSmileyPosition(float pointX) {
         float start = mPlaceHolders[0].centerX();
         float end = mPlaceHolders[mPlaceHolders.length - 1].centerX();
@@ -354,16 +278,264 @@ public class SmileyRating extends View {
         mCurrentFocusedIndex = index;
     }
 
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        if (mPlaceHolders[0] != null) {
+            mDrawPaint.setColor(Color.WHITE);
+
+            drawConnectorLine(canvas, mPlaceHolders);
+
+            for (int i = 0; i < mPlaceHolderPaths.length; i++) {
+                float scale = PLACEHOLDER_PADDING_SCALE;
+                float textTranslate = 1;
+                if (i == mCurrentFocusedIndex && Type.NONE != mSelectedSmiley) {
+                    float alteredScale = FLOAT_EVALUATOR.evaluate(mSmileyAppearScale,
+                            0, mHolderScale);
+                    scale *= alteredScale;
+                    textTranslate = mHolderScale;
+                }
+                drawSmileyInRect(canvas, mPlaceHolders[i], mPlaceHolderPaths[i],
+                        scale, Color.WHITE, mPlaceholderBackgroundColor);
+
+                drawText(canvas, mSmileys[i], mTitlePoints[i], textTranslate);
+            }
+
+            if (Type.NONE != mSelectedSmiley) {
+                drawSmileyInRect(canvas, mFacePosition, mSmileyPath,
+                        FLOAT_EVALUATOR.evaluate(mSmileyAppearScale,
+                                PLACEHOLDER_PADDING_SCALE, DRAWING_PADDING_SCALE),
+                        mDrawingColor, mFaceColor);
+            }
+        }
+    }
+
+    private void drawText(Canvas canvas, Smiley smiley, Text point, float trans) {
+        int color = (Integer) ARGB_EVALUATOR.evaluate(1 - trans,
+                mTextNonSelectedColor, mTextSelectedColor);
+        mTextPaint.setColor(color);
+        float animTextTrans = FLOAT_EVALUATOR.evaluate(mSmileyAppearScale, point.fromY, point.toY);
+        float textY = FLOAT_EVALUATOR.evaluate(1 - trans, point.fromY, animTextTrans);
+        canvas.drawText(smiley.getName(), point.x, textY, mTextPaint);
+    }
+
+    private void drawConnectorLine(Canvas canvas, RectF[] holders) {
+        mDrawPaint.setColor(mPlaceholderBackgroundColor);
+        RectF start = holders[0];
+        RectF end = holders[holders.length - 1];
+        canvas.drawLine(start.centerX(), start.centerY(),
+                end.centerX(), end.centerY(), mDrawPaint);
+    }
+
+    private void drawSmileyInRect(Canvas canvas, RectF holder, Path path,
+                                  float scale, int drawingColor, int faceColor) {
+        float padding = ((1 - scale) * (holder.width() / 2f));
+
+        mDrawPaint.setColor(faceColor);
+        canvas.drawCircle(holder.centerX(), holder.centerY(),
+                (holder.width() / 2) * scale, mDrawPaint);
+
+        int save = canvas.save();
+        canvas.translate(holder.left + padding, holder.top + padding);
+        canvas.scale(scale, scale, 0, 0);
+
+        mDrawPaint.setColor(drawingColor);
+        canvas.drawPath(path, mDrawPaint);
+
+        canvas.restoreToCount(save);
+    }
+
+
+    private boolean isActiveSmiley(float x, float y) {
+        return inFaceBounds(x, y, mFacePosition);
+    }
+
+    private int inPlaceHolder(float x, float y) {
+        for (int i = 0; i < mPlaceHolders.length; i++) {
+            RectF holder = mPlaceHolders[i];
+            if (inFaceBounds(x, y, holder)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private boolean inFaceBounds(float x, float y, RectF rectF) {
+        return rectF.left <= x && rectF.right >= x;
+    }
+
+    private void cancelMovingAnimations() {
+        if (mSlideAnimator.isRunning()) {
+            mSlideAnimator.cancel();
+        }
+    }
+
+
+    private float mPrevX;
+    private boolean mActiveFaceClicked = false;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        int action = event.getAction();
+        float x = event.getX();
+        float y = event.getY();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                if (Type.NONE == mSelectedSmiley) {
+                    int index = inPlaceHolder(x, y);
+                    if (index != -1) {
+                        mActiveFaceClicked = true;
+                        animateAppearance(index);
+                    }
+                } else if (isActiveSmiley(x, y)) {
+                    cancelMovingAnimations();
+                    mActiveFaceClicked = true;
+                }
+                mClickAnalyser.start(x, y);
+                mPrevX = x;
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                mClickAnalyser.move(x, y);
+                if (mActiveFaceClicked) {
+                    setSmileyPosition(mFacePosition.centerX() - (mPrevX - x));
+                    mPrevX = x;
+                }
+                return true;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                boolean clicked = mClickAnalyser.stop(x, y);
+                if (!mActiveFaceClicked && clicked) {
+                    animateSmileyTo(x, y);
+                } else {
+                    moveFaceToNearestPlace();
+                }
+                mActiveFaceClicked = false;
+                return true;
+            default:
+                mActiveFaceClicked = false;
+                moveFaceToNearestPlace();
+                return super.onTouchEvent(event);
+        }
+        // setSmileyPosition(event.getX());
+        // return super.onTouchEvent(event);
+    }
+
+    private void animateAppearance(int index) {
+        Type type = Type.values()[index];
+        if (mSelectedSmiley == type) {
+            return;
+        }
+        mSelectedSmiley = type;
+        setSmileyPosition(mPlaceHolders[index].centerX());
+        mAppearAnimator.start();
+    }
+
+    private void moveFaceToNearestPlace() {
+        int index = 4;
+        float nearest = Integer.MAX_VALUE;
+        for (int i = 0; i < mPlaceHolders.length; i++) {
+            RectF holder = mPlaceHolders[i];
+            float diff = Math.abs(mFacePosition.centerX() - holder.centerX());
+            if (nearest > diff) {
+                nearest = diff;
+                index = i;
+            }
+        }
+        animateSmileyTo(mPlaceHolders[index]);
+    }
+
+    private void animateSmileyTo(float x, float y) {
+        for (RectF holder : mPlaceHolders) {
+            if (inFaceBounds(x, y, holder)) {
+                animateSmileyTo(holder);
+                break;
+            }
+        }
+    }
+
+    private void animateSmileyTo(RectF rectF) {
+        cancelMovingAnimations();
+        mSlideAnimator.setFloatValues(mFacePosition.centerX(), rectF.centerX());
+        mSlideAnimator.start();
+    }
+
     private static class Text {
 
         private float x;
         private float toY;
         private float fromY;
 
-        public void set(float x, float fromY, float toY) {
+        private void set(float x, float fromY, float toY) {
             this.x = x;
             this.toY = toY;
             this.fromY = fromY;
+        }
+    }
+
+    private static class ClickAnalyser {
+
+        private static final int MAX_CLICK_DISTANCE = 20;
+        private static final int MAX_CLICK_DURATION = 200;
+
+        private float mPressX;
+        private float mPressY;
+        private final float mDensity;
+        private long mPressStartTime;
+        private boolean mMoved = false;
+        private boolean mClickEventOccured = true;
+
+        public ClickAnalyser(float density) {
+            mDensity = density;
+        }
+
+        public static ClickAnalyser newInstance(float density) {
+            return new ClickAnalyser(density);
+        }
+
+        public void start(float x, float y) {
+            mPressX = x;
+            mPressY = y;
+            mMoved = false;
+            mClickEventOccured = true;
+            mPressStartTime = System.currentTimeMillis();
+        }
+
+        /**
+         * returns long press
+         *
+         * @param x
+         * @param y
+         * @return
+         */
+        public void move(float x, float y) {
+            float dist = distance(mPressX, mPressY, x, y);
+            long time = System.currentTimeMillis() - mPressStartTime;
+            if (!mMoved && dist > MAX_CLICK_DISTANCE) {
+                mMoved = true;
+            }
+            if ((time) > MAX_CLICK_DURATION || mMoved) {
+                mClickEventOccured = false;
+            }
+        }
+
+        public boolean stop(float x, float y) {
+            move(x, y);
+            return mClickEventOccured;
+        }
+
+        private float distance(float x1, float y1, float x2, float y2) {
+            float dx = x1 - x2;
+            float dy = y1 - y2;
+            float distanceInPx = (float) Math.sqrt(dx * dx + dy * dy);
+            return pxToDp(distanceInPx);
+        }
+
+        public boolean isMoved() {
+            return mMoved;
+        }
+
+        private float pxToDp(float px) {
+            return px / mDensity;
         }
     }
 
