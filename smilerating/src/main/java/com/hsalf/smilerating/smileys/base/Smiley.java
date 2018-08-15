@@ -18,14 +18,18 @@ public abstract class Smiley {
     protected static final float CENTER_SMILE = .5f;
     protected static final float MOUTH_CENTER_Y = (1 / 2f) + (1 / 5f);
 
-    public Point START_POINT;
-    public Point[] TOP_CURVE = new Point[3];
-    public Point[] RIGHT_CURVE = new Point[3];
-    public Point[] BOTTOM_CURVE = new Point[3];
-    public Point[] LEFT_CURVE = new Point[3];
+    private Point START_POINT;
+    private Point[] TOP_CURVE = new Point[3];
+    private Point[] RIGHT_CURVE = new Point[3];
+    private Point[] BOTTOM_CURVE = new Point[3];
+    private Point[] LEFT_CURVE = new Point[3];
 
     private Eye mLeftEye;
     private Eye mRightEye;
+
+    private Points mScaledPoints;
+
+    private float mScale = 1f;
 
     private static final FloatEvaluator evaluator = new FloatEvaluator();
 
@@ -38,13 +42,15 @@ public abstract class Smiley {
         mRightEye = new Eye(Eye.Side.RIGHT, eyeLeftStartAngle, eyeLeftSweepAngle);
     }
 
-
-    public void drawFace(Smiley to, Path path, float fraction) {
-        drawFace(this, to, path, fraction);
+    public void drawFace(Path path) {
+        drawFace(this, path, 1);
     }
 
-    public static void drawFace(Smiley from, Smiley to, Path path, float fraction) {
-        Log.i(TAG, "drawFace: " + fraction);
+    public void drawFace(Smiley to, Path path, float fraction) {
+        drawFace(this.mScaledPoints, to.mScaledPoints, path, fraction);
+    }
+
+    private static void drawFace(Points from, Points to, Path path, float fraction) {
         path.reset();
 
         // path.addCircle(CENTER_X, CENTER_Y, 0.5f, Path.Direction.CCW);
@@ -87,8 +93,8 @@ public abstract class Smiley {
         );
         path.close();
 
-        from.mLeftEye.addEye(path, to.mLeftEye, fraction);
-        from.mRightEye.addEye(path, to.mRightEye, fraction);
+        from.leftEye.addEye(path, to.leftEye, fraction);
+        from.rightEye.addEye(path, to.rightEye, fraction);
     }
 
     private void fillInverseReflectionPoints(float centerX, float centerY) {
@@ -107,6 +113,7 @@ public abstract class Smiley {
         inversePointY(centerY, TOP_CURVE[2], RIGHT_CURVE[2]);
         switchX(RIGHT_CURVE[0], RIGHT_CURVE[1]);
         inversePointY(centerY, RIGHT_CURVE[0], RIGHT_CURVE[1]);
+        copyForScaling();
     }
 
     private void fillReflectionPoints(float centerX) {
@@ -119,7 +126,16 @@ public abstract class Smiley {
         RIGHT_CURVE[2] = getReflectionPointX(centerX, BOTTOM_CURVE[2]);
         BOTTOM_CURVE[1] = getNextPoint(LEFT_CURVE[0], BOTTOM_CURVE[2], new Point());
         BOTTOM_CURVE[0] = getReflectionPointX(centerX, BOTTOM_CURVE[1]);
+        copyForScaling();
+    }
 
+    private void copyForScaling() {
+        mScaledPoints = new Points(this);
+    }
+
+    public void scale(float scale) {
+        mScale = scale;
+        mScaledPoints.scale(this, scale);
     }
 
     private Point getReflectionPointX(float centerX, Point source) {
@@ -146,7 +162,7 @@ public abstract class Smiley {
         p2.y = centerY + temp;
     }
 
-    protected static Point getNextPoint(Point start, Point end, Point point) {
+    private static Point getNextPoint(Point start, Point end, Point point) {
         float len = getDistance(start, end);
         float ratio = len < 0 ? -1f : 1f;
         point.x = end.x + ratio * (end.x - start.x);
@@ -154,21 +170,21 @@ public abstract class Smiley {
         return point;
     }
 
-    protected static float getDistance(Point p1, Point p2) {
+    private static float getDistance(Point p1, Point p2) {
         return (float) Math.sqrt(
                 (p1.x - p2.x) * (p1.x - p2.x) +
                         (p1.y - p2.y) * (p1.y - p2.y)
         );
     }
 
-    protected static Point getPointByAngle(Point source, float angle, float width) {
+    private static Point getPointByAngle(Point source, float angle, float width) {
         float endX = (float) (source.x + Math.cos(Math.toRadians(angle)) * width);
         float endY = (float) (source.y + Math.sin(Math.toRadians(angle)) * width);
         return new Point(endX, endY);
 
     }
 
-    public static float roundDegreeOfAngle(float angle) {
+    private static float roundDegreeOfAngle(float angle) {
         if (angle < 0) {
             return roundDegreeOfAngle(angle + 360);
         } else if (angle >= 360) {
@@ -233,13 +249,17 @@ public abstract class Smiley {
 
     }
 
-    public static class Eye {
+    static class Eye {
 
-        public Eye(Side side, float startAngle, float sweepAngle) {
-            this.eyeSide = side;
+        Eye(Side side, float startAngle, float sweepAngle) {
             this.startAngle = startAngle;
             this.sweepAngle = sweepAngle;
+            setSide(side);
+            calculatePosition();
+        }
 
+        private void setSide(Side side) {
+            this.eyeSide = side;
             if (Side.LEFT == side) {
                 center.x = .33f;
             } else {
@@ -249,27 +269,43 @@ public abstract class Smiley {
             center.y = .35f;
         }
 
+        public Eye copy() {
+            return new Eye(eyeSide, startAngle, sweepAngle);
+        }
+
+        public Eye copyFrom(Eye eye) {
+            setSide(eye.eyeSide);
+            startAngle = eye.startAngle;
+            sweepAngle = eye.sweepAngle;
+            return eye;
+        }
+
+        public void scale(Eye eye, float scale) {
+            copyFrom(eye);
+            radius = eye.radius * scale;
+            center.set(eye.center, scale);
+            calculatePosition();
+        }
+
         public enum Side {
             LEFT, RIGHT
         }
 
-        public float startAngle;
-        public float sweepAngle;
-        public Side eyeSide;
-        public float radius = .08f;
-        public Point center = new Point();
+        float startAngle;
+        float sweepAngle;
+        Side eyeSide;
+        float radius = .08f;
+        Point center = new Point();
         private RectF eyePosition = new RectF();
 
-        public RectF getEyePosition() {
-            if (center != null) {
-                eyePosition.set(center.x - radius, center.y - radius, center.x + radius
-                        , center.y + radius);
-            }
+        RectF calculatePosition() {
+            eyePosition.set(center.x - radius, center.y - radius, center.x + radius
+                    , center.y + radius);
             return eyePosition;
         }
 
-        public void addEye(Path path, Eye to, float fraction) {
-            path.addArc(getEyePosition(),
+        void addEye(Path path, Eye to, float fraction) {
+            path.addArc(eyePosition,
                     evaluator.evaluate(fraction, this.startAngle, to.startAngle),
                     evaluator.evaluate(fraction, this.sweepAngle, to.sweepAngle)
             );
@@ -279,6 +315,44 @@ public abstract class Smiley {
             float d2 = eye.startAngle + eye.sweepAngle - 180;
             eye.startAngle = -d2;
         }
+    }
+
+    private static class Points {
+
+        Eye leftEye;
+        Eye rightEye;
+
+        private Point START_POINT;
+        private Point[] TOP_CURVE = new Point[3];
+        private Point[] RIGHT_CURVE = new Point[3];
+        private Point[] BOTTOM_CURVE = new Point[3];
+        private Point[] LEFT_CURVE = new Point[3];
+
+        private Points(Smiley smiley) {
+            this.START_POINT = new Point(smiley.START_POINT);
+            for (int i = 0; i < 3; i++) {
+                this.LEFT_CURVE[i] = new Point(smiley.LEFT_CURVE[i]);
+                this.TOP_CURVE[i] = new Point(smiley.TOP_CURVE[i]);
+                this.RIGHT_CURVE[i] = new Point(smiley.RIGHT_CURVE[i]);
+                this.BOTTOM_CURVE[i] = new Point(smiley.BOTTOM_CURVE[i]);
+            }
+
+            leftEye = smiley.mLeftEye.copy();
+            rightEye = smiley.mRightEye.copy();
+        }
+
+        public void scale(Smiley smiley, float scale) {
+            this.START_POINT.set(smiley.START_POINT, scale);
+            for (int i = 0; i < 3; i++) {
+                this.LEFT_CURVE[i].set(smiley.LEFT_CURVE[i], scale);
+                this.TOP_CURVE[i].set(smiley.TOP_CURVE[i], scale);
+                this.RIGHT_CURVE[i].set(smiley.RIGHT_CURVE[i], scale);
+                this.BOTTOM_CURVE[i].set(smiley.BOTTOM_CURVE[i], scale);
+            }
+            leftEye.scale(smiley.mLeftEye, scale);
+            rightEye.scale(smiley.mRightEye, scale);
+        }
+
     }
 
 }

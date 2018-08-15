@@ -8,7 +8,27 @@ public class Point {
 
     }
 
+    public Point(Point point) {
+        this(point.x, point.y);
+    }
+
     public Point(float x, float y) {
+        set(x, y);
+    }
+
+    public void set(Point point) {
+        set(point.x, point.y);
+    }
+
+    public void set(Point point, float scale) {
+        set(point.x, point.y, scale);
+    }
+
+    public void set(float x, float y, float scale) {
+        set(x * scale, y * scale);
+    }
+
+    public void set(float x, float y) {
         this.x = x;
         this.y = y;
     }

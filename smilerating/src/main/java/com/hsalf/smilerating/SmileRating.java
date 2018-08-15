@@ -44,8 +44,8 @@ public class SmileRating extends BaseRating {
 
     private int mTextSelectedColor = Color.BLACK;
     private int mTextNonSelectedColor = Color.parseColor("#AEB3B5");
-    private int mPlaceholderBackgroundColor = Color.parseColor("#e6e8ed");
 
+    private int mPlaceholderBackgroundColor = Color.parseColor("#e6e8ed");
     private String[] mNames = getResources().getStringArray(R.array.names);
 
     private Face[] mFaces = new Face[SMILES_LIST.length];

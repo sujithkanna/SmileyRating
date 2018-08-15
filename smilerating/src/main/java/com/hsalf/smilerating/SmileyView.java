@@ -6,7 +6,6 @@ import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.support.annotation.Nullable;
@@ -29,8 +28,6 @@ public class SmileyView extends View {
     private ArgbEvaluator mArgbEvaluator = new ArgbEvaluator();
 
     private Path mPath = new Path();
-    private Path mDrawPath = new Path();
-    private Matrix matrix = new Matrix();
 
     private Smiley mBad = new Bad();
     private Smiley mGood = new Good();
@@ -123,12 +120,18 @@ public class SmileyView extends View {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         if (widthMeasureSpec < heightMeasureSpec) {
             setMeasuredDimension(getMeasuredWidth(), getMeasuredWidth());
-            matrix.setScale(getMeasuredWidth(), getMeasuredWidth(), 0, 0);
             drawSmiley(0, mSmileys[0], mSmileys[1]);
         } else {
             setMeasuredDimension(getMeasuredHeight(), getMeasuredHeight());
-            matrix.setScale(getMeasuredHeight(), getMeasuredHeight(), 0, 0);
             drawSmiley(0, mSmileys[0], mSmileys[1]);
+        }
+        setScaleForSmiley();
+    }
+
+    private void setScaleForSmiley() {
+        for (int i = 0; i < mSmileys.length; i++) {
+            Smiley smiley = mSmileys[i];
+            smiley.scale(getMeasuredWidth());
         }
     }
 
@@ -155,7 +158,6 @@ public class SmileyView extends View {
 
     private void drawSmiley(float fraction, Smiley from, Smiley to) {
         from.drawFace(to, mPath, fraction);
-        mPath.transform(matrix, mDrawPath);
 
         mPathPaint.setColor(from.getDrawingColor());
 
@@ -170,6 +172,6 @@ public class SmileyView extends View {
         super.onDraw(canvas);
         canvas.drawCircle(canvas.getWidth() / 2, canvas.getHeight() / 2,
                 canvas.getWidth() / 2, mFacePaint);
-        canvas.drawPath(mDrawPath, mPathPaint);
+        canvas.drawPath(mPath, mPathPaint);
     }
 }
