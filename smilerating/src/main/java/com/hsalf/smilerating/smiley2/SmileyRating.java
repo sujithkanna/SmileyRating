@@ -18,12 +18,12 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
 import com.hsalf.smilerating.FractionEvaluator;
-import com.hsalf.smilerating.smileys.Bad;
-import com.hsalf.smilerating.smileys.Good;
-import com.hsalf.smilerating.smileys.Great;
-import com.hsalf.smilerating.smileys.Okay;
-import com.hsalf.smilerating.smileys.Terrible;
-import com.hsalf.smilerating.smileys.base.Smiley;
+import com.hsalf.smilerating.smiley2.smileys.Bad;
+import com.hsalf.smilerating.smiley2.smileys.Good;
+import com.hsalf.smilerating.smiley2.smileys.Great;
+import com.hsalf.smilerating.smiley2.smileys.Okay;
+import com.hsalf.smilerating.smiley2.smileys.Terrible;
+import com.hsalf.smilerating.smiley2.smileys.base.Smiley;
 
 public class SmileyRating extends View {
 
@@ -34,6 +34,8 @@ public class SmileyRating extends View {
     private static final float TOTAL_DIVIDER_SPACE_SCALE = .25f;
     private static final float TEXT_SIZE_SCALE_FROM_SMILEY_SIZE = .2f;
     private static final float CONNECTOR_LINE_SCALE_FROM_SMILEY_SIZE = .02f;
+    private static final int SHADOW_COLOR = Color.argb(60, Color.red(Color.BLACK),
+            Color.green(Color.BLACK), Color.blue(Color.BLACK));
 
     private static final ArgbEvaluator ARGB_EVALUATOR = new ArgbEvaluator();
     private static final FloatEvaluator FLOAT_EVALUATOR = new FloatEvaluator();
@@ -66,6 +68,7 @@ public class SmileyRating extends View {
     private int mCurrentFocusedIndex = 0;
     private Path mSmileyPath = new Path();
     private Paint mDrawPaint = new Paint();
+    private Paint mCirclePaint = new Paint();
     private float mSmileyAppearScale = 0.f;
     private TextPaint mTextPaint = new TextPaint();
 
@@ -102,6 +105,12 @@ public class SmileyRating extends View {
         mDrawPaint.setAntiAlias(true);
         mDrawPaint.setColor(Color.BLACK);
         mDrawPaint.setStyle(Paint.Style.FILL);
+
+        mCirclePaint.setAntiAlias(true);
+        mCirclePaint.setStyle(Paint.Style.FILL);
+        mCirclePaint.setShadowLayer(15, 0, 0, SHADOW_COLOR);
+
+        setLayerType(LAYER_TYPE_SOFTWARE, mCirclePaint);
 
         mTextPaint.setAntiAlias(true);
         mTextPaint.setColor(Color.BLACK);
@@ -296,7 +305,7 @@ public class SmileyRating extends View {
                     textTranslate = mHolderScale;
                 }
                 drawSmileyInRect(canvas, mPlaceHolders[i], mPlaceHolderPaths[i],
-                        scale, Color.WHITE, mPlaceholderBackgroundColor);
+                        scale, Color.WHITE, mPlaceholderBackgroundColor, false);
 
                 drawText(canvas, mSmileys[i], mTitlePoints[i], textTranslate);
             }
@@ -305,7 +314,7 @@ public class SmileyRating extends View {
                 drawSmileyInRect(canvas, mFacePosition, mSmileyPath,
                         FLOAT_EVALUATOR.evaluate(mSmileyAppearScale,
                                 PLACEHOLDER_PADDING_SCALE, DRAWING_PADDING_SCALE),
-                        mDrawingColor, mFaceColor);
+                        mDrawingColor, mFaceColor, true);
             }
         }
     }
@@ -328,12 +337,13 @@ public class SmileyRating extends View {
     }
 
     private void drawSmileyInRect(Canvas canvas, RectF holder, Path path,
-                                  float scale, int drawingColor, int faceColor) {
+                                  float scale, int drawingColor, int faceColor, boolean shadow) {
         float padding = ((1 - scale) * (holder.width() / 2f));
 
-        mDrawPaint.setColor(faceColor);
+        Paint paint = shadow ? mCirclePaint : mDrawPaint;
+        paint.setColor(faceColor);
         canvas.drawCircle(holder.centerX(), holder.centerY(),
-                (holder.width() / 2) * scale, mDrawPaint);
+                (holder.width() / 2) * scale, paint);
 
         int save = canvas.save();
         canvas.translate(holder.left + padding, holder.top + padding);

@@ -1,11 +1,8 @@
-package com.hsalf.smilerating.smileys.base;
+package com.hsalf.smilerating.smiley2.smileys.base;
 
 import android.animation.FloatEvaluator;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
-import android.util.Log;
 
 import com.hsalf.smilerating.Point;
 

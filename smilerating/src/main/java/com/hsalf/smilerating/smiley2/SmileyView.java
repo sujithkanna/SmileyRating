@@ -1,4 +1,4 @@
-package com.hsalf.smilerating;
+package com.hsalf.smilerating.smiley2;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -14,12 +14,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
-import com.hsalf.smilerating.smileys.Bad;
-import com.hsalf.smilerating.smileys.Good;
-import com.hsalf.smilerating.smileys.Great;
-import com.hsalf.smilerating.smileys.Okay;
-import com.hsalf.smilerating.smileys.Terrible;
-import com.hsalf.smilerating.smileys.base.Smiley;
+import com.hsalf.smilerating.OnSwipeTouchListener;
+import com.hsalf.smilerating.smiley2.smileys.Bad;
+import com.hsalf.smilerating.smiley2.smileys.Good;
+import com.hsalf.smilerating.smiley2.smileys.Great;
+import com.hsalf.smilerating.smiley2.smileys.Okay;
+import com.hsalf.smilerating.smiley2.smileys.Terrible;
+import com.hsalf.smilerating.smiley2.smileys.base.Smiley;
 
 public class SmileyView extends View {
 
