@@ -1,5 +1,6 @@
 package com.hsalf.smilerating.smiley2;
 
+import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.FloatEvaluator;
 import android.animation.ValueAnimator;
@@ -13,6 +14,7 @@ import android.graphics.Typeface;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -126,12 +128,35 @@ public class SmileyRating extends View {
         });
 
         mAppearAnimator.setDuration(200);
-        mAppearAnimator.setFloatValues(0, 1);
         mAppearAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         mAppearAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                mSmileyAppearScale = animation.getAnimatedFraction();
+                mSmileyAppearScale = (float) animation.getAnimatedValue();
+                invalidate();
+            }
+        });
+        mAppearAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (mSmileyAppearScale == 0) {
+                    mSelectedSmiley = Type.NONE;
+                }
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
             }
         });
     }
@@ -311,10 +336,14 @@ public class SmileyRating extends View {
             }
 
             if (Type.NONE != mSelectedSmiley) {
+                int drawColor = (int) ARGB_EVALUATOR.evaluate(mSmileyAppearScale,
+                        Color.WHITE, mDrawingColor);
+                int faceColor = (int) ARGB_EVALUATOR.evaluate(mSmileyAppearScale,
+                        mPlaceholderBackgroundColor, mFaceColor);
                 drawSmileyInRect(canvas, mFacePosition, mSmileyPath,
                         FLOAT_EVALUATOR.evaluate(mSmileyAppearScale,
                                 PLACEHOLDER_PADDING_SCALE, DRAWING_PADDING_SCALE),
-                        mDrawingColor, mFaceColor, true);
+                        drawColor, faceColor, true);
             }
         }
     }
@@ -437,7 +466,21 @@ public class SmileyRating extends View {
         }
         mSelectedSmiley = type;
         setSmileyPosition(mPlaceHolders[index].centerX());
+        clearAppearAnimation();
+        mAppearAnimator.setFloatValues(0, 1);
         mAppearAnimator.start();
+    }
+
+    public void resetSmiley() {
+        clearAppearAnimation();
+        mAppearAnimator.setFloatValues(1, 0);
+        mAppearAnimator.start();
+    }
+
+    private void clearAppearAnimation() {
+        if (mAppearAnimator.isRunning()) {
+            mAppearAnimator.cancel();
+        }
     }
 
     private void moveFaceToNearestPlace() {
