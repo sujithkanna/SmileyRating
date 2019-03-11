@@ -201,7 +201,7 @@ passing true will show the line and passig false will hide the line. You can get
 ```java
 boolean showing = mSmileRating.isShowingLine();
 ```
-####Indicator
+#### Indicator
 To set the mode of the RatingBar.
 ```java mSmileyRating.setIndicator(false);```
 passing false will allow the user to set smiley rating. passing true will make the RatingBar just an inticator which is untouchable and will be used to just show some rating by default.
