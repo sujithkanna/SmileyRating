@@ -19,7 +19,7 @@ public class SmileyActivity2 extends AppCompatActivity {
         findViewById(R.id.reset).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mSmileyRating.resetSmiley();
+                mSmileyRating.setRating(0);
             }
         });
 

@@ -356,16 +356,14 @@ public class SmileyRating extends View {
                 drawText(canvas, mSmileys[i], mTitlePoints[i], textTranslate);
             }
 
-            if (Type.NONE != mSelectedSmiley) {
-                int drawColor = (int) ARGB_EVALUATOR.evaluate(mSmileyAppearScale,
-                        Color.WHITE, mDrawingColor);
-                int faceColor = (int) ARGB_EVALUATOR.evaluate(mSmileyAppearScale,
-                        mPlaceholderBackgroundColor, mFaceColor);
-                drawSmileyInRect(canvas, mFacePosition, mSmileyPath,
-                        FLOAT_EVALUATOR.evaluate(mSmileyAppearScale,
-                                PLACEHOLDER_PADDING_SCALE, DRAWING_PADDING_SCALE),
-                        drawColor, faceColor, true);
-            }
+            int drawColor = (int) ARGB_EVALUATOR.evaluate(mSmileyAppearScale,
+                    Color.WHITE, mDrawingColor);
+            int faceColor = (int) ARGB_EVALUATOR.evaluate(mSmileyAppearScale,
+                    mPlaceholderBackgroundColor, mFaceColor);
+            drawSmileyInRect(canvas, mFacePosition, mSmileyPath,
+                    FLOAT_EVALUATOR.evaluate(mSmileyAppearScale,
+                            PLACEHOLDER_PADDING_SCALE, DRAWING_PADDING_SCALE),
+                    drawColor, faceColor, Type.NONE != mSelectedSmiley);
         }
     }
 
@@ -538,11 +536,16 @@ public class SmileyRating extends View {
     }
 
     public void setRating(int rating) {
-        Type[] types = Type.values();
-        if (rating < 0 || rating >= types.length) {
+        rating -= 1;
+        if (rating < -1 || rating >= mPlaceHolders.length) {
             return;
         }
-        Type type = types[rating];
+        if (rating == -1) {
+            resetSmiley();
+            return;
+        }
+        mSelectedSmiley = Type.values()[rating];
+        animateSmileyTo(mPlaceHolders[rating]);
     }
 
     private static class Text {
