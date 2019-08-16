@@ -1,6 +1,7 @@
 package com.hsalf.smilerating.smiley2;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ArgbEvaluator;
 import android.animation.FloatEvaluator;
 import android.animation.ValueAnimator;
@@ -52,14 +53,22 @@ public class SmileyRating extends View {
     };
     private RectF[] mPlaceHolders = new RectF[mSmileys.length];
     private Path[] mPlaceHolderPaths = new Path[mSmileys.length];
+    private OnSmileySelectedListener mOnSmileySelectedListener;
 
     public enum Type {
-        GREAT(0), GOOD(1), OKAY(2), BAD(3), TERRIBLE(4), NONE(-1);
+        TERRIBLE(0), BAD(1), OKAY(2), GOOD(3), GREAT(4), NONE(-1);
 
         int index;
 
         Type(int i) {
             index = i;
+        }
+
+        public int getRating() {
+            if (NONE == this) {
+                return -1;
+            }
+            return index;
         }
     }
 
@@ -126,6 +135,15 @@ public class SmileyRating extends View {
                 setSmileyPosition((float) animation.getAnimatedValue());
             }
         });
+        mSlideAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                if (mOnSmileySelectedListener != null) {
+                    mOnSmileySelectedListener.onSmileySelected(mSelectedSmiley);
+                }
+            }
+        });
 
         mAppearAnimator.setDuration(200);
         mAppearAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -146,6 +164,9 @@ public class SmileyRating extends View {
             public void onAnimationEnd(Animator animation) {
                 if (mSmileyAppearScale == 0) {
                     mSelectedSmiley = Type.NONE;
+                }
+                if (mOnSmileySelectedListener != null) {
+                    mOnSmileySelectedListener.onSmileySelected(mSelectedSmiley);
                 }
             }
 
@@ -472,6 +493,7 @@ public class SmileyRating extends View {
     }
 
     public void resetSmiley() {
+        mSelectedSmiley = Type.NONE;
         clearAppearAnimation();
         mAppearAnimator.setFloatValues(1, 0);
         mAppearAnimator.start();
@@ -494,12 +516,15 @@ public class SmileyRating extends View {
                 index = i;
             }
         }
+        mSelectedSmiley = Type.values()[index];
         animateSmileyTo(mPlaceHolders[index]);
     }
 
     private void animateSmileyTo(float x, float y) {
-        for (RectF holder : mPlaceHolders) {
+        for (int i = 0; i < mPlaceHolders.length; i++) {
+            RectF holder = mPlaceHolders[i];
             if (inFaceBounds(x, y, holder)) {
+                mSelectedSmiley = Type.values()[i];
                 animateSmileyTo(holder);
                 break;
             }
@@ -510,6 +535,14 @@ public class SmileyRating extends View {
         cancelMovingAnimations();
         mSlideAnimator.setFloatValues(mFacePosition.centerX(), rectF.centerX());
         mSlideAnimator.start();
+    }
+
+    public void setRating(int rating) {
+        Type[] types = Type.values();
+        if (rating < 0 || rating >= types.length) {
+            return;
+        }
+        Type type = types[rating];
     }
 
     private static class Text {
@@ -590,6 +623,14 @@ public class SmileyRating extends View {
         private float pxToDp(float px) {
             return px / mDensity;
         }
+    }
+
+    public void setSmileySelectedListener(OnSmileySelectedListener listener) {
+        mOnSmileySelectedListener = listener;
+    }
+
+    public interface OnSmileySelectedListener {
+        void onSmileySelected(Type type);
     }
 
 }
