@@ -28,6 +28,7 @@ import java.util.Map;
 /**
  * Created by sujith on 11/10/16.
  */
+@Deprecated
 public class SmileRating extends BaseRating {
 
     private static final String TAG = "RatingView";
