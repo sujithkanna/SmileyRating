@@ -73,14 +73,14 @@ smileRating.setRating(5, false);
 smileRating.setRating(SmileyRating.Type.GREAT, true);
 smileRating.setRating(5, true);
 ```
-*Smiley will be selected with animation and listeners will also be triggered(Only if the second param is true)*
+Smiley will be selected with animation and listeners will also be triggered(Only if the second param is true)
 
 #### Disallow selection
 ```java
 smileRating.disallowSelection(true);
 ```
 
-*You can disallow user input by passing true to this. You can set the smiley only using [this](https://github.com/sujithkanna/SmileyRating/tree/develop#you-can-set-selected-smiley-without-user-interaction). This is useful when you just want to show the rating.*
+You can disallow user input by passing true to this. You can set the smiley only using [this](https://github.com/sujithkanna/SmileyRating/tree/develop#you-can-set-selected-smiley-without-user-interaction). This is useful when you just want to show the rating.
 
 #### Styling
 ```java
@@ -89,19 +89,19 @@ smileRating.setFaceColor(SmileyRating.Type.GREAT, Color.BLUE);
 smileRating.setFaceBackgroundColor(SmileyRating.Type.GREAT, Color.RED);
 ```
 
-*These are the helper methods to change the color and title of the Smiley*
-**_NOTE:_**  The color values must be int colors ```Color.RED``` or ```Color.parse("#fff")``` or ```ResourcesCompat.getColor(getResources(), R.color.your_color, null);```, not int resources like ```R.color.primaryColor```.*
+These are the helper methods to change the color and title of the Smiley.
+**_NOTE:_**  The color values must be int colors ```Color.RED``` or ```Color.parse("#fff")``` or ```ResourcesCompat.getColor(getResources(), R.color.your_color, null);```, not int resources like ```R.color.primaryColor```.
 ##### (Currently setting these things in xml will make things complex. So any pull request for this will not be accepted)
 
 #### Working with RecyclerView
-*To avoid conflict with RecyclerView touch events, you have to add the following implementation when putting the SmileyRating in RecyclerView.*
-*For that you have to create an instance of SmileyActivityindicator as global variable inside your Activity where you use your RecyclerView.*
+To avoid conflict with RecyclerView touch events, you have to add the following implementation when putting the SmileyRating in RecyclerView.
+For that you have to create an instance of SmileyActivityIndicator as global variable inside your Activity where you use your RecyclerView.
 
 ```java
 final SmileyActiveIndicator smileyActiveIndicator = new SmileyActiveIndicator();
 ```
 
-*Now you have to link the ```SmileyActiveIndicator``` to the RecyclerView. This will tell the RecyclerView whether it can scroll or not.*
+Now you have to link the ```SmileyActiveIndicator``` to the RecyclerView. This will tell the RecyclerView whether it can scroll or not.
 
 ```java
 recyclerView.setLayoutManager(new LinearLayoutManager(this) {
@@ -111,7 +111,7 @@ recyclerView.setLayoutManager(new LinearLayoutManager(this) {
     }
 });
 ```
-*Now bind your SmileyRating view to the ```mSmileyActiveIndicator``` you have created.*
+Now bind your SmileyRating view to the ```mSmileyActiveIndicator``` you have created.
 
 ```java
 @Override
