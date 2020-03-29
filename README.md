@@ -79,4 +79,4 @@ smileRating.setRating(5, true);
 ```java
 smileRating.disallowSelection(true);
 ```
-*You can disallow user input by passing true to this. You can set the smiley only using [this](https://github.com/sujithkanna/SmileyRating/tree/develop#you-can-set-selected-smiley-without-user-interaction)
+*You can disallow user input by passing true to this. You can set the smiley only using [this](https://github.com/sujithkanna/SmileyRating/tree/develop#you-can-set-selected-smiley-without-user-interaction). This is useful when you just want to show the rating.
