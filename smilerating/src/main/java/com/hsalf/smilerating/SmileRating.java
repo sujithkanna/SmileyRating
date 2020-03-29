@@ -20,6 +20,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.StringRes;
 
 import java.util.HashMap;
 import java.util.Map;
