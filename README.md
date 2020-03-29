@@ -90,5 +90,34 @@ smileRating.setFaceBackgroundColor(SmileyRating.Type.GREAT, Color.RED);
 ```
 
 *These are the helper methods to change the color and title of the Smiley*
-**_NOTE:_**  The color values must be int colors ```Color.RED``` or ```Color.parse("#fff")``` or ```ResourcesCompat.getColor(getResources(), R.color.your_color, null);```, not int resources like ```R.color.primaryColor```.
+**_NOTE:_**  The color values must be int colors ```Color.RED``` or ```Color.parse("#fff")``` or ```ResourcesCompat.getColor(getResources(), R.color.your_color, null);```, not int resources like ```R.color.primaryColor```.*
 ##### (Currently setting these things in xml will make things complex. So any pull request for this will not be accepted)
+
+#### Working with RecyclerView
+*To avoid conflict with RecyclerView touch events, you have to add the following implementation when putting the SmileyRating in RecyclerView.*
+*For that you have to create an instance of SmileyActivityindicator as global variable inside your Activity where you use your RecyclerView.*
+
+```java
+final SmileyActiveIndicator smileyActiveIndicator = new SmileyActiveIndicator();
+```
+
+*Now you have to link the ```SmileyActiveIndicator``` to the RecyclerView. This will tell the RecyclerView whether it can scroll or not.*
+
+```java
+recyclerView.setLayoutManager(new LinearLayoutManager(this) {
+    @Override
+    public boolean canScrollVertically() {
+        return !smileyActiveIndicator.isActive();
+    }
+});
+```
+*Now bind your SmileyRating view to the ```mSmileyActiveIndicator``` you have created.*
+
+```java
+@Override
+public void onBindViewHolder(@NonNull Holder holder, final int position) {
+    SmileyRating rating = holder.smileyRating;
+    mSmileyActiveIndicator.bind(rating);
+    // your code here
+}
+```
