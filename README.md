@@ -12,7 +12,7 @@ Integrating SmileyRating in your project is very simple.
 ### Step 1:
 Add this dependency in your project's build.gradle file which is in your app folder
 ```groovy
-compile 'com.github.sujithkanna:smileyrating:1.6.8'
+compile 'com.github.sujithkanna:smileyrating:2.0'
 ```
 add this to your dependencies.
 ## Step 2:
@@ -155,16 +155,16 @@ You can set change the colors by xml
         app:textSelectionColor="#000000" />
 ```
 
-| Params  | Description |
-| ------------- | ------------- |
-| `app:angryColor`  | To set the color of the Angry/Terrible smiley's background color.  |
-| `app:normalColor`  | To change the color of all smileys background color except Angry/Terrible smiley.  |
-| `app:drawingColor`  | To change the color of all smileys (Smile and eyes).  |
-| `app:placeHolderSmileColor`  | To set the color of all placeholder smiley's (Smile and eyes) color.  |
-| `app:placeHolderBackgroundColor`  | To set the color of all placeholder smiley's background color.  |
-| `app:textSelectionColor`  | To set the color of the selected smiley's text color.  |
-| `app:textNonSelectionColor`  | To set the color of the non-selected smiley's text color  |
-| `app:isIndicator` | A boolean to switch modes between editable and non editable bar|
+| Params                           | Description                                                                       |
+| -------------------------------- | --------------------------------------------------------------------------------- |
+| `app:angryColor`                 | To set the color of the Angry/Terrible smiley's background color.                 |
+| `app:normalColor`                | To change the color of all smileys background color except Angry/Terrible smiley. |
+| `app:drawingColor`               | To change the color of all smileys (Smile and eyes).                              |
+| `app:placeHolderSmileColor`      | To set the color of all placeholder smiley's (Smile and eyes) color.              |
+| `app:placeHolderBackgroundColor` | To set the color of all placeholder smiley's background color.                    |
+| `app:textSelectionColor`         | To set the color of the selected smiley's text color.                             |
+| `app:textNonSelectionColor`      | To set the color of the non-selected smiley's text color                          |
+| `app:isIndicator`                | A boolean to switch modes between editable and non editable bar                   |
 
 
 

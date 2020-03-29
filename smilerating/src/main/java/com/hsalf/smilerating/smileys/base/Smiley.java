@@ -1,4 +1,4 @@
-package com.hsalf.smilerating.smiley2.smileys.base;
+package com.hsalf.smilerating.smileys.base;
 
 import android.animation.FloatEvaluator;
 import android.graphics.Path;

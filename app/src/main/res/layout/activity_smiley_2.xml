@@ -11,7 +11,7 @@
         android:layout_marginTop="20dp"
         android:text="Reset" />
 
-    <com.hsalf.smilerating.smiley2.SmileyRating
+    <com.hsalf.smilerating.SmileyRating
         android:id="@+id/smiley"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

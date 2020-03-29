@@ -1,4 +1,4 @@
-package com.hsalf.smilerating.smiley2;
+package com.hsalf.smilerating;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -20,13 +20,13 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 
 import androidx.annotation.Nullable;
 
-import com.hsalf.smilerating.FractionEvaluator;
-import com.hsalf.smilerating.smiley2.smileys.Bad;
-import com.hsalf.smilerating.smiley2.smileys.Good;
-import com.hsalf.smilerating.smiley2.smileys.Great;
-import com.hsalf.smilerating.smiley2.smileys.Okay;
-import com.hsalf.smilerating.smiley2.smileys.Terrible;
-import com.hsalf.smilerating.smiley2.smileys.base.Smiley;
+import com.hsalf.smilerating.helper.TouchActiveIndicator;
+import com.hsalf.smilerating.smileys.Bad;
+import com.hsalf.smilerating.smileys.Good;
+import com.hsalf.smilerating.smileys.Great;
+import com.hsalf.smilerating.smileys.Okay;
+import com.hsalf.smilerating.smileys.Terrible;
+import com.hsalf.smilerating.smileys.base.Smiley;
 
 public class SmileyRating extends View implements TouchActiveIndicator {
 

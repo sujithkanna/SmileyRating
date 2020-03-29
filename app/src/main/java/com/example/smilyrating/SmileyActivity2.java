@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
-import com.hsalf.smilerating.smiley2.SmileyRating;
+import com.hsalf.smilerating.SmileyRating;
 
 public class SmileyActivity2 extends AppCompatActivity {
 

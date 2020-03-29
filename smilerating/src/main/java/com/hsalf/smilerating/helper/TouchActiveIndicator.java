@@ -1,4 +1,4 @@
-package com.hsalf.smilerating.smiley2;
+package com.hsalf.smilerating.helper;
 
 public interface TouchActiveIndicator {
 

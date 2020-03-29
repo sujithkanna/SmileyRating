@@ -13,19 +13,24 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Typeface;
-import androidx.annotation.ColorInt;
-import androidx.annotation.StringRes;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.StringRes;
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by sujith on 11/10/16.
+ */
+@Deprecated
+/**
+ * use {@link SmileyRating} instead
  */
 public class SmileRating extends BaseRating {
 
