@@ -74,3 +74,9 @@ smileRating.setRating(SmileyRating.Type.GREAT, true);
 smileRating.setRating(5, true);
 ```
 *Smiley will be selected with animation and listeners will also be triggered(Only if the second param is true)*
+
+#### Disallow selection
+```java
+smileRating.disallowSelection(true);
+```
+*You can disallow user input by passing true to this. You can set the smiley only using [this](https://github.com/sujithkanna/SmileyRating/tree/develop#you-can-set-selected-smiley-without-user-interaction)
