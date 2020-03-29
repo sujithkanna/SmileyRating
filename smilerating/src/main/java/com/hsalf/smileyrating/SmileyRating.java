@@ -59,6 +59,7 @@ public class SmileyRating extends View implements TouchActiveIndicator {
     public enum Type {
         TERRIBLE(1), BAD(2), OKAY(3), GOOD(4), GREAT(5), NONE(-1);
 
+
         int index;
 
         Type(int i) {
@@ -71,6 +72,7 @@ public class SmileyRating extends View implements TouchActiveIndicator {
             }
             return index;
         }
+
     }
 
     private Type mSelectedSmiley = Type.NONE;
@@ -82,6 +84,7 @@ public class SmileyRating extends View implements TouchActiveIndicator {
     private Paint mCirclePaint = new Paint();
     private float mSmileyAppearScale = 0.f;
     private boolean mInflationDone = false;
+    private boolean mDiwallowSelection = false;
     private TextPaint mTextPaint = new TextPaint();
 
     private int mFaceColor;
@@ -438,6 +441,9 @@ public class SmileyRating extends View implements TouchActiveIndicator {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (mDiwallowSelection) {
+            return super.onTouchEvent(event);
+        }
         int action = event.getAction();
         float x = event.getX();
         float y = event.getY();
@@ -458,7 +464,7 @@ public class SmileyRating extends View implements TouchActiveIndicator {
                     mPrevX = x;
                     return true;
                 }
-                return false;
+                return super.onTouchEvent(event);
             case MotionEvent.ACTION_MOVE:
                 mClickAnalyser.move(x, y);
                 if (mActiveFaceClicked) {
@@ -559,21 +565,20 @@ public class SmileyRating extends View implements TouchActiveIndicator {
     }
 
     public void setRating(int rating, boolean animate) {
-        rating -= 1;
-        if (rating < -1 || rating == 0 || rating >= mPlaceHolders.length) {
+        if (rating < -1 || rating == 0 || rating > mPlaceHolders.length) {
             throw new IllegalArgumentException("You must provide valid rating value " + rating + " is not a valid rating.");
         }
         if (rating == -1) {
             resetSmiley();
             return;
         }
-        mSelectedSmiley = Type.values()[rating];
+        mSelectedSmiley = Type.values()[rating - 1];
         if (mInflationDone) {
             if (!animate) {
-                setSmileyPosition(mPlaceHolders[rating].centerX());
+                setSmileyPosition(mPlaceHolders[rating - 1].centerX());
                 return;
             }
-            animateSmileyTo(mPlaceHolders[rating]);
+            animateSmileyTo(mPlaceHolders[rating - 1]);
         } else {
             mSmileyAppearScale = 1;
         }
@@ -601,6 +606,10 @@ public class SmileyRating extends View implements TouchActiveIndicator {
         }
         mSmileys[type.index].setDrawingColor(color);
         invalidate();
+    }
+
+    public void disallowSelection(boolean disallow) {
+        mDiwallowSelection = disallow;
     }
 
     private static class Text {
