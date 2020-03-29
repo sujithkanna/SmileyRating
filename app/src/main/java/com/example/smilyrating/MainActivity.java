@@ -1,9 +1,8 @@
 package com.example.smilyrating;
 
-import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 
 import com.hsalf.smilerating.BaseRating;
@@ -22,8 +21,8 @@ public class MainActivity extends AppCompatActivity implements SmileRating.OnSmi
         mSmileRating = (SmileRating) findViewById(R.id.ratingView);
         mSmileRating.setOnSmileySelectionListener(this);
         mSmileRating.setOnRatingSelectedListener(this);
-        Typeface typeface = Typeface.createFromAsset(getAssets(), "MetalMacabre.ttf");
-        mSmileRating.setTypeface(typeface);
+        /*Typeface typeface = Typeface.createFromAsset(getAssets(), "MetalMacabre.ttf");
+        mSmileRating.setTypeface(typeface);*/
     }
 
     @Override
