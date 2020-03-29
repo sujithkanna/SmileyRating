@@ -39,6 +39,7 @@ smileyRating.setSmileySelectedListener(new SmileyRating.OnSmileySelectedListener
                 int rating = type.getRating();
             }
         });
+ ```
 
 ### Get current selection
 ```java
@@ -50,6 +51,7 @@ if (SmileyRating.Type.GREAT == type) {
  // You can get the user rating too
  // rating will between 1 to 5, but -1 is none selected
  int rating = type.getRating();
+ ```
 
 ### You can set selected smiley without user interaction
 #### Without animation
