@@ -1,4 +1,4 @@
-package com.hsalf.smilerating.helper;
+package com.hsalf.smileyrating.helper;
 
 import java.util.HashSet;
 import java.util.Set;

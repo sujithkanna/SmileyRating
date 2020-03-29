@@ -22,6 +22,8 @@ import android.view.animation.OvershootInterpolator;
 import androidx.annotation.ColorInt;
 import androidx.annotation.StringRes;
 
+import com.hsalf.smileyrating.SmileyRating;
+
 import java.util.HashMap;
 import java.util.Map;
 

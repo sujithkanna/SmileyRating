@@ -1,15 +1,15 @@
-package com.hsalf.smilerating.smileys;
+package com.hsalf.smileyrating.smileys;
 
 import android.animation.FloatEvaluator;
 import android.graphics.Color;
 
 import com.hsalf.smilerating.Point;
-import com.hsalf.smilerating.smileys.base.Smiley;
+import com.hsalf.smileyrating.smileys.base.Smiley;
 
-public class Bad extends Smiley {
+public class Terrible extends Smiley {
 
-    public Bad() {
-        super(-90, 270);
+    public Terrible() {
+        super(-35, 280);
 
         float div = 0.20f;
         FloatEvaluator f = new FloatEvaluator();
@@ -21,7 +21,7 @@ public class Bad extends Smiley {
         );
         setup(
                 getClass().getSimpleName(),
-                Color.parseColor("#f2dd68"),
+                Color.parseColor("#f29a68"),
                 Color.parseColor("#353431")
         );
     }

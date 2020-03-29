@@ -1,10 +1,10 @@
-package com.hsalf.smilerating.smileys;
+package com.hsalf.smileyrating.smileys;
 
 import android.animation.FloatEvaluator;
 import android.graphics.Color;
 
 import com.hsalf.smilerating.Point;
-import com.hsalf.smilerating.smileys.base.Smiley;
+import com.hsalf.smileyrating.smileys.base.Smiley;
 
 public class Good extends Smiley {
 

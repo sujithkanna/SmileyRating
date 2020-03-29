@@ -1,4 +1,4 @@
-package com.hsalf.smilerating;
+package com.hsalf.smileyrating;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -20,13 +20,14 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 
 import androidx.annotation.Nullable;
 
-import com.hsalf.smilerating.helper.TouchActiveIndicator;
-import com.hsalf.smilerating.smileys.Bad;
-import com.hsalf.smilerating.smileys.Good;
-import com.hsalf.smilerating.smileys.Great;
-import com.hsalf.smilerating.smileys.Okay;
-import com.hsalf.smilerating.smileys.Terrible;
-import com.hsalf.smilerating.smileys.base.Smiley;
+import com.hsalf.smilerating.FractionEvaluator;
+import com.hsalf.smileyrating.helper.TouchActiveIndicator;
+import com.hsalf.smileyrating.smileys.Bad;
+import com.hsalf.smileyrating.smileys.Good;
+import com.hsalf.smileyrating.smileys.Great;
+import com.hsalf.smileyrating.smileys.Okay;
+import com.hsalf.smileyrating.smileys.Terrible;
+import com.hsalf.smileyrating.smileys.base.Smiley;
 
 public class SmileyRating extends View implements TouchActiveIndicator {
 
@@ -545,14 +546,22 @@ public class SmileyRating extends View implements TouchActiveIndicator {
         mSlideAnimator.start();
     }
 
+    public void setRating(Type type) {
+        setRating(type, false);
+    }
+
+    public void setRating(Type type, boolean animate) {
+        setRating(type.getRating(), animate);
+    }
+
     public void setRating(int rating) {
         setRating(rating, false);
     }
 
     public void setRating(int rating, boolean animate) {
         rating -= 1;
-        if (rating < -1 || rating >= mPlaceHolders.length) {
-            return;
+        if (rating < -1 || rating == 0 || rating >= mPlaceHolders.length) {
+            throw new IllegalArgumentException("You must provide valid rating value " + rating + " is not a valid rating.");
         }
         if (rating == -1) {
             resetSmiley();
@@ -672,6 +681,10 @@ public class SmileyRating extends View implements TouchActiveIndicator {
         private float pxToDp(float px) {
             return px / mDensity;
         }
+    }
+
+    public Type getSelectedSmiley() {
+        return mSelectedSmiley;
     }
 
     public void setSmileySelectedListener(OnSmileySelectedListener listener) {

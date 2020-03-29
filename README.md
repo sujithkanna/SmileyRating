@@ -19,189 +19,56 @@ add this to your dependencies.
 Now place the SmileyRating in your layout.
 ###### *Note: The height of the SmileyRating will be automatically adjusted according to the width of this component.*
 ```xml
-<com.hsalf.smilerating.SmileRating
+<com.hsalf.smileyrating.SmileyRating
         android:id="@+id/smile_rating"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 ```
-## Step 3:
-### Initialize your view
-```java
-SmileRating smileRating = (SmileRating) findViewById(R.id.smile_rating);
-```
-### Set this SmileySelectionListener to get notified when user selects a smiley
+### Set this SmileySelectedListener to get notified when user selects a smiley
 *By default the selected smiley will be NONE*
 ```java
-smileRating.setOnSmileySelectionListener(new SmileRating.OnSmileySelectionListener() {
+smileyRating.setSmileySelectedListener(new SmileyRating.OnSmileySelectedListener() {
             @Override
-            public void onSmileySelected(@BaseRating.Smiley int smiley, boolean reselected) {
-	            // reselected is false when user selects different smiley that previously selected one
-		        // true when the same smiley is selected.
-		        // Except if it first time, then the value will be false.
-                switch (smiley) {
-                    case SmileRating.BAD:
-                        Log.i(TAG, "Bad");
-                        break;
-                    case SmileRating.GOOD:
-                        Log.i(TAG, "Good");
-                        break;
-                    case SmileRating.GREAT:
-                        Log.i(TAG, "Great");
-                        break;
-                    case SmileRating.OKAY:
-                        Log.i(TAG, "Okay");
-                        break;
-                    case SmileRating.TERRIBLE:
-                        Log.i(TAG, "Terrible");
-                        break;
+            public void onSmileySelected(SmileyRating.Type type) {
+                // You can compare it with rating Type
+                if (SmileyRating.Type.GREAT == type) {
+                    Log.i(TAG, "Wow, the user gave high rating");
                 }
+                // You can get the user rating too
+                // rating will between 1 to 5
+                int rating = type.getRating();
             }
         });
-```
-### If you want to know the level of user rating, You can listen for OnRatingSelectedListener
-```java
-smileRating.setOnRatingSelectedListener(new SmileRating.OnRatingSelectedListener() {
-            @Override
-            public void onRatingSelected(int level, boolean reselected) {
-                // level is from 1 to 5 (0 when none selected)
-                // reselected is false when user selects different smiley that previously selected one
-		        // true when the same smiley is selected.
-		        // Except if it first time, then the value will be false.
-            }
-        });
-```
 
 ### Get current selection
 ```java
-@Smiley int smiley = mSmileRating.getSelectedSmile();
-switch (smiley) {
-    case SmileRating.BAD:
-        Log.i(TAG, "Bad");
-        break;
-    case SmileRating.GOOD:
-        Log.i(TAG, "Good");
-        break;
-    case SmileRating.GREAT:
-        Log.i(TAG, "Great");
-        break;
-    case SmileRating.OKAY:
-        Log.i(TAG, "Okay");
-        break;
-    case SmileRating.TERRIBLE:
-        Log.i(TAG, "Terrible");
-        break;
-    case SmileyRating.NONE:
-	    Log.i(TAG, "None");
-	    break;
+SmileyRating.Type smiley = smileyRating.getSelectedSmiley();
+// You can compare it with rating Type
+if (SmileyRating.Type.GREAT == type) {
+    Log.i(TAG, "Great rating is given");
 }
-```
-this will return you an int value which indicated the current selected smiley
-### Get current rating level
-```java
-int level = mSmileRating.getRating(); // level is from 1 to 5
-// Will return 0 if NONE selected
-```
+ // You can get the user rating too
+ // rating will between 1 to 5, but -1 is none selected
+ int rating = type.getRating();
+
 ### You can set selected smiley without user interaction
 #### Without animation
 ```java
-smileRating.setSelectedSmile(BaseRating.GREAT);
+smileRating.setRating(SmileyRating.Type.GREAT);
+// Or you can give rating as number
+// Valid inputs are 1 to 5.
+// Giving -1 will reset the rating. Equivalent to Type.NONE
+smileRating.setRating(5);
 ```
 #### OR
 ```java
-smileRating.setSelectedSmile(BaseRating.GREAT, false);
+smileRating.setRating(SmileyRating.Type.GREAT, false);
+smileRating.setRating(5, false);
 ```
-*The smiley will be selected without any animation and the listeners won't be triggered*
+*The smiley will be selected with animation and the listeners will be triggered*
 #### With animation
 ```java
-smileRating.setSelectedSmile(BaseRating.GREAT, true);
+smileRating.setRating(SmileyRating.Type.GREAT, true);
+smileRating.setRating(5, true);
 ```
 *Smiley will be selected with animation and listeners will also be triggered(Only if the second param is true)*
-
-You can even set the smiley to NONE with/without animation by passing NONE using same API.
-
-#### You can change the smiley name also
-Raw string
-```java
-mSmileRating.setNameForSmile(BaseRating.TERRIBLE, "Angry");
-```
-String resources
-```java
-mSmileRating.setNameForSmile(BaseRating.TERRIBLE, R.string.anyTitle);
-```
-
-![Angry](https://raw.githubusercontent.com/sujithkanna/SmileyRating/master/app/src/main/assets/angry.jpg)
-
-#### Custom font
-You can change the title color of smileys.
-```java
-mSmileRating.setTypeface(yourTypeface);
-```
-
-#### Change colors
-You can set change the colors by xml
-```xml
-<com.hsalf.smilerating.SmileRating
-        android:id="@+id/ratingView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        app:angryColor="#f29a68"
-        app:drawingColor="#353431"
-        app:normalColor="#f2dd68"
-        app:isIndicator="false"
-        app:placeHolderBackgroundColor="#e6e8ed"
-        app:placeHolderSmileColor="#ffffff"
-        app:textNonSelectionColor="#AEB3B5"
-        app:textSelectionColor="#000000" />
-```
-
-| Params                           | Description                                                                       |
-| -------------------------------- | --------------------------------------------------------------------------------- |
-| `app:angryColor`                 | To set the color of the Angry/Terrible smiley's background color.                 |
-| `app:normalColor`                | To change the color of all smileys background color except Angry/Terrible smiley. |
-| `app:drawingColor`               | To change the color of all smileys (Smile and eyes).                              |
-| `app:placeHolderSmileColor`      | To set the color of all placeholder smiley's (Smile and eyes) color.              |
-| `app:placeHolderBackgroundColor` | To set the color of all placeholder smiley's background color.                    |
-| `app:textSelectionColor`         | To set the color of the selected smiley's text color.                             |
-| `app:textNonSelectionColor`      | To set the color of the non-selected smiley's text color                          |
-| `app:isIndicator`                | A boolean to switch modes between editable and non editable bar                   |
-
-
-
-
-Or, you can change colors on runtime also
-```java
-smileyRating.setAngryColor(int color);
-smileRating.setNormalColor(int color);
-smileRating.setDrawingColor(int color);
-smileRating.setPlaceHolderSmileColor(int color);
-smileRating.setPlaceHolderBackgroundColor(int color);
-smileRating.setTextSelectionColor(int color);
-smileRating.setTextNonSelectionColor(int color);
-```
-
-All colors should have be provided as color int.
-
-*Example*
-```java
-smileRating.setAngryColor(Color.RED);
-smileRating.setAngryColor(Color.parseColor("#f29a68"));
-smileRating.setNormalColor(ContextCompat.getColor(context, R.color.your_color));
-```
-#### Show/Hide line
-You can customize wheather to show or hide the line behind smileys.
-```java
-mSmileRating.setShowLine(true/false);
-```
-or
-```xml
-app:showLine="true/false"
-```
-passing true will show the line and passig false will hide the line. You can get the current visibility of the line by calling
-```java
-boolean showing = mSmileRating.isShowingLine();
-```
-####Indicator
-To set the mode of the RatingBar.
-```java mSmileyRating.setIndicator(false);```
-passing false will allow the user to set smiley rating. passing true will make the RatingBar just an inticator which is untouchable and will be used to just show some rating by default.
