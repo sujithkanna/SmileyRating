@@ -12,13 +12,13 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Typeface;
-import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+
+import androidx.annotation.Nullable;
 
 import com.hsalf.smilerating.FractionEvaluator;
 import com.hsalf.smilerating.smiley2.smileys.Bad;
@@ -28,7 +28,7 @@ import com.hsalf.smilerating.smiley2.smileys.Okay;
 import com.hsalf.smilerating.smiley2.smileys.Terrible;
 import com.hsalf.smilerating.smiley2.smileys.base.Smiley;
 
-public class SmileyRating extends View {
+public class SmileyRating extends View implements TouchActiveIndicator {
 
     private static final String TAG = "SmileyRating";
 
@@ -56,7 +56,7 @@ public class SmileyRating extends View {
     private OnSmileySelectedListener mOnSmileySelectedListener;
 
     public enum Type {
-        TERRIBLE(0), BAD(1), OKAY(2), GOOD(3), GREAT(4), NONE(-1);
+        TERRIBLE(1), BAD(2), OKAY(3), GOOD(4), GREAT(5), NONE(-1);
 
         int index;
 
@@ -73,7 +73,6 @@ public class SmileyRating extends View {
     }
 
     private Type mSelectedSmiley = Type.NONE;
-
     private float mHolderScale = 0f;
     private float mSmileyPositionX = 0f;
     private int mCurrentFocusedIndex = 0;
@@ -81,6 +80,7 @@ public class SmileyRating extends View {
     private Paint mDrawPaint = new Paint();
     private Paint mCirclePaint = new Paint();
     private float mSmileyAppearScale = 0.f;
+    private boolean mInflationDone = false;
     private TextPaint mTextPaint = new TextPaint();
 
     private int mFaceColor;
@@ -132,6 +132,8 @@ public class SmileyRating extends View {
         mSlideAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
+                mSmileyAppearScale = FLOAT_EVALUATOR.evaluate(
+                        animation.getAnimatedFraction(), mSmileyAppearScale, 1);
                 setSmileyPosition((float) animation.getAnimatedValue());
             }
         });
@@ -228,6 +230,7 @@ public class SmileyRating extends View {
 
         createPlaceHolderSmileys();
         createTitleSpots(spaceForEachSmiley);
+        mInflationDone = true;
     }
 
     private void applyScalesToSmileys(float scale) {
@@ -439,19 +442,22 @@ public class SmileyRating extends View {
         float y = event.getY();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                if (Type.NONE == mSelectedSmiley) {
-                    int index = inPlaceHolder(x, y);
-                    if (index != -1) {
+                int index = inPlaceHolder(x, y);
+                if (isActiveSmiley(x, y)) {
+                    cancelMovingAnimations();
+                    mActiveFaceClicked = true;
+                    mPrevX = x;
+                    return true;
+                } else if (index != -1) {
+                    if (Type.NONE == mSelectedSmiley) {
                         mActiveFaceClicked = true;
                         animateAppearance(index);
                     }
-                } else if (isActiveSmiley(x, y)) {
-                    cancelMovingAnimations();
-                    mActiveFaceClicked = true;
+                    mClickAnalyser.start(x, y);
+                    mPrevX = x;
+                    return true;
                 }
-                mClickAnalyser.start(x, y);
-                mPrevX = x;
-                return true;
+                return false;
             case MotionEvent.ACTION_MOVE:
                 mClickAnalyser.move(x, y);
                 if (mActiveFaceClicked) {
@@ -462,7 +468,7 @@ public class SmileyRating extends View {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 boolean clicked = mClickAnalyser.stop(x, y);
-                if (!mActiveFaceClicked && clicked) {
+                if (clicked) {
                     animateSmileyTo(x, y);
                 } else {
                     moveFaceToNearestPlace();
@@ -492,6 +498,10 @@ public class SmileyRating extends View {
 
     public void resetSmiley() {
         mSelectedSmiley = Type.NONE;
+        if (!mInflationDone) {
+            mSmileyAppearScale = 0;
+            return;
+        }
         clearAppearAnimation();
         mAppearAnimator.setFloatValues(1, 0);
         mAppearAnimator.start();
@@ -536,6 +546,10 @@ public class SmileyRating extends View {
     }
 
     public void setRating(int rating) {
+        setRating(rating, false);
+    }
+
+    public void setRating(int rating, boolean animate) {
         rating -= 1;
         if (rating < -1 || rating >= mPlaceHolders.length) {
             return;
@@ -545,7 +559,39 @@ public class SmileyRating extends View {
             return;
         }
         mSelectedSmiley = Type.values()[rating];
-        animateSmileyTo(mPlaceHolders[rating]);
+        if (mInflationDone) {
+            if (!animate) {
+                setSmileyPosition(mPlaceHolders[rating].centerX());
+                return;
+            }
+            animateSmileyTo(mPlaceHolders[rating]);
+        } else {
+            mSmileyAppearScale = 1;
+        }
+    }
+
+    public void setTitle(Type type, String title) {
+        if (Type.NONE == type) {
+            return;
+        }
+        mSmileys[type.index].setName(title);
+        invalidate();
+    }
+
+    public void setFaceColor(Type type, int color) {
+        if (Type.NONE == type) {
+            return;
+        }
+        mSmileys[type.index].setFaceColor(color);
+        invalidate();
+    }
+
+    public void setDrawingColor(Type type, int color) {
+        if (Type.NONE == type) {
+            return;
+        }
+        mSmileys[type.index].setDrawingColor(color);
+        invalidate();
     }
 
     private static class Text {
@@ -632,8 +678,14 @@ public class SmileyRating extends View {
         mOnSmileySelectedListener = listener;
     }
 
+    @Override
+    public boolean isBeingTouched() {
+        return mActiveFaceClicked;
+    }
+
     public interface OnSmileySelectedListener {
         void onSmileySelected(Type type);
     }
+
 
 }

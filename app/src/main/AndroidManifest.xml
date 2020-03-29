@@ -30,6 +30,7 @@
             android:screenOrientation="landscape">
 
         </activity>
+        <activity android:name=".RecyclerViewExample" />
 
     </application>
 

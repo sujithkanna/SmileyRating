@@ -19,20 +19,11 @@ public class Terrible extends Smiley {
                 new Point(f.evaluate(div, CENTER_SMILE * 0.65, CENTER_SMILE), f.evaluate(div, MOUTH_CENTER_Y - (CENTER_SMILE * 0.118), MOUTH_CENTER_Y)), // Top Point
                 new Point(f.evaluate(div, CENTER_SMILE * 0.591, CENTER_SMILE), f.evaluate(div, MOUTH_CENTER_Y + (CENTER_SMILE * 0.118), MOUTH_CENTER_Y)) // Bottom point
         );
+        setup(
+                getClass().getSimpleName(),
+                Color.parseColor("#f29a68"),
+                Color.parseColor("#353431")
+        );
     }
 
-    @Override
-    public String getName() {
-        return getClass().getSimpleName();
-    }
-
-    @Override
-    public int getFaceColor() {
-        return Color.parseColor("#f29a68");
-    }
-
-    @Override
-    public int getDrawingColor() {
-        return Color.parseColor("#353431");
-    }
 }

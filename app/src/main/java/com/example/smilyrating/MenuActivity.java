@@ -2,9 +2,10 @@ package com.example.smilyrating;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MenuActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -15,6 +16,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.smiley_view).setOnClickListener(this);
         findViewById(R.id.smiley_rating).setOnClickListener(this);
         findViewById(R.id.smiley_rating2).setOnClickListener(this);
+        findViewById(R.id.smiley_rating2_list).setOnClickListener(this);
     }
 
     @Override
@@ -29,6 +31,9 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.smiley_rating2:
                 intent = new Intent(this, SmileyActivity2.class);
+                break;
+            case R.id.smiley_rating2_list:
+                intent = new Intent(this, RecyclerViewExample.class);
                 break;
         }
         startActivity(intent);

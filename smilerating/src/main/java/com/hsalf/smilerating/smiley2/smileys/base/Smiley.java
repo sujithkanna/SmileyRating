@@ -23,16 +23,43 @@ public abstract class Smiley {
 
     private Eye mLeftEye;
     private Eye mRightEye;
+    private String mName;
+    private int mFaceColor;
+    private int mDrawingColor;
 
     private Points mScaledPoints;
 
     private static final FloatEvaluator evaluator = new FloatEvaluator();
 
-    public abstract String getName();
+    public String getName() {
+        return mName;
+    }
 
-    public abstract int getFaceColor();
+    public int getFaceColor() {
+        return mFaceColor;
+    }
 
-    public abstract int getDrawingColor();
+    public int getDrawingColor() {
+        return mDrawingColor;
+    }
+
+    public void setName(String name) {
+        mName = name;
+    }
+
+    public void setFaceColor(int faceColor) {
+        mFaceColor = faceColor;
+    }
+
+    public void setDrawingColor(int drawingColor) {
+        mDrawingColor = drawingColor;
+    }
+
+    protected void setup(String name, int faceColor, int drawingColor) {
+        mName = name;
+        mFaceColor = faceColor;
+        mDrawingColor = drawingColor;
+    }
 
     public Smiley(float eyeLeftStartAngle, float eyeLeftSweepAngle) {
         mLeftEye = new Eye(Eye.Side.LEFT, eyeLeftStartAngle, eyeLeftSweepAngle);

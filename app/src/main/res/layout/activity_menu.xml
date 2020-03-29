@@ -30,6 +30,13 @@
             android:gravity="center"
             android:text="Smiley View" />
 
+        <Button
+            android:id="@+id/smiley_rating2_list"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:gravity="center"
+            android:text="Smiley Rating 2 list" />
+
     </LinearLayout>
 
 </ScrollView>
