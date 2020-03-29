@@ -79,4 +79,16 @@ smileRating.setRating(5, true);
 ```java
 smileRating.disallowSelection(true);
 ```
-*You can disallow user input by passing true to this. You can set the smiley only using [this](https://github.com/sujithkanna/SmileyRating/tree/develop#you-can-set-selected-smiley-without-user-interaction). This is useful when you just want to show the rating.
+
+*You can disallow user input by passing true to this. You can set the smiley only using [this](https://github.com/sujithkanna/SmileyRating/tree/develop#you-can-set-selected-smiley-without-user-interaction). This is useful when you just want to show the rating.*
+
+#### Styling
+```java
+smileRating.setTitle(SmileyRating.Type.GREAT, "Awesome");
+smileRating.setFaceColor(SmileyRating.Type.GREAT, Color.BLUE);
+smileRating.setFaceBackgroundColor(SmileyRating.Type.GREAT, Color.RED);
+```
+
+*These are the helper methods to change the color and title of the Smiley*
+**_NOTE:_**  The color values must be int colors ```Color.RED``` or ```Color.parse("#fff")``` or ```ResourcesCompat.getColor(getResources(), R.color.your_color, null);```, not int resources like ```R.color.primaryColor```.
+##### (Currently setting these things in xml will make things complex. So any pull request for this will not be accepted)

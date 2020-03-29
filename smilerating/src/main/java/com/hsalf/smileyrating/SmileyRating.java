@@ -588,7 +588,15 @@ public class SmileyRating extends View implements TouchActiveIndicator {
         if (Type.NONE == type) {
             return;
         }
-        mSmileys[type.index].setName(title);
+        mSmileys[type.ordinal()].setName(title);
+        invalidate();
+    }
+
+    public void setFaceBackgroundColor(Type type, int color) {
+        if (Type.NONE == type) {
+            return;
+        }
+        mSmileys[type.ordinal()].setFaceColor(color);
         invalidate();
     }
 
@@ -596,15 +604,7 @@ public class SmileyRating extends View implements TouchActiveIndicator {
         if (Type.NONE == type) {
             return;
         }
-        mSmileys[type.index].setFaceColor(color);
-        invalidate();
-    }
-
-    public void setDrawingColor(Type type, int color) {
-        if (Type.NONE == type) {
-            return;
-        }
-        mSmileys[type.index].setDrawingColor(color);
+        mSmileys[type.ordinal()].setDrawingColor(color);
         invalidate();
     }
 

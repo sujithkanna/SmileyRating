@@ -1,5 +1,6 @@
 package com.example.smilyrating;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -33,5 +34,9 @@ public class SmileyActivity2 extends AppCompatActivity {
                 status.setText(type.toString());
             }
         });
+
+        mSmileyRating.setTitle(SmileyRating.Type.GREAT, "Awesome");
+        mSmileyRating.setFaceColor(SmileyRating.Type.GREAT, Color.BLUE);
+        mSmileyRating.setFaceBackgroundColor(SmileyRating.Type.GREAT, Color.RED);
     }
 }
