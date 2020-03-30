@@ -38,4 +38,8 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
         }
         startActivity(intent);
     }
+
+    public void clickStartCustomizedSmiley(View view) {
+        startActivity(new Intent(this, CustomSmileyActivity.class));
+    }
 }
