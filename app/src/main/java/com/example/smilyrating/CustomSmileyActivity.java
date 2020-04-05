@@ -1,6 +1,7 @@
 package com.example.smilyrating;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +15,8 @@ import com.hsalf.smileyrating.SmileyRating;
  */
 public class CustomSmileyActivity extends AppCompatActivity {
 
+    private static final String TAG = "CustomSmileyActivity";
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,6 +25,12 @@ public class CustomSmileyActivity extends AppCompatActivity {
 
         rating.setMaxSmiley(3);
         rating.setReverseSmiley(true);
+        rating.setSmileySelectedListener(new SmileyRating.OnSmileySelectedListener() {
+            @Override
+            public void onSmileySelected(SmileyRating.Type type) {
+                Log.i(TAG, "onSmileySelected: "+type);
+            }
+        });
         rating.setRating(1);
     }
 }

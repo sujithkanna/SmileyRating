@@ -503,10 +503,13 @@ public class SmileyRating extends View implements TouchActiveIndicator {
     }
 
     private void animateAppearance(int index) {
-        Type type = Type.values()[index];
+         // Type type = Type.values()[index];
+        Type type = mSmileys[index].getType();
+
         if (mSelectedSmiley == type) {
             return;
         }
+
         mSelectedSmiley = type;
         setSmileyPosition(mPlaceHolders[index].centerX());
         clearAppearAnimation();
@@ -542,7 +545,7 @@ public class SmileyRating extends View implements TouchActiveIndicator {
                 index = i;
             }
         }
-        mSelectedSmiley = Type.values()[index];
+        mSelectedSmiley = mSmileys[index].getType();//Type.values()[index];
         animateSmileyTo(mPlaceHolders[index]);
     }
 
@@ -550,7 +553,7 @@ public class SmileyRating extends View implements TouchActiveIndicator {
         for (int i = 0; i < mPlaceHolders.length; i++) {
             RectF holder = mPlaceHolders[i];
             if (inFaceBounds(x, y, holder)) {
-                mSelectedSmiley = Type.values()[i];
+                mSelectedSmiley = mSmileys[i].getType();//Type.values()[i];
                 animateSmileyTo(holder);
                 break;
             }
@@ -615,7 +618,7 @@ public class SmileyRating extends View implements TouchActiveIndicator {
             resetSmiley();
             return;
         }
-        mSelectedSmiley = Type.values()[rating - 1];
+        mSelectedSmiley = mSmileys[rating-1].getType();//Type.values()[rating - 1];
         if (mInflationDone) {
             if (!animate) {
                 setSmileyPosition(mPlaceHolders[rating - 1].centerX());
