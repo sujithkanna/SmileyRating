@@ -4,12 +4,13 @@ import android.animation.FloatEvaluator;
 import android.graphics.Color;
 
 import com.hsalf.smilerating.Point;
+import com.hsalf.smileyrating.SmileyRating;
 import com.hsalf.smileyrating.smileys.base.Smiley;
 
 public class Good extends Smiley {
 
     public Good() {
-        super(-135, 360);
+        super(-135, 360, SmileyRating.Type.GOOD);
 
         float div = 0.20f;
         FloatEvaluator f = new FloatEvaluator();

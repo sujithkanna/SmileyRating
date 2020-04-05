@@ -4,12 +4,13 @@ import android.animation.FloatEvaluator;
 import android.graphics.Color;
 
 import com.hsalf.smilerating.Point;
+import com.hsalf.smileyrating.SmileyRating;
 import com.hsalf.smileyrating.smileys.base.Smiley;
 
 public class Great extends Smiley {
 
     public Great() {
-        super(-135, 360);
+        super(-135, 360, SmileyRating.Type.GREAT);
 
         // Create mouth
         float div = 0.10f;

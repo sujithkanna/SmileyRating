@@ -14,6 +14,7 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -28,6 +29,10 @@ import com.hsalf.smileyrating.smileys.Great;
 import com.hsalf.smileyrating.smileys.Okay;
 import com.hsalf.smileyrating.smileys.Terrible;
 import com.hsalf.smileyrating.smileys.base.Smiley;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class SmileyRating extends View implements TouchActiveIndicator {
 
@@ -45,9 +50,12 @@ public class SmileyRating extends View implements TouchActiveIndicator {
     private static final FloatEvaluator FLOAT_EVALUATOR = new FloatEvaluator();
     private static final FractionEvaluator FRACTION_EVALUATOR = new FractionEvaluator();
 
-    private Smiley[] mSmileys = new Smiley[]{
+    private static final Smiley[] sDefaultSmileys = new Smiley[]{
             new Terrible(), new Bad(), new Okay(), new Good(), new Great()
     };
+
+    private Smiley[] mSmileys = sDefaultSmileys;
+    private Smiley[] mOriginalSmileys;
 
     private Text[] mTitlePoints = new Text[]{
             new Text(), new Text(), new Text(), new Text(), new Text()
@@ -282,6 +290,9 @@ public class SmileyRating extends View implements TouchActiveIndicator {
 
         int index = (int) Math.floor(fraction / .202f);
 
+        if (index >= mSmileys.length)
+            index = mSmileys.length - 1;
+
         RectF holder = mPlaceHolders[index];
 
         int endIndex;
@@ -492,10 +503,13 @@ public class SmileyRating extends View implements TouchActiveIndicator {
     }
 
     private void animateAppearance(int index) {
-        Type type = Type.values()[index];
+         // Type type = Type.values()[index];
+        Type type = mSmileys[index].getType();
+
         if (mSelectedSmiley == type) {
             return;
         }
+
         mSelectedSmiley = type;
         setSmileyPosition(mPlaceHolders[index].centerX());
         clearAppearAnimation();
@@ -531,7 +545,7 @@ public class SmileyRating extends View implements TouchActiveIndicator {
                 index = i;
             }
         }
-        mSelectedSmiley = Type.values()[index];
+        mSelectedSmiley = mSmileys[index].getType();//Type.values()[index];
         animateSmileyTo(mPlaceHolders[index]);
     }
 
@@ -539,7 +553,7 @@ public class SmileyRating extends View implements TouchActiveIndicator {
         for (int i = 0; i < mPlaceHolders.length; i++) {
             RectF holder = mPlaceHolders[i];
             if (inFaceBounds(x, y, holder)) {
-                mSelectedSmiley = Type.values()[i];
+                mSelectedSmiley = mSmileys[i].getType();//Type.values()[i];
                 animateSmileyTo(holder);
                 break;
             }
@@ -550,6 +564,38 @@ public class SmileyRating extends View implements TouchActiveIndicator {
         cancelMovingAnimations();
         mSlideAnimator.setFloatValues(mFacePosition.centerX(), rectF.centerX());
         mSlideAnimator.start();
+    }
+
+    public void setSmileys(Smiley[] mSmileys) {
+        this.mSmileys = mSmileys;
+        mPlaceHolders = new RectF[mSmileys.length];
+        mPlaceHolderPaths = new Path[mSmileys.length];
+
+        invalidate();
+    }
+
+    public final void setMaxSmiley(int maxSmiley) {
+        if (maxSmiley > 0 && maxSmiley <= sDefaultSmileys.length) {
+            Smiley[] smilies = Arrays.copyOfRange(sDefaultSmileys, 0, maxSmiley);
+            setSmileys(smilies);
+        }
+    }
+
+    public final void setReverseSmiley(boolean reverse) {
+        if (mOriginalSmileys == null)
+            mOriginalSmileys = this.mSmileys;
+
+        Smiley[] smilies;
+        List<Smiley> newSmileys;
+        if (reverse) {
+            newSmileys = Arrays.asList(mOriginalSmileys);
+            Collections.reverse(newSmileys);
+            smilies = newSmileys.toArray(new Smiley[newSmileys.size()]);
+        } else {
+            smilies = mOriginalSmileys;
+        }
+
+        setSmileys(smilies);
     }
 
     public void setRating(Type type) {
@@ -572,7 +618,7 @@ public class SmileyRating extends View implements TouchActiveIndicator {
             resetSmiley();
             return;
         }
-        mSelectedSmiley = Type.values()[rating - 1];
+        mSelectedSmiley = mSmileys[rating-1].getType();//Type.values()[rating - 1];
         if (mInflationDone) {
             if (!animate) {
                 setSmileyPosition(mPlaceHolders[rating - 1].centerX());
