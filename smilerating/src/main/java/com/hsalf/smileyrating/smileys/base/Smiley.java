@@ -4,6 +4,8 @@ import android.animation.FloatEvaluator;
 import android.graphics.Path;
 import android.graphics.RectF;
 
+import androidx.annotation.NonNull;
+
 import com.hsalf.smilerating.Point;
 import com.hsalf.smileyrating.SmileyRating;
 
@@ -30,7 +32,7 @@ public abstract class Smiley {
 
     private Points mScaledPoints;
 
-    protected final SmileyRating.Type mType;
+    private final SmileyRating.Type mType;
 
     private static final FloatEvaluator evaluator = new FloatEvaluator();
 
@@ -46,6 +48,7 @@ public abstract class Smiley {
         return mDrawingColor;
     }
 
+    @NonNull
     public SmileyRating.Type getType() {
         return mType;
     }
@@ -71,7 +74,7 @@ public abstract class Smiley {
     public Smiley(float eyeLeftStartAngle, float eyeLeftSweepAngle, SmileyRating.Type type) {
         mLeftEye = new Eye(Eye.Side.LEFT, eyeLeftStartAngle, eyeLeftSweepAngle);
         mRightEye = new Eye(Eye.Side.RIGHT, eyeLeftStartAngle, eyeLeftSweepAngle);
-        mType = type;
+        mType = type == null ? SmileyRating.Type.NONE : type;
     }
 
     public void drawFace(Path path) {
