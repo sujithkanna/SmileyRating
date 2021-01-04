@@ -1,4 +1,4 @@
-package com.example.smilyrating;
+package com.hsalf.smileyrating.listener;
 
 import android.content.Context;
 import android.view.GestureDetector;

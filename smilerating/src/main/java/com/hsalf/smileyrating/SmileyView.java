@@ -1,4 +1,4 @@
-package com.example.smilyrating;
+package com.hsalf.smileyrating;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -14,6 +14,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
+import com.hsalf.smilerating.BuildConfig;
+import com.hsalf.smileyrating.listener.OnSwipeTouchListener;
 import com.hsalf.smileyrating.smileys.Bad;
 import com.hsalf.smileyrating.smileys.Good;
 import com.hsalf.smileyrating.smileys.Great;
@@ -61,6 +63,13 @@ public class SmileyView extends View {
         init();
     }
 
+    public void setSmiley(int smileyIndex) {
+        if (BuildConfig.DEBUG && !(smileyIndex >= 0 && smileyIndex < 5)) {
+            throw new AssertionError("index is min 0 and max 4");
+        }
+        setSmiley(mCurrentSmileyIndex, smileyIndex);
+    }
+
     private void init() {
         mAnimator.setFloatValues(0f, 1f);
         mAnimator.setDuration(250);
@@ -88,7 +97,6 @@ public class SmileyView extends View {
 
         drawSmiley(0, mSmileys[0], mSmileys[1]);
     }
-
 
     @Override
     protected void onFinishInflate() {
@@ -149,7 +157,6 @@ public class SmileyView extends View {
         this.from = mSmileys[from];
         mCurrentSmileyIndex = to;
         mAnimator.start();
-
     }
 
     private void drawSmiley(float fraction) {
